@@ -1,0 +1,116 @@
+package com.invoicera.ListViewAdpter;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.Utility.Utils;
+import com.invoicera.androidapp.Global;
+import com.invoicera.androidapp.R;
+import com.invoicera.model.ClientAttribute;
+
+import java.util.ArrayList;
+
+/**
+ * Created by Parvesh on 14/8/15.
+ */
+public class ClientListAdapter extends BaseAdapter {
+
+
+    Context context;
+
+    ArrayList<ClientAttribute> clientList;
+
+    LayoutInflater inflater;
+    Global global;
+
+    public ClientListAdapter(Context context, ArrayList<ClientAttribute> clientList) {
+
+
+        this.context = context;
+        this.clientList = clientList;
+        inflater = LayoutInflater.from(context);
+        global = (Global) context.getApplicationContext();
+
+    }
+
+
+    @Override
+    public int getCount() {
+        return clientList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder viewHolder;
+
+        if (convertView == null)
+
+        {
+            viewHolder = new ViewHolder();
+            convertView = inflater.inflate(R.layout.client_list_row, parent, false);
+            viewHolder.emailTV = (TextView) convertView.findViewById(R.id.emailId);
+            viewHolder.accountBalanceTV = (TextView) convertView.findViewById(R.id.amount);
+            viewHolder.clientNameTV = (TextView) convertView.findViewById(R.id.clientName);
+            viewHolder.arrowImage = (ImageView) convertView.findViewById(R.id.arrow);
+            viewHolder.statusTv=(TextView)convertView.findViewById(R.id.status);
+
+            convertView.setTag(viewHolder);
+        } else {
+
+            viewHolder = (ViewHolder) convertView.getTag();
+
+        }
+
+        viewHolder.clientNameTV.setText(global.setLength(clientList.get(position).getOrganizationname(), 15));
+        if (clientList.get(position).getEmailID().isEmpty())
+            viewHolder.emailTV.setText("N/A");
+        else
+            viewHolder.emailTV.setText(clientList.get(position).getEmailID());
+        double amount = 0;
+        try {
+            amount = Double.parseDouble(clientList.get(position).getCredit().replaceAll(",","")) - Double.parseDouble(clientList.get(position).getOutStanding().replaceAll(",",""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        viewHolder.accountBalanceTV.setText(clientList.get(position).getClientCurrency() + " " + global.setLength(Utils.FloatToStringLimits(amount), Constant.defultLengthOfText));
+
+        viewHolder.statusTv.setText(clientList.get(position).getStatus());
+
+        if (!clientList.get(position).getOutStanding().toString().isEmpty()) {
+            if (amount < 0)
+
+
+                viewHolder.accountBalanceTV.setTextColor(Color.parseColor("#E32125"));
+            else if (amount > 0)
+                viewHolder.accountBalanceTV.setTextColor(Color.parseColor("#84A317"));
+            else viewHolder.accountBalanceTV.setTextColor(Color.parseColor("#8C8C8C"));
+
+        }
+
+        return convertView;
+    }
+
+    class ViewHolder {
+
+        TextView emailTV, clientNameTV, accountBalanceTV,statusTv;
+        ImageView arrowImage;
+    }
+}

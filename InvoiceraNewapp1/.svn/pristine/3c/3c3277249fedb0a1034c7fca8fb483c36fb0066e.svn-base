@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha android:fromAlpha="0.0" android:toAlpha="1.0" android:duration="300" />
+</set><!-- From: file:/Users/wangjie/work/vcs_projects/android/AndroidBucket/res/anim/fade_in.xml --><!-- From: file:/home/vinove/Desktop/Android/InvoiceraNewapp1/FloatingActionButton/build/intermediates/exploded-aar/com.github.wangjiegulu/AndroidBucket/1.0.2/res/anim/fade_in.xml -->

@@ -1,0 +1,160 @@
+package com.invoicera.Database;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    public static final String TIME_KEY = "time_key";
+
+    private static final String DATABASE_NAME = "invoicera.db";
+    private static final int DATABASE_VERSION = 1;
+    public static String JSON_DATA = "json_data";
+    // list invoice table-------------------------------------------------------
+    public static String Table_InvoiceList = "listInvoice";
+    public static String Table_GraphData = "graphData";
+
+    public static String PAGE_NO = "page_no";
+    public static String JSON_INVOICE_RECENT_LIST = "invoice_recent_list";
+    public static String JSON_INVOICE_DRAFT_LIST = "invoice_draft_list";
+    public static String JSON_INVOICE_SENT_LIST = "invoice_sent_list";
+    public static String JSON_INVOICE_PAID_LIST = "invoice_paid_list";
+    public static String JSON_INVOICE_OUTSTANDING_LIST = "invoice_outstanding_list";
+    public static String JSON_INVOICE_PARTIAL_PAID_LIST = "invoice_partial_paid_list";
+    public static String JSON_INVOICE_VIEWED_LIST = "invoice_viewed_list";
+
+    public static String TAble_ClientList = "client_list";
+
+
+    //------------------------Invoice List-------------------------------------------------------
+    private static final String CREATE_Table_invoiceList = "CREATE TABLE "
+            + Table_InvoiceList + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + JSON_INVOICE_RECENT_LIST + " TEXT," + JSON_INVOICE_DRAFT_LIST
+            + " TEXT," + JSON_INVOICE_SENT_LIST + " TEXT,"
+            + JSON_INVOICE_PAID_LIST + " TEXT," + JSON_INVOICE_OUTSTANDING_LIST
+            + " TEXT," + JSON_INVOICE_PARTIAL_PAID_LIST + " TEXT,"
+            + JSON_INVOICE_VIEWED_LIST + " TEXT," + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ---------------------------------------------------------------------
+
+    //______________Client List------------------------------------------------
+    private static final String CREATE_Table_ClientList = "CREATE TABLE "
+            + TAble_ClientList + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    //-------------------------------------------
+
+    // ----------------Invoice ,Expanse,Recurring and Estimate's  Graph Data-------------------------------------------
+    private static final String CREATE_Table_GraphData = "CREATE TABLE "
+            + Table_GraphData + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    //------------------------------------------------------------
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // System.out.println("Look :"+CREATE_Table_invoiceList);
+        db.execSQL(CREATE_Table_invoiceList);
+        db.execSQL(CREATE_Table_ClientList);
+        db.execSQL(CREATE_Table_GraphData);
+
+
+        // db.close();
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        Log.w(DatabaseHelper.class.getName(),
+                "Upgrading database from version " + oldVersion + " to "
+                        + newVersion + ", which will destroy all old data");
+
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_invoiceList);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_ClientList);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_GraphData);
+
+        onCreate(db);
+        // db.close();
+
+    }
+
+    public void insert(String tableName, ContentValues values) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            synchronized (db) {
+                db.insert(tableName, null, values);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+
+            if (db != null && db.isOpen()) {
+                db.close();
+                db = null;
+            }
+        }
+
+    }
+
+    public Cursor getRecords(String selectQuery) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        return cursor;
+
+    }
+
+    public void update(String tableName, ContentValues values, String key_name,
+                       String key_value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.update(tableName, values, key_name + " = ?",
+                new String[]{String.valueOf(key_value)});
+
+        db.close();
+    }
+
+    public void clearTableColumn(String tableName, ContentValues values) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.update(tableName, values, null, null);
+
+    }
+
+    public void ClearTable(String tableName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(tableName, null, null);
+        db.close();
+
+    }
+
+    public int countRow(String selectQuery) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        db.close();
+        return cnt;
+
+    }
+
+}

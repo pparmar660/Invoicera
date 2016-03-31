@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_background">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentLeft="true">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/back"
+                android:id="@+id/back"
+                android:padding="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filter By"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="center_vertical"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clear"
+                android:id="@+id/clear"
+                android:textColor="#676767"
+                android:layout_gravity="center_vertical"
+                android:textSize="14sp"
+                android:layout_margin="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apply"
+
+                android:layout_margin="10dp"
+                android:background="@color/orange2"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:textColor="#fff"
+                android:layout_gravity="center_vertical"
+                android:textSize="14sp"
+                android:id="@+id/apply" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#ECECEC">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Invoice Status"
+                android:textColor="#999999"
+                android:drawablePadding="5dp"
+                android:drawableTop="@drawable/status"
+                android:background="@drawable/unslected_filter_background"
+                android:padding="10dp"
+
+                android:id="@+id/invoice_st" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Client"
+                android:textColor="#999999"
+                android:drawablePadding="5dp"
+                android:drawableTop="@drawable/client"
+                android:background="@drawable/unslected_filter_background"
+                android:padding="10dp"
+
+                android:id="@+id/client" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Active"
+                android:textColor="#999999"
+                android:drawablePadding="5dp"
+                android:drawableTop="@drawable/active"
+                android:background="@drawable/unslected_filter_background"
+                android:padding="10dp"
+
+                android:id="@+id/status" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Date"
+                android:textColor="#999999"
+                android:drawablePadding="5dp"
+                android:drawableTop="@drawable/calender"
+                android:background="@drawable/unslected_filter_background"
+                android:padding="10dp"
+
+                android:id="@+id/date" />
+
+        </LinearLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:id="@+id/inv_st_liner"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:padding="10dp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Draft"
+                    android:visibility="gone"
+                    android:id="@+id/invoice_st_tv"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/inv_st_group">
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Draft"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:paddingStart="10dp"
+                        android:checked="false"
+                        android:id="@+id/inv_st_draft" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sent"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_sent" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Paid"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_paid" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Disputed"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_dispute" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Resolved"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_resolved" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Partial-Paid"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_partial_paid" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Viewed"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_viewed" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Outstanding"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_outstanding" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Auto-Paid"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_ap" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Auto-Failed"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/inv_st_af" />
+
+                </RadioGroup>
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/client_list_liner"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:padding="10dp">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RadioGroup
+                        android:id="@+id/clientRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_gravity="center_horizontal">
+
+
+                    </RadioGroup>
+                </ScrollView>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/status_liner"
+                android:visibility="gone"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:padding="10dp">
+
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/st_group"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Active"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:paddingStart="10dp"
+                        android:checked="false"
+                        android:id="@+id/active" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Archived"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/archived" />
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Deleted"
+                        android:textSize="15sp"
+                        android:textColor="#3E3E3E"
+                        android:padding="10dp"
+                        android:button="@drawable/custom_checkbox_selector"
+                        android:checked="false"
+                        android:id="@+id/deleted" />
+                </RadioGroup>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/date_liner"
+                android:orientation="vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+
+                android:padding="10dp"
+                android:visibility="gone">
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="From     "
+                    android:background="@drawable/box_background"
+                    android:textColorHint="#999999"
+                    android:padding="10dp"
+                    android:id="@+id/from"
+                    android:textColor="@color/black"
+                    android:drawablePadding="10dp"
+                    android:drawableRight="@drawable/date_format" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="to"
+                    android:gravity="center"
+                    android:padding="10dp"
+
+                    android:textSize="15sp"
+                    android:textColor="@color/black" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="TO     "
+                    android:id="@+id/to"
+                    android:textColor="@color/black"
+                    android:background="@drawable/box_background"
+                    android:textColorHint="#999999"
+                    android:padding="10dp"
+                    android:drawablePadding="10dp"
+                    android:drawableRight="@drawable/date_format" />
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>
+
+
+

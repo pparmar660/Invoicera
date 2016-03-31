@@ -1,0 +1,172 @@
+package com.invoicera.CustomView;
+
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.androidapp.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * Created by vinove on 25/6/15.
+ */
+public class CustomPopup extends Dialog {
+
+
+    public Activity c;
+    public Dialog d;
+    public Button yes, no;
+    ArrayList<HashMap<String, String>> list;
+    Context context;
+    LayoutInflater inflater;
+    View view;
+    TextView clearTv;
+    Constant.POP_UP type;
+
+    public CustomPopup(Activity a, ArrayList<HashMap<String, String>> list, Constant.POP_UP type) {
+        super(a);
+        // TODO Auto-generated constructor stub
+        this.c = a;
+        this.list = list;
+        this.type = type;
+        context = a.getApplicationContext();
+        System.out.println("list :"+list);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.custom_popup);
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.popUpLiner);
+
+        clearTv = (TextView) findViewById(R.id.clear);
+
+        for (int i = 0; i < list.size(); i++) {
+            inflater = (LayoutInflater) context.getSystemService(Context
+                    .LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.select_client_adpter, null);
+            TextView txv = (TextView) view.findViewById(R.id.name);
+            txv.setText(list.get(i).get(Constant.KEY_NAME));
+            TextView txv2 = (TextView) view.findViewById(R.id.detail);
+
+            switch (type) {
+
+                case LATE_FEE:
+
+                    txv.setText(list.get(i).get(Constant.KEY_NAME));
+                    txv2.setText("");
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                          dismiss();
+                        }
+                    });
+
+                    break;
+                case ADDITIONAL_CHARGES:
+                    txv.setText(list.get(i).get(Constant.KEY_CLIENT_NAME));
+                    txv2.setText(list.get(i).get(Constant.KEY_TYPE) + " VAL:" + list.get(i).get(Constant.KEY_VALUE));
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                     dismiss();
+                        }
+                    });
+
+                    break;
+
+            }
+
+
+            linearLayout.addView(view, i);
+
+        }
+
+        clearTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+
+
+
+/*
+        yes = (Button) findViewById(R.id.btn_yes);
+        no = (Button) findViewById(R.id.btn_no);
+        yes.setOnClickListener(this);
+        no.setOnClickListener(this);
+*/
+
+    }
+/*
+    @Override
+    public void onClick(View v) {
+       switch (v.getId()) {
+            case R.id.btn_yes:
+                c.finish();
+                break;
+            case R.id.btn_no:
+                dismiss();
+                break;
+            default:
+                break;
+        }
+        dismiss();*/
+}
+
+
+/*
+
+    Context context;
+    Dialog dialog;
+    public  CustomPopup (Context context){
+        this.context=context;
+
+    }
+
+   public Dialog getPopUp(String title, ArrayList<HashMap> map) {
+
+        if (dialog != null)
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+                dialog = null;
+            }
+        dialog = new Dialog(context);
+        dialog.setContentView(R.layout.custom_popup);
+
+        return dialog;
+
+
+    }
+
+    public void dismissDialog() {
+
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+            dialog = null;
+
+
+        }
+    }
+
+
+
+    @Override
+    public void onClick(View v) {
+
+    }
+    */
+

@@ -1,0 +1,183 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.Fragment.InvoicePreviewCreateFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.Webservices.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
+public class PreviewInvoicePagerFragment extends InvoicePreviewCreateFragment implements WebApiResult {
+    DatabaseHelper db;
+    ContentValues values;
+    TextView senderNameTV, senderAddressTV, senderPhoneTV, invoiceNoTV, dateTV;
+    TextView clientNameTV, clientAddTV, clientPhoneTV;
+    TableLayout itemTable;
+    ImageView logoImage;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+
+        View view = inflater.inflate(R.layout.invoice_preview, container, false);
+
+        System.out.println("Id3:" + invoice_id);
+        getInvoicedata(invoice_id);
+        db = new DatabaseHelper(context);
+
+
+        senderAddressTV = (TextView) view.findViewById(R.id.senderAddress);
+        senderNameTV = (TextView) view.findViewById(R.id.senderName);
+        senderPhoneTV = (TextView) view.findViewById(R.id.senderNumber);
+        invoiceNoTV = (TextView) view.findViewById(R.id.invoice_no);
+        dateTV = (TextView) view.findViewById(R.id.date);
+        clientNameTV = (TextView) view.findViewById(R.id.clientName);
+        clientAddTV = (TextView) view.findViewById(R.id.clientAddress);
+        clientPhoneTV = (TextView) view.findViewById(R.id.ClientNumber);
+        itemTable = (TableLayout) view.findViewById(R.id.itemTable);
+        logoImage = (ImageView) view.findViewById(R.id.logo);
+
+
+        return view;
+
+    }
+
+
+    public void getInvoicedata(String invoiceId) {
+
+
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject();
+
+            obj.put(Constant.KEY_METHOD, "getInvoice");
+            obj.put(Constant.KEY_INVOICE_ID, invoiceId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        WebRequest request = new WebRequest(context, obj,
+                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, this, true);
+        request.execute();
+
+
+    }
+
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        switch (type) {
+
+            case GET_DATA:
+                db.ClearTable(DatabaseHelper.Table_GraphData);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+
+                db.insert(DatabaseHelper.Table_GraphData, values);
+
+
+                String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_GraphData;
+
+                Cursor cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+
+                    //totalItem = new ArrayList<>();
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            JSONObject object = new JSONObject(cursor.getString(cursor.getColumnIndex(db.JSON_DATA))).getJSONObject("invoice");
+
+                            clientNameTV.setText(object.getJSONObject("client").getString("client_name"));
+                            clientAddTV.setText("Add :" + object.getJSONObject("client").getString("address"));
+                            clientPhoneTV.setText("Ph :" + object.getJSONObject("client").getString("phone_number"));
+
+
+                            senderNameTV.setText(object.getJSONObject("sender").getString("sender_name"));
+                            senderAddressTV.setText(object.getJSONObject("sender").getString("address"));
+                            senderPhoneTV.setText(object.getJSONObject("sender").getString("phone_number"));
+
+
+                            for (int j = 0; j < object.getJSONObject("items").getJSONArray("item").length(); j++) {
+
+                                JSONObject itemObj = object.getJSONObject("items").getJSONArray("item").getJSONObject(j);
+
+                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View convertView = inflater.inflate(R.layout.item_table_row, null);
+
+                                TextView itemName = (TextView) convertView.findViewById(R.id.item_name);
+                                TextView itemDescription = (TextView) convertView.findViewById(R.id.item_description);
+                                TextView qtyAndUc = (TextView) convertView.findViewById(R.id.qty_uc);
+                                TextView descount = (TextView) convertView.findViewById(R.id.discount);
+                                TextView price = (TextView) convertView.findViewById(R.id.price);
+
+                                itemName.setText(itemObj.getString("name"));
+                                descount.setText(itemObj.getString("total_discountValue"));
+                                price.setText(itemObj.getString("total_priceValue"));
+
+                                if (itemObj.getString("description").isEmpty())
+                                    itemDescription.setVisibility(View.GONE);
+                                else
+                                    itemDescription.setVisibility(View.VISIBLE);
+                                itemDescription.setText(itemObj.getString("description"));
+                                qtyAndUc.setText("QTY:" + itemObj.getString("quantity") + " UC:" + itemObj.getString("unit_cost"));
+
+                                itemTable.addView(convertView);
+
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+
+
+                }
+
+
+                break;
+
+
+        }
+
+    }
+}

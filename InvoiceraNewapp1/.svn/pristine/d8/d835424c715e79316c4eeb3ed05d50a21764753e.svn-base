@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.android.support/support-v4/22.2.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="1ee588ff2c4daf7b97c1cbf922a6c7f027285c2f">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-6310a9f82705ab918a368deadb158696d88fe3f4.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.android.support/support-v4/22.2.0/libs/internal_impl-22.2.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="57f2ab85c164ff1676ec64dee787981c046fab79">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/internal_impl-22.2.0-4d36b0bad613702b151d500762d2e26f42d3e476.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.github.wangjiegulu/AndroidBucket/1.0.2/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="c8aaf7042ee7c1379a9061f973eb292d5f448183">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-9cb2f7e51fe480d136c38560a38c63a622a1e4b0.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.android.support/support-v4/22.2.0/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1ee588ff2c4daf7b97c1cbf922a6c7f027285c2f">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-6310a9f82705ab918a368deadb158696d88fe3f4.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/22.2.0/support-annotations-22.2.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="66b42a1f3eb7676070b7ef7f14b603483aecbee1">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/support-annotations-22.2.0-3ed33ae302139ee47b69527410ef7c6e4292c0dd.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/InvoiceraNewapp1/library/unspecified/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="cdba1c0fa71dc2565c3b36749d5639923508e570">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-e831cb88adf3cd101e4aaf62f8565d3360108125.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/InvoiceraNewapp1/parallaxScroll/unspecified/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="c8e6dae63bd99cfcde9025ac2452b59d65d9ab01">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-b5854524a40439744734d52f853d2de633cd43ff.jar" />
+    </item>
+    <item
+        jar="/home/vinove/.gradle/caches/modules-2/files-2.1/com.nineoldandroids/library/2.4.0/e9b63380f3a242dbdbf103a2355ad7e43bad17cb/library-2.4.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/library-2.4.0-912ac7aca74457e2f996c41d3b42ac5222f19a4c.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.android.support/support-v4/22.2.0/libs/internal_impl-22.2.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="57f2ab85c164ff1676ec64dee787981c046fab79">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/internal_impl-22.2.0-4d36b0bad613702b151d500762d2e26f42d3e476.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="73753982da6bde518f3a4c6b372749981d14d1a0">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-f7792babfe1b9811c8e0f2917832f4483ac3f342.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/InvoiceraNewapp1/parallaxScroll/unspecified/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="6f2f90e6115dbcc16be60a33da71e7171f4a7692">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-b5854524a40439744734d52f853d2de633cd43ff.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.0/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="73753982da6bde518f3a4c6b372749981d14d1a0">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-f7792babfe1b9811c8e0f2917832f4483ac3f342.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/InvoiceraNewapp1/FloatingActionButton/unspecified/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="306e1b2452c56746becd483e16a5e56ddfad24c3">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-6b2d11c9c895f961f2856854986e3f385f3374f4.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/22.2.0/support-annotations-22.2.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="66b42a1f3eb7676070b7ef7f14b603483aecbee1">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/support-annotations-22.2.0-3ed33ae302139ee47b69527410ef7c6e4292c0dd.jar" />
+    </item>
+    <item
+        jar="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/InvoiceraNewapp1/library/unspecified/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="3e379cee2eff1ef4bd6cd816ef1e6e86c60962d3">
+        <dex dex="/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-e831cb88adf3cd101e4aaf62f8565d3360108125.jar" />
+    </item>
+
+</items>

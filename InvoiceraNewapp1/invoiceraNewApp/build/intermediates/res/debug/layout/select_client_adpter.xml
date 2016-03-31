@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:background="@drawable/select_client_list_background"
+    android:orientation="vertical"
+    android:id="@+id/select_client_list_background"
+     >
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Marcel John"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:padding="10dp"
+            android:id="@+id/name"
+            android:drawableRight="@drawable/ar"
+            android:textStyle="bold" />
+
+
+
+
+
+
+
+</RelativeLayout><!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/layout/select_client_adpter.xml -->

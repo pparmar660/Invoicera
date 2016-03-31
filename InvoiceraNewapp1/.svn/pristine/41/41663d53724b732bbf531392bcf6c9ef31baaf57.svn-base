@@ -1,0 +1,28 @@
+package com.invoicera.Fragment;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+
+import com.invoicera.androidapp.Global;
+
+public class BaseFragment extends Fragment {
+
+	public static Global global;
+	public static String FRAGMENT_POS="fragment_pos";
+	protected Context context;
+
+
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		context = getActivity();
+		global = (Global) context.getApplicationContext();
+
+
+
+	}
+
+}

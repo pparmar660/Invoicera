@@ -1,0 +1,640 @@
+package com.invoicera.androidapp;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.CustomView.CustomPopup;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.PopUpResult;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Utility.Validation;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+
+/**
+ * Created by Parvesh on 17/8/15.
+ */
+public class CreateEditClient extends BaseActivity implements View.OnClickListener, PopUpResult, WebApiResult {
+
+    EditText clientNameET, businessNameET, businessEmailET, PhoneNoET, BillingAddressET, ShippingAddressEt, NoteET;
+    TextView countryNameTV, currencyNameTV, titleTv;
+    CheckBox isShippingAddressSameCheckBox;
+
+    ImageView backImg, saveImg;
+    String countryID = "", currencyID = "", clientId = "";
+
+    ArrayList<HashMap<String, String>> currencyList;
+    ArrayList<HashMap<String, String>> countryList;
+    String selectQuery;
+
+    DatabaseHelper db;
+    Cursor cursor;
+    CustomPopup myPopUp;
+    boolean isEmailRequired = false;
+
+    boolean isShippingAddressSame = false;
+
+    boolean isEditing = false;
+
+    WebRequest request;
+    public Comparator<HashMap<String, String>> mapComparator;
+
+    //boolean canAddClient = true;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.create_client);
+        isEditing = false;
+        clientId = "";
+
+        if (getIntent().getStringExtra(Constant.KEY_CLIENT_ID) != null) {
+            isEditing = true;
+            clientId = getIntent().getStringExtra(Constant.KEY_CLIENT_ID);
+
+        }
+
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        backImg = (ImageView) findViewById(R.id.back);
+        saveImg = (ImageView) findViewById(R.id.save);
+        isShippingAddressSameCheckBox = (CheckBox) findViewById(R.id.isShipingAddressSameCheckBox);
+        countryNameTV = (TextView) findViewById(R.id.countryName);
+        currencyNameTV = (TextView) findViewById(R.id.currencyName);
+        titleTv = (TextView) findViewById(R.id.title);
+        clientNameET = (EditText) findViewById(R.id.clientName);
+        businessEmailET = (EditText) findViewById(R.id.busimessEmail);
+        businessNameET = (EditText) findViewById(R.id.businessName);
+        PhoneNoET = (EditText) findViewById(R.id.phoneNo);
+        BillingAddressET = (EditText) findViewById(R.id.billingAddress);
+        ShippingAddressEt = (EditText) findViewById(R.id.shippingAddress);
+        NoteET = (EditText) findViewById(R.id.note);
+
+        countryNameTV.setOnClickListener(this);
+        currencyNameTV.setOnClickListener(this);
+        saveImg.setOnClickListener(this);
+        backImg.setOnClickListener(this);
+        db = new DatabaseHelper(context);
+
+        isShippingAddressSameCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                isShippingAddressSame = isChecked;
+                if (isChecked) {
+
+                    ShippingAddressEt.setVisibility(View.GONE);
+                } else ShippingAddressEt.setVisibility(View.VISIBLE);
+
+            }
+        });
+
+
+        try {
+            JSONObject createClient = new JSONObject();
+            createClient.put("method", "clientSetting");
+
+            WebRequest request = new WebRequest(context, createClient, Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SETTING, Constant.token, this, true);
+            request.execute();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (isEditing) {
+
+            setClientDataForEditing();
+            titleTv.setText("Edit Client");
+        }
+
+
+    }
+
+
+    public void CreateClient() {
+
+        if (checkValidation()) {
+
+
+            try {
+
+                JSONObject jsonUpdateClient = new JSONObject();
+                if (!isEditing)
+                    jsonUpdateClient.put("method", "createClient");
+                else {
+                    jsonUpdateClient.put("method", "updateClient");
+                    jsonUpdateClient.put("client_id", clientId);
+
+                }
+                jsonUpdateClient.put("name", clientNameET.getText().toString());
+                jsonUpdateClient.put("organization", businessNameET.getText()
+                        .toString());
+                jsonUpdateClient.put("email", businessEmailET.getText()
+                        .toString());
+/*                jsonUpdateClient.put("username", getRandomString(6));
+                jsonUpdateClient.put("password", getRandomString(6));*/
+                jsonUpdateClient
+                        .put("work_phone", PhoneNoET.getText().toString());
+                jsonUpdateClient.put("address", BillingAddressET.getText()
+                        .toString());
+                jsonUpdateClient.put("country", countryID);
+                jsonUpdateClient.put("currency", currencyID);
+                jsonUpdateClient.put("notes", NoteET.getText().toString());
+
+                if (isShippingAddressSame) {
+                    jsonUpdateClient.put("shipping_checkbox", "no");
+                    jsonUpdateClient.put("shipping_address", BillingAddressET
+                            .getText().toString());
+
+
+                } else {
+
+
+                    jsonUpdateClient.put("shipping_checkbox", "yes");
+                    jsonUpdateClient.put("shipping_address", ShippingAddressEt
+                            .getText().toString());
+                }
+
+
+                WebRequest request = new WebRequest(context, jsonUpdateClient, Constant.invoicelistURL, Constant.SERVICE_TYPE.CREATE, Constant.token, this, true);
+                request.execute();
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+
+    }
+
+
+    public void setClientDataForEditing() {
+
+
+        JSONObject object = null;
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ClientPreview + " WHERE " + DatabaseHelper.ID + " ='" + clientId + "'";
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+            //totalItem = new ArrayList<>();
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+
+                    object = (new JSONObject(cursor.getString(cursor.getColumnIndex(db.JSON_DATA))));
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+
+        }
+
+
+        if (object == null) {
+
+
+            try {
+                JSONObject getClientObject = new JSONObject();
+                getClientObject.put("method", "getClient");
+                getClientObject.put("client_id", clientId);
+
+
+                request = new WebRequest(context, getClientObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, Constant.token, this, true);
+                request.execute();
+
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+            }
+
+            return;
+
+        }
+
+        JSONObject clientObject = null;
+
+        try {
+            clientObject = object.getJSONObject("client");
+
+
+            clientNameET.setText(clientObject.getString("name"));
+            businessNameET.setText(clientObject.getString("organization"));
+
+            businessEmailET.setText(clientObject.getString("email"));
+            countryNameTV.setText("Country : " + clientObject.getString("country_name"));
+
+            countryID = clientObject.getString("country_id");
+            currencyID = clientObject.getString("currency_id");
+            currencyNameTV.setText("Currency : " + clientObject.getString("currency"));
+            PhoneNoET.setText(clientObject.getString("work_phone"));
+            BillingAddressET.setText(clientObject.getString("billing_address"));
+
+            if (clientObject.getString("shipping_checkbox").equalsIgnoreCase("yes")) {
+                isShippingAddressSameCheckBox.setChecked(false);
+                ShippingAddressEt.setText(clientObject.getString("shipping_address"));
+                ShippingAddressEt.setVisibility(View.VISIBLE);
+            } else {
+                isShippingAddressSameCheckBox.setChecked(true);
+                ShippingAddressEt.setText(clientObject.getString("shipping_address"));
+                ShippingAddressEt.setVisibility(View.GONE);
+            }
+
+            NoteET.setText(clientObject.getString("notes"));
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    private boolean checkValidation() {
+        boolean ret = true;
+
+        if (!Validation.hasText(clientNameET, "Please enter client name"))
+            return false;
+        if (!Validation.hasText(businessNameET, "Please enter business name"))
+            return false;
+
+        boolean isEmailRequiredLocal = false;
+
+        if (isEmailRequired)
+            isEmailRequiredLocal = true;
+
+
+        if (!businessEmailET.getText().toString().isEmpty())
+            isEmailRequiredLocal = true;
+
+        if (!Validation.isEmailAddress(businessEmailET, isEmailRequiredLocal, "Please enter  valid emil address"))
+            return false;
+
+        if (countryID.isEmpty()) {
+            global.showAlert("Please select country", context);
+            return false;
+        }
+
+        if (currencyID.isEmpty()) {
+            global.showAlert("Please select currency", context);
+            return false;
+        }
+
+        return ret;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.countryName:
+
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ListCountry;
+
+                cursor = db.getRecords(selectQuery);
+                countryList = new ArrayList<>();
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    showCountryList();
+
+                } else {
+
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put(Constant.KEY_METHOD, "listCountry");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    request = new WebRequest(context, obj,
+                            Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_COUNTRY_LIST, Constant.token, this, true);
+                    request.execute();
+                }
+
+
+                break;
+            case R.id.currencyName:
+                if (isEditing)
+                    return;
+
+                showCurrencyList();
+                break;
+
+            case R.id.save:
+                CreateClient();
+                break;
+
+            case R.id.back:
+
+                finish();
+
+                break;
+
+
+        }
+
+
+    }
+
+    @Override
+    public void getPopUpResult(Constant.POP_UP type, int pos, boolean clear) {
+
+
+        switch (type) {
+
+
+            case COUNTRY:
+                if (clear) {
+
+                    countryID = "";
+                    countryNameTV.setText("Country :");
+                    return;
+                }
+
+                countryID = countryList.get(pos).get(Constant.KEY_ID);
+
+                countryNameTV.setText("Country : " + countryList.get(pos).get(Constant.KEY_CountryName));
+
+                break;
+
+            case CURRENCY:
+
+                if (clear) {
+
+                    currencyID = "";
+                    currencyNameTV.setText("Currency :");
+                    return;
+                }
+
+                currencyID = currencyList.get(pos).get(Constant.KEY_ID);
+
+                currencyNameTV.setText("Currency : " + currencyList.get(pos).get(Constant.KEY_CODE));
+
+                break;
+
+
+        }
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ;
+
+        ContentValues values = null;
+        switch (type) {
+
+
+            case GET_COUNTRY_LIST:
+
+
+                HashMap<String, String> map = new HashMap<>();
+                db.ClearTable(DatabaseHelper.Table_ListCountry);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_ListCountry, values);
+                showCountryList();
+
+                break;
+
+            case CREATE:
+
+                try {
+                    clientId = result.getString("client_id");
+                    Intent i = new Intent(context, ClientPreview.class);
+                    i.putExtra(Constant.KEY_CLIENT_ID, clientId);
+                    startActivity(i);
+                    finish();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+
+            case GET_DATA:
+                db.ClearTable(DatabaseHelper.Table_ClientPreview);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+                values.put(DatabaseHelper.ID, clientId);
+                db.insert(DatabaseHelper.Table_ClientPreview, values);
+                setClientDataForEditing();
+                break;
+
+            case GET_SETTING:
+
+                try {
+
+
+                    if (result.getString("isBusinessEmailMandatory").equalsIgnoreCase("Y"))
+                        isEmailRequired = true;
+                    else isEmailRequired = false;
+
+
+                    if (!result.getString("canAddClient").equalsIgnoreCase("Y")) {
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                context);
+
+                        // set title
+                        alertDialogBuilder.setTitle("Add Client");
+
+                        // set dialog message
+                        alertDialogBuilder
+
+                                .setCancelable(false)
+                                .setMessage("Upgrade your plan to add client")
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // if this button is clicked, close
+                                        // current activity
+
+                                        finish();
+                                    }
+                                });
+
+                        // create alert dialog
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+
+                        // show it
+                        alertDialog.show();
+                    }
+
+
+                } catch (JSONException e) {
+
+
+                }
+                break;
+
+
+        }
+
+
+    }
+
+
+    public void showCountryList() {
+
+
+        selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ListCountry;
+
+        cursor = db.getRecords(selectQuery);
+        countryList = new ArrayList<>();
+        if (cursor.moveToFirst() && cursor.getCount() > 0)
+
+        {
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+                    HashMap<String, String> map;
+
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                    for (int k = 0; k < object.getJSONArray("countryList").length(); k++) {
+                        map = new HashMap<>();
+                        JSONObject chargeObj = object.getJSONArray("countryList").getJSONObject(k);
+                        map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                        map.put(Constant.KEY_CountryCode, chargeObj.getString("CountryCode"));
+                        map.put(Constant.KEY_CountryName, chargeObj.getString("CountryName"));
+
+
+                        countryList.add(map);
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (myPopUp != null)
+                    if (myPopUp.isShowing())
+                        myPopUp.dismiss();
+
+
+                mapComparator = new Comparator<HashMap<String, String>>() {
+                    public int compare(HashMap<String, String> m1, HashMap<String, String> m2) {
+                        return m1.get(Constant.KEY_CountryName).compareTo(m2.get(Constant.KEY_CountryName));
+                    }
+                };
+
+                Collections.sort(countryList, mapComparator);
+
+
+                myPopUp = new CustomPopup((Activity) context, countryList, Constant.POP_UP.COUNTRY, false, this, "Select Country");
+
+                myPopUp.show();
+            }
+        }
+    }
+
+
+    public void showCurrencyList() {
+
+
+        selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_CurrencyList;
+
+        cursor = db.getRecords(selectQuery);
+        currencyList = new ArrayList<>();
+        if (cursor.moveToFirst() && cursor.getCount() > 0)
+
+        {
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+                    HashMap<String, String> map;
+
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                    for (int k = 0; k < object.getJSONArray("Currency").length(); k++) {
+                        map = new HashMap<>();
+                        JSONObject chargeObj = object.getJSONArray("Currency").getJSONObject(k);
+                        map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                        map.put(Constant.KEY_CODE, chargeObj.getString("code"));
+
+
+                        currencyList.add(map);
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (myPopUp != null)
+                    if (myPopUp.isShowing())
+                        myPopUp.dismiss();
+
+
+                mapComparator = new Comparator<HashMap<String, String>>() {
+                    public int compare(HashMap<String, String> m1, HashMap<String, String> m2) {
+                        return m1.get(Constant.KEY_CODE).compareTo(m2.get(Constant.KEY_CODE));
+                    }
+                };
+
+                Collections.sort(currencyList, mapComparator);
+
+
+                myPopUp = new CustomPopup((Activity) context, currencyList, Constant.POP_UP.CURRENCY, false, this, "Select Currency");
+
+                myPopUp.show();
+            }
+        }
+
+
+    }
+}

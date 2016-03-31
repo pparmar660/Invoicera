@@ -1,0 +1,267 @@
+package com.invoicera.Fragment;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.ListView;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+import com.invoicera.ListViewAdpter.InvoiceListPagerFragemtListAdpter;
+import com.invoicera.Utility.MyDateFormat;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.R;
+import com.invoicera.model.InvoiceAtribute;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+public class InvoiceListPagerFragment extends BaseFragment implements WebApiResult {
+
+	View listFooter;
+	ListView listView;
+	InvoiceListPagerFragemtListAdpter adpter;
+	DatabaseHelper db;
+
+	int pageNo = 1;
+	int total_pagesInt = 0;
+	int recordPerPage = 10;
+	private SwipeRefreshLayout swipeContainer;
+	ArrayList<InvoiceAtribute> InvoicesList;
+	int currentFirstVisibleItem, currentVisibleItemCount, currentScrollState;
+	boolean isLoading = false;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+	}
+
+	// Inflate the view for the fragment based on layout XML
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		View view = inflater.inflate(R.layout.invoice_list_pager_fragment, container, false);
+		swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.container);
+
+		LayoutInflater footerInflater = LayoutInflater.from(getActivity());
+		listFooter = footerInflater.inflate(R.layout.list_footer, null, false);
+		listFooter.setVisibility(View.GONE);
+		listView = (ListView) view.findViewById(R.id.list);
+		InvoicesList = new ArrayList<InvoiceAtribute>();
+		listView.addFooterView(listFooter);
+		db = new DatabaseHelper(context);
+		
+		adpter = new InvoiceListPagerFragemtListAdpter(context);
+		listView.setAdapter(adpter);
+		
+		swipeContainer.setOnRefreshListener(new OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+
+				try {
+					getInvoiveList(1, SERVICE_TYPE.GET_UPPER_DATA, false);
+				} catch (JSONException e) {
+
+					e.printStackTrace();
+				}
+			}
+		});
+
+		swipeContainer.setColorSchemeResources(
+				android.R.color.holo_orange_dark,
+				android.R.color.holo_green_light,
+				android.R.color.holo_blue_bright,
+				android.R.color.holo_red_light);
+
+		listView.setOnScrollListener(new OnScrollListener() {
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+				currentScrollState = scrollState;
+
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				if((firstVisibleItem+visibleItemCount == totalItemCount) && !isLoading) {
+					try {
+						listFooter.setVisibility(View.VISIBLE);
+						isLoading = true;
+						new Handler().postDelayed(new Runnable() {
+							
+							@Override
+							public void run() {
+								try {
+									getInvoiveList(++pageNo, SERVICE_TYPE.GET_BOTTOM_DATA, false);
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+							}
+						}, 5000);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		
+		
+		try {
+
+			getInvoiveList(1, SERVICE_TYPE.GET_UPPER_DATA, true);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("ONcreate");
+
+		return view;
+	}
+
+	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		System.out.println("ONstart");
+		super.onStart();
+
+	
+
+	}
+
+	public void getInvoiveList(int page_no, SERVICE_TYPE type, boolean showProcessing) throws JSONException {
+
+		JSONObject obj = new JSONObject();
+
+		obj.put(Constant.KEY_METHOD, "listInvoice");
+		obj.put(Constant.KEY_PAGE_NO, page_no);
+		obj.put(Constant.KEY_PAGE_PER_REORD, recordPerPage);
+		obj.put(Constant.KEY_STATUS, "Active");
+		this.pageNo = page_no;
+		
+		/*
+		 * WebRequest request = new WebRequest(context, obj,
+		 * Constant.forgotPasswordURL, type, this); request.execute();
+		 */
+		WebRequest request = new WebRequest(context, obj, Constant.invoicelistURL, type, this, showProcessing);
+		request.execute();
+
+	}
+
+	@Override
+	public void getWebResult(SERVICE_TYPE type, JSONObject result) {
+		// TODO Auto-generated method stub
+		switch (type) {
+		case GET_UPPER_DATA:
+			// listView.onRefreshComplete();
+			swipeContainer.setRefreshing(false);
+			break;
+
+		case GET_BOTTOM_DATA:
+			isLoading = false;
+			listFooter.setVisibility(View.GONE);
+			// listView.onLoadMoreComplete();
+			break;
+		default:
+			break;
+		}
+		
+		System.out.println("Page No "+pageNo);
+
+		try {
+			if (pageNo == 1) {
+				db.ClearTable(DatabaseHelper.Table_InvoiceList);
+				InvoicesList = new ArrayList<InvoiceAtribute>();
+			}
+
+			ContentValues values = new ContentValues();
+			values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+
+			db.insert(DatabaseHelper.Table_InvoiceList, values);
+			String selectQuery = "Select * From " + DatabaseHelper.Table_InvoiceList;
+
+			Cursor cursor = db.getRecords(selectQuery);
+
+			if (cursor.moveToFirst())
+				for (int i = 0; i < cursor.getCount(); i++) {
+					updateUI(new JSONObject(cursor.getString(cursor
+							.getColumnIndex(DatabaseHelper.JSON_DATA))));
+				}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	private void updateUI(JSONObject jsonreturn) {
+
+		try {
+			JSONArray invoice = jsonreturn.getJSONObject(Constant.KEY_INVOICELIST).getJSONArray(Constant.KEY_INVOICE);
+
+			/*
+			 * if (!requestingLoadmore) { invoiceList.clear(); //
+			 * invoiceadapter.notifyDataSetChanged(); }
+			 */
+
+			JSONObject attributes = jsonreturn.getJSONObject(
+					Constant.KEY_INVOICELIST).getJSONObject("@attributes");
+
+			String total_pages = attributes.getString("total_pages");
+
+			total_pagesInt = Integer.parseInt(total_pages);
+
+			for (int i = 0; i < invoice.length(); i++) {
+				JSONObject c = invoice.getJSONObject(i);
+
+				/***** Storing each JSON item in variable ****/
+
+				JSONObject client = c.getJSONObject(Constant.KEY_CLIENT);
+
+				InvoiceAtribute atribute = new InvoiceAtribute();
+
+				atribute.setCurrency(c.getString(Constant.KEY_CURRENCY));
+				atribute.setDate(MyDateFormat.GetDate(c
+						.getString(Constant.KEY_DATE)));
+				atribute.setInvoice_id(c.getString(Constant.KEY_INVOICE_ID));
+				atribute.setInvoice_no(c.getString(Constant.KEY_INV_NO));
+				atribute.setInvoice_status(c
+						.getString(Constant.KEY_INVOICE_STATUS));
+				atribute.setNet_balance(c.getString(Constant.KEY_NET_BALANCE));
+				atribute.setOrganigation(client
+						.getString(Constant.KEY_ORGANIZATION));
+				// atribute.setStatus(c.getString(Constant.KEY_STATUS));
+				atribute.setInvoiceTitile(c
+						.getString(Constant.KEY_TITLE));
+				atribute.setLatefee(c.getString(Constant.KEY_LATE_FEE));
+				InvoicesList.add(atribute);
+				adpter.add(atribute);
+
+			}
+
+		} catch (JSONException e) {
+			// TODO: handle exception
+			System.out.println(e.getMessage());
+		}
+	}
+
+}

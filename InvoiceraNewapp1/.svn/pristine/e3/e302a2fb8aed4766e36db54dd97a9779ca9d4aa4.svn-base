@@ -1,0 +1,89 @@
+package com.invoicera.model;
+
+public class InvoiceAtribute {
+	
+	
+	String organigation,date,invoice_id,invoice_no,currency,net_balance,invoice_status,status,invoiceTitile,latefee;
+
+	public String getInvoiceTitile() {
+		return invoiceTitile;
+	}
+
+	public void setInvoiceTitile(String invoiceTitile) {
+		this.invoiceTitile = invoiceTitile;
+	}
+
+	public String getLatefee() {
+		return latefee;
+	}
+
+	public void setLatefee(String latefee) {
+		this.latefee = latefee;
+	}
+
+	public String getOrganization() {
+		return organigation;
+	}
+
+	public void setOrganigation(String organigation) {
+		this.organigation = organigation;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getInvoice_id() {
+		return invoice_id;
+	}
+
+	public void setInvoice_id(String invoice_id) {
+		this.invoice_id = invoice_id;
+	}
+
+	public String getInvoice_no() {
+		return invoice_no;
+	}
+
+	public void setInvoice_no(String invoice_no) {
+		this.invoice_no = invoice_no;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public String getNet_balance() {
+		return net_balance;
+	}
+
+	public void setNet_balance(String net_balance) {
+		this.net_balance = net_balance;
+	}
+
+	public String getInvoice_status() {
+		return invoice_status;
+	}
+
+	public void setInvoice_status(String invoice_status) {
+		this.invoice_status = invoice_status;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+
+}

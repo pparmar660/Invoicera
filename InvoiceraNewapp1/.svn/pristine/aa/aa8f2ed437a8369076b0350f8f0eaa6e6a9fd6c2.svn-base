@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_walkthrough"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/header_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="#FFF"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Invoice"
+        android:textColor="@color/black" />
+
+    <com.viewpagerindicator.CirclePageIndicator
+        android:id="@+id/invoicedescription_indicator2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header_view"
+        android:layout_centerInParent="true"
+        android:padding="5dp"
+        app:fillColor="#ffffff"
+        app:pageColor="#526e85"
+        app:radius="3dp" />
+
+    <TextView
+        android:id="@+id/page_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/invoicedescription_indicator"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:text="cvdkl mmds smfs vcvmmf mmdf llfsf kkscs ,klcscw l[ls kllsc]" />
+
+    <LinearLayout
+        android:id="@+id/button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:orientation="horizontal"
+        android:weightSum="1" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0.5"
+            android:background="#8c8c8c"
+            android:text="SKIP"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="0.5"
+            android:background="#eb6817"
+            android:text="NEXT"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_bar"
+        android:layout_below="@id/page_message"
+  		android:layout_margin="10dp"
+  		android:background="#FFF"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+         />
+
+</RelativeLayout><!-- From: file:/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/src/main/res/layout/walkthrough.xml -->

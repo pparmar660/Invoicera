@@ -1,0 +1,643 @@
+package com.invoicera.androidapp;
+
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.DownloadPdfFile;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
+/**
+ * Created by vinove on 18/8/15.
+ */
+public class ClientPreview extends BaseActivity implements View.OnClickListener, WebApiResult {
+
+
+    PopupWindow popupWindow;
+    WebApiResult webApiResult;
+    TextView chooseActionTV;
+    LinearLayout viewLinear;
+    ImageView backImage;
+    TextView clientNameTV, emailTV, phoneTV, clientAddressTV, outstandingTV, creditTV, createInvoiceTV, createEstimateTV;
+    String clientId, currency, outStandingAmount, creditAmount;
+    DatabaseHelper db;
+    WebRequest request;
+    DatePickerDialog.OnDateSetListener date;
+    ProgressBar progressBar;
+
+    String fromDate, toDate, ClientUserCompanyID = "";
+    Calendar myCalendar;
+    TextView fromDateTv, toDateTv, editTv;
+    boolean isFromDate = false;
+    JSONObject clientObject;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.client_preview);
+        webApiResult = this;
+        if (getIntent().getStringExtra(Constant.KEY_CLIENT_ID) != null)
+            clientId = getIntent().getStringExtra(Constant.KEY_CLIENT_ID);
+        db = new DatabaseHelper(context);
+
+        chooseActionTV = (TextView) findViewById(R.id.choose_action);
+        chooseActionTV.setOnClickListener(this);
+        viewLinear = (LinearLayout) findViewById(R.id.clientPreviewMainLinear);
+        clientNameTV = (TextView) findViewById(R.id.clientName);
+        emailTV = (TextView) findViewById(R.id.email);
+        phoneTV = (TextView) findViewById(R.id.phoneNo);
+        clientAddressTV = (TextView) findViewById(R.id.address);
+        outstandingTV = (TextView) findViewById(R.id.outStanding);
+        creditTV = (TextView) findViewById(R.id.credit);
+        createInvoiceTV = (TextView) findViewById(R.id.addInvoice);
+        createEstimateTV = (TextView) findViewById(R.id.addEstimate);
+        progressBar = (ProgressBar) findViewById(R.id.progress_client_preview);
+        backImage = (ImageView) findViewById(R.id.back);
+
+
+        backImage.setOnClickListener(this);
+        myCalendar = Calendar.getInstance();
+        date = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel();
+            }
+
+        };
+
+        editTv = (TextView) findViewById(R.id.edit);
+        editTv.setOnClickListener(this);
+        createInvoiceTV.setOnClickListener(this);
+        createEstimateTV.setOnClickListener(this);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        boolean showProgress = true;
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ClientPreview + " WHERE " + DatabaseHelper.ID + " ='" + clientId + "'";
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+            setClient();
+            showProgress = false;
+
+
+        }
+
+
+        try {
+            JSONObject getClientObject = new JSONObject();
+            getClientObject.put("method", "getClient");
+            getClientObject.put("client_id", clientId);
+
+
+            request = new WebRequest(context, getClientObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, Constant.token, this, showProgress);
+
+       editTv.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            request.execute();
+
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent i;
+        switch (v.getId()) {
+
+            case R.id.choose_action:
+
+                actionPopupWindow();
+                viewLinear.setAlpha(0.3f);
+                break;
+
+            case R.id.back:
+                finish();
+                break;
+            case R.id.edit:
+                 i=new Intent(context,CreateEditClient.class);
+                i.putExtra(Constant.KEY_CLIENT_ID, clientId);
+                startActivity(i);
+                break;
+
+
+            case  R.id.addInvoice:
+
+                 i =new Intent(context,Home.class);
+
+                i.putExtra(Constant.KEY_CLIENT_ID,clientId);
+                if (clientObject==null)
+                    return;
+                try {
+                    Bundle arguments=new Bundle();
+                    arguments.putString(Constant.KEY_ADDRESS,clientObject.getString("billing_address"));
+                    arguments.putString(Constant.KEY_CLIENT_NAME,clientObject.getString("name"));
+                    arguments.putString(Constant.KEY_ORGANIZATION,clientObject.getString("organization"));
+                    arguments.putString(Constant.KEY_CLIENT_ID,clientObject.getString("client_id"));
+                    arguments.putString(Constant.KEY_CLIENT_CURRENCY,clientObject.getString("currency"));
+
+                    i.putExtra(Constant.KEY_CLIENT, arguments);
+                    i.putExtra("finish", true);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    startActivity(i);
+                    finish();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                break;
+            case R.id.addEstimate:
+                break;
+
+
+        }
+
+    }
+
+
+    public void setClient() {
+
+
+        JSONObject object = null;
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ClientPreview + " WHERE " + DatabaseHelper.ID + " ='" + clientId + "'";
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+            //totalItem = new ArrayList<>();
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+
+                    object = (new JSONObject(cursor.getString(cursor.getColumnIndex(db.JSON_DATA))));
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+
+        }
+
+
+        if (object == null)
+            return;
+
+         clientObject = null;
+
+        try {
+            clientObject = object.getJSONObject("client");
+
+            ClientUserCompanyID = clientObject.getString("fkClientUserCompanyID");
+
+
+            clientNameTV.setText(clientObject.getString("name"));
+            if (clientObject.getString("email").isEmpty())
+                emailTV.setText("N/A");
+            else
+                emailTV.setText(clientObject.getString("email"));
+            if (clientObject.getString("work_phone").isEmpty())
+                phoneTV.setText("N/A");
+            else
+                phoneTV.setText(clientObject.getString("work_phone"));
+
+            outstandingTV.setText(clientObject.getString("currency") + " " + clientObject.getString("outstanding"));
+            creditTV.setText(clientObject.getString("currency") + " " + clientObject.getString("credit"));
+
+            currency = clientObject.getString("currency");
+            outStandingAmount = clientObject.getString("outstanding");
+            creditAmount = clientObject.getString("credit");
+
+            if (clientObject.getString("billing_address").isEmpty() && clientObject.getString("country_name").isEmpty())
+                clientAddressTV.setText("N/A");
+            else
+                clientAddressTV.setText(clientObject.getString("billing_address") + " " + clientObject.getString("country_name"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void actionPopupWindow() {
+        try {
+// We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) ClientPreview.this
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.client_action_popup,
+                    (ViewGroup) findViewById(R.id.popUpLiner));
+            //  popupWindow = new PopupWindow(layout, (int)(global.screenWidth*0.8), (int)(global.screenHeight*0.8), true);
+            popupWindow = new PopupWindow(layout, (int) (global.screenWidth * 0.8), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+            popupWindow.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            TextView btnClosePopup = (TextView) layout.findViewById(R.id.cancel_action);
+            btnClosePopup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+
+                }
+            });
+
+            TextView accountStatement = (TextView) layout.findViewById(R.id.accountStatement);
+            accountStatement.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+                    accountStatementPopupWindow();
+                }
+            });
+
+            TextView deleteTv = (TextView) layout.findViewById(R.id.delete);
+
+            deleteTv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    DeleteInvoiceAlertDialog();
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+
+                }
+            });
+
+            TextView addCredit = (TextView) layout.findViewById(R.id.addCredit);
+            addCredit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent i = new Intent(context, AddCredit.class);
+                    i.putExtra(Constant.KEY_CLIENT_ID, clientId);
+                    i.putExtra(Constant.KEY_CLIENT_NAME, clientNameTV.getText());
+                    i.putExtra(Constant.KEY_CURRENCY, currency);
+                    i.putExtra(Constant.KEY_OUTSTANDING, outStandingAmount);
+                    i.putExtra(Constant.KEY_CREDIT, clientId);
+                    i.putExtra(Constant.KEY_COMPANY_ID,ClientUserCompanyID);
+                    startActivity(i);
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+
+                }
+            });
+
+            TextView sendLoginInfoTv = (TextView) layout.findViewById(R.id.sendLoginInfo);
+
+
+            sendLoginInfoTv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    try {
+                        JSONObject sendLoginInfo = new JSONObject();
+
+                        sendLoginInfo.put("method", "sendClientLoginInfo");
+                        sendLoginInfo.put("ClientUserCompanyID", ClientUserCompanyID);
+
+
+                        WebRequest request = new WebRequest(context, sendLoginInfo, Constant.invoicelistURL, Constant.SERVICE_TYPE.SEND_LOGIN_INFO, Constant.token, webApiResult, true);
+
+                        request.execute();
+                        viewLinear.setAlpha(1f);
+                        popupWindow.dismiss();
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            });
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void accountStatementPopupWindow() {
+
+        fromDate = "";
+        toDate = "";
+
+        try {
+            viewLinear.setAlpha(0.3f);
+// We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) ClientPreview.this
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.acount_statement_date_popupupwindow,
+                    (ViewGroup) findViewById(R.id.popUpLiner));
+            //  popupWindow = new PopupWindow(layout, (int)(global.screenWidth*0.8), (int)(global.screenHeight*0.8), true);
+            popupWindow = new PopupWindow(layout, (int) (global.screenWidth * 0.8), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+            popupWindow.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            TextView btnClosePopup = (TextView) layout.findViewById(R.id.cancel_action);
+            btnClosePopup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void
+                onClick(View v) {
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+
+                }
+            });
+
+            final TextView okTv = (TextView) layout.findViewById(R.id.ok_action);
+            okTv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (fromDate.isEmpty()) {
+                        global.showAlert("Please select from date", context);
+                        return;
+
+                    }
+
+                    if (toDate.isEmpty()) {
+                        global.showAlert("Please select to date", context);
+                        return;
+
+                    }
+
+                    JSONObject accountStatementObject = new JSONObject();
+
+                    try {
+                        accountStatementObject.put("method", "clientAccountStatement");
+                        accountStatementObject.put("ClientUserCompanyID", ClientUserCompanyID);
+                        accountStatementObject.put("frmDate", fromDate);
+                        accountStatementObject.put("frmTodate", toDate);
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    WebRequest request = new WebRequest(context, accountStatementObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.ACCOUNT_STATEMENT, Constant.token, webApiResult, true);
+
+                    request.execute();
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+                }
+            });
+
+            fromDateTv = (TextView) layout.findViewById(R.id.fromDate);
+            fromDateTv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    isFromDate = true;
+                    new DatePickerDialog(context, date, myCalendar
+                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+
+
+                }
+            });
+
+
+            toDateTv = (TextView) layout.findViewById(R.id.toDate);
+            toDateTv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (fromDate.isEmpty()) {
+                        global.showAlert("Please select from date ", context);
+                        return;
+
+                    }
+
+                    isFromDate = false;
+
+                    new DatePickerDialog(context, date, myCalendar
+                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                }
+            });
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void updateLabel() {
+
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        if (isFromDate) {
+            fromDate = sdf.format(myCalendar.getTime());
+            fromDateTv.setText("From : " + sdf.format(myCalendar.getTime()));
+        } else {
+            ;
+            if (CheckDates(fromDate, sdf.format(myCalendar.getTime()).toString())) {
+
+
+                toDateTv.setText("To : " + sdf.format(myCalendar.getTime()));
+                toDate = sdf.format(myCalendar.getTime());
+
+            } else {
+
+                global.showAlert("From date should be after to date", context);
+                toDateTv.setText("To : " + "");
+                toDate = "";
+            }
+        }
+
+    }
+
+    public boolean CheckDates(String startDate, String endDate) {
+        Log.e("dates ", startDate + "," + endDate);
+
+        SimpleDateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
+
+        boolean b = false;
+
+        try {
+            if (dfDate.parse(startDate).before(dfDate.parse(endDate))) {
+                b = true;  // If start date is before end date.
+            } else if (dfDate.parse(startDate).equals(dfDate.parse(endDate))) {
+                b = true;  // If two dates are equal.
+            } else {
+                b = false; // If start date is after the end date.
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return b;
+    }
+
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+        progressBar.setVisibility(View.GONE);
+        editTv.setVisibility(View.VISIBLE);
+
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ;
+
+
+        switch (type) {
+            case GET_DATA:
+                db.ClearTable(DatabaseHelper.Table_ClientPreview);
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+                values.put(DatabaseHelper.ID, clientId);
+                db.insert(DatabaseHelper.Table_ClientPreview, values);
+                setClient();
+
+                break;
+
+            case ACCOUNT_STATEMENT:
+
+                try {
+                    String pdfUrl = result.getString("pdfUrl");
+                    pdfUrl.replace("\\", "");
+                    new DownloadPdfFile(context).downloadAndOpenPDF(pdfUrl);
+
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            case DELETE:
+                finish();
+
+                break;
+
+            case SEND_LOGIN_INFO:
+
+                try {
+                    global.showAlert("Login info has been sent", context);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+
+
+        }
+
+
+    }
+
+
+    public void DeleteInvoiceAlertDialog() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                context);
+        alertDialog.setTitle(Constant.title);
+        alertDialog.setMessage(Constant.delete_message);
+        alertDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if (global.isNetworkAvailable()) {
+
+
+                            try {
+                                JSONObject deleteClient = new JSONObject();
+                                deleteClient.put("client_id", clientId);
+                                deleteClient.put("type", "Deleted");// Cancel - >delete ,
+                                // Archived->Archived
+                                JSONObject deleteClientObj = new JSONObject();
+                                deleteClientObj.put("deleteClient", deleteClient);
+
+
+                                request = new WebRequest(context, deleteClientObj, Constant.invoicelistURL, Constant.SERVICE_TYPE.DELETE, Constant.token, webApiResult, true);
+                                request.execute();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                });
+        alertDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.show();
+    }
+
+}

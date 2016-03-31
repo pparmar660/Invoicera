@@ -1,0 +1,137 @@
+package com.invoicera.ListViewAdpter;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.invoicera.androidapp.R;
+import com.invoicera.model.EstimateAttribute;
+
+import java.util.ArrayList;
+
+/**
+ * Created by Parvesh on 29/7/15.
+ */
+
+
+public class EstimateListPagerFragmentListAdapter extends BaseAdapter {
+
+    Context context;
+    public ArrayList<EstimateAttribute> estimateList;
+
+    public EstimateListPagerFragmentListAdapter(Context context) {
+        // TODO Auto-generated constructor stub
+        this.estimateList = new ArrayList<EstimateAttribute>();
+        this.context = context;
+
+    }
+
+    public void add(EstimateAttribute attribute) {
+        estimateList.add(attribute);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        // TODO Auto-generated method stub
+        return estimateList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+        ViewHolder holder;
+
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(
+                    R.layout.list_pager_list_adapter, parent, false);
+
+            holder = new ViewHolder();
+            holder.numberTV = (TextView) convertView
+
+                    .findViewById(R.id.number);
+            holder.organizationTV = (TextView) convertView
+                    .findViewById(R.id.organization);
+            holder.netBalanceTv = (TextView) convertView
+                    .findViewById(R.id.netBalance);
+            holder.time = (TextView) convertView.findViewById(R.id.time);
+            holder.estimate_status = (TextView) convertView.findViewById(R.id.main_status);
+            holder.status = (TextView) convertView.findViewById(R.id.status);
+            convertView.setTag(holder);
+
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+
+        }
+
+        String organization = "";
+
+        if (estimateList.get(position)
+                .getOrganization().length() > 10)
+            organization = estimateList.get(position)
+                    .getOrganization().substring(0, 10) + "..";
+        else
+            organization = estimateList.get(position)
+                    .getOrganization();
+
+        holder.organizationTV.setText(organization);
+        holder.status.setText(estimateList.get(position).getStatus());
+
+        holder.numberTV
+                .setText(estimateList.get(position).getEstimate_no());
+
+        holder.netBalanceTv.setText(estimateList.get(position).getCurrency()
+                + " " + estimateList.get(position).getNet_balance());
+
+        holder.time.setText(estimateList.get(position).getDate());
+        String statusString = estimateList.get(position).getEstimate_status();
+        holder.estimate_status.setText(statusString);
+
+        if (statusString.equalsIgnoreCase("draft")) {
+
+            holder.estimate_status.setBackgroundColor(Color.parseColor("#7F7F7F"));
+        } else if (statusString.equalsIgnoreCase("sent")) {
+
+            holder.estimate_status.setBackgroundColor(Color.parseColor("#0447AC"));
+        } else if (statusString.equalsIgnoreCase("viewed")) {
+
+            holder.estimate_status.setBackgroundColor(Color.parseColor("#2CA6AF"));
+        } else if (statusString.equalsIgnoreCase("rejected")) {
+
+            holder.estimate_status.setBackgroundColor(Color.parseColor("#ED4E00"));
+        } else if (statusString.equalsIgnoreCase("accepted")) {
+
+            holder.estimate_status.setBackgroundColor(Color.parseColor("#63A239"));
+        } else if (statusString.equalsIgnoreCase("expired")) {
+
+            holder.estimate_status.setBackgroundColor(Color.parseColor("#c0001b"));
+        }
+        holder.estimate_status.setTextColor(Color.parseColor("#ffffff"));
+        return convertView;
+    }
+
+    class ViewHolder {
+
+        TextView organizationTV, numberTV, netBalanceTv, time, estimate_status, status;
+
+    }
+
+}

@@ -1,0 +1,374 @@
+package com.invoicera.Fragment;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.CustomView.CreateModulesOption;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.ViewPagerAdpter.InvoiceListPageradpter;
+import com.invoicera.ViewPagerFragment.InvoiceListPagerFragment;
+import com.invoicera.Webservices.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Filter;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+public class InvoiceList extends BaseFragment implements
+        ViewPager.OnPageChangeListener, WebApiResult, OnClickListener {
+
+    ViewPager pager;
+    InvoiceListPagerFragment pagerFragment;
+    ArrayList<InvoiceListPagerFragment> pagerFragmentList;
+    CreateModulesOption createModule;
+    InvoiceListPageradpter pagerAdpter;
+    // TabPageIndicator indicator;
+    public FragmentChanger frgmentChanger;
+    LayoutInflater localInflater;
+    HorizontalScrollView scrollView;
+    LinearLayout scrollLiner;
+    int selectedPagePostion = 0;
+    ImageView searchCancleImg, createModuleImg;
+
+    public static String content[] = {"Recent", "Draft", "Sent", "Paid",
+            "Outstanding", "Partial-Paid", "Viewed"};
+
+    // public static String searchText[] = new String[7];
+    public static String[] table_field = {
+            DatabaseHelper.JSON_INVOICE_RECENT_LIST,
+            DatabaseHelper.JSON_INVOICE_DRAFT_LIST,
+            DatabaseHelper.JSON_INVOICE_SENT_LIST,
+            DatabaseHelper.JSON_INVOICE_PAID_LIST,
+            DatabaseHelper.JSON_INVOICE_OUTSTANDING_LIST,
+            DatabaseHelper.JSON_INVOICE_PARTIAL_PAID_LIST,
+            DatabaseHelper.JSON_INVOICE_VIEWED_LIST};
+
+    View view;
+    ImageView filterInvoice;
+    public EditText searchEt;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+
+        final View view = inflater.inflate(R.layout.invoice_fragment, container,
+                false);
+
+
+        createModule = new CreateModulesOption();
+        Home.toolbarText.setText("Invoice");
+        scrollView = (HorizontalScrollView) view
+                .findViewById(R.id.gallery_scrolling_tabs);
+        scrollLiner = (LinearLayout) view.findViewById(R.id.scrollLiner);
+        pagerFragmentList = new ArrayList<>();
+        pager = (ViewPager) view.findViewById(R.id.pager);
+        pagerAdpter = new InvoiceListPageradpter(getChildFragmentManager());
+        searchEt = (EditText) view.findViewById(R.id.searchEdit);
+        filterInvoice = (ImageView) view.findViewById(R.id.filter_invoice);
+        pagerFragment = new InvoiceListPagerFragment();
+        searchCancleImg = (ImageView) view.findViewById(R.id.searchCancle);
+        searchCancleImg.setOnClickListener(this);
+
+        for (int i = 0; i < content.length; i++)
+
+        {
+            Bundle argument = new Bundle();
+            argument.putInt(FRAGMENT_POS, i);
+            pagerFragment = new InvoiceListPagerFragment();
+            pagerFragment.setArguments(argument);
+            pagerAdpter.add(pagerFragment);
+            pagerFragmentList.add(pagerFragment);
+
+        }
+        searchCancleImg.setVisibility(View.GONE);
+        pager.setAdapter(pagerAdpter);
+        // indicator.setViewPager(pager);
+        pager.setOnPageChangeListener(this);
+        createModuleImg = (ImageView) view.findViewById(R.id.createModule);
+        createModuleImg.setOnClickListener(this);
+        for (int i = 0; i < content.length; i++) {
+            scrollLiner.addView(addIndicater(i));
+        }
+
+
+        filterInvoice.setOnClickListener(this);
+
+
+        searchEt.setImeActionLabel("Search", EditorInfo.IME_ACTION_UNSPECIFIED);
+        searchEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                    Log.i(" ", "Enter pressed");
+                    try {
+
+                        getSearchedInvoiceList(searchEt.getText().toString(), 1, Constant.SERVICE_TYPE.GET_SEARCH_DATA, true, InvoiceList.content[selectedPagePostion]);
+                        searchCancleImg.setVisibility(View.VISIBLE);
+
+                    } catch (JSONException e) {
+
+                        Log.i("exception", e.getMessage());
+
+                    }
+                }
+                return false;
+            }
+        });
+
+        invalidateTabs(0);
+
+        return view;
+
+    }
+
+    /*
+     * @Override public void onCreate(Bundle savedInstanceState) { // TODO
+     * Auto-generated method stub super.onCreate(savedInstanceState); final
+     * Context contextThemeWrapper = new ContextThemeWrapper( getActivity(),
+     * R.style.InvoiceList); localInflater =
+     * LayoutInflater.from(getActivity()).cloneInContext( contextThemeWrapper);
+     * }
+     */
+    public View addIndicater(int postion) {
+
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.indicater_text, scrollLiner,
+                false);
+        TextView textView = (TextView) view.findViewById(R.id.indicater_text);
+
+
+		/*
+         * LinearLayout.LayoutParams layoutParams = new
+		 * LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT,
+		 * LinearLayout.LayoutParams.WRAP_CONTENT);
+		 */
+        /*
+         * layoutParams.setMargins((int) global.convertDpToPixel(10, context),
+		 * (int) global.convertDpToPixel(10, context), (int)
+		 * global.convertDpToPixel(10, context), (int)
+		 * global.convertDpToPixel(10, context));
+		 */// margins as you
+        // wish
+
+        // textView.setLayoutParams(layoutParams);
+
+        // imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        // imageView.setImageResource(R.mipmap.ic_launcher);
+        textView.setText(content[postion]);
+        textView.setTextColor(Color.WHITE);
+        view.setTag(postion);
+        textView.setTag(postion);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    int position = Integer.parseInt(view.getTag().toString());
+                    pager.setCurrentItem(position);
+                } catch (NumberFormatException e) {
+
+                    e.getMessage();
+                    // TODO: handle exception
+                }
+
+            }
+        });
+
+        return view;
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        // TODO Auto-generated method stub
+        frgmentChanger = (FragmentChanger) activity;
+
+        super.onAttach(activity);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        System.out.println(requestCode + "," + resultCode + "," + data);
+        if (requestCode == Constant.requestCodeCretateInvoiceFilter) {
+            if (data == null)
+                return;
+            String Invoice_st = data.getStringExtra(Constant.KEY_INVOICE_STATUS);
+            String status = data.getStringExtra(Constant.KEY_STATUS);
+            String client_id = data.getStringExtra(Constant.KEY_CLIENT_ID);
+            String from = data.getStringExtra(Constant.KEY_DATE_FROM);
+            String to = data.getStringExtra(Constant.KEY_DATE_TO);
+
+
+            JSONObject obj = null;
+            try {
+                obj = new JSONObject();
+
+                obj.put(Constant.KEY_METHOD, "filterInvoice");
+                obj.put(Constant.KEY_CLIENT_ID, client_id);
+                obj.put(Constant.KEY_DATE_FROM, from);
+                obj.put(Constant.KEY_PAGE_NO, 1);
+                obj.put(Constant.KEY_PAGE_PER_REORD, 100);
+                obj.put(Constant.KEY_DATE_TO, to);
+                obj.put(Constant.KEY_INVOICE_STATUS, Invoice_st);
+                obj.put(Constant.KEY_STATUS, status);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            WebRequest request = new WebRequest(context, obj,
+                    Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_FILTER_DATA, this, true);
+            request.execute();
+
+
+        }
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onPageScrolled(int arg0, float arg1, int arg2) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onPageSelected(final int arg0) {
+        // TODO Auto-generated method stub
+        invalidateTabs(arg0);
+        searchEt.setText("");
+        pagerFragmentList.get(arg0).setList();
+        selectedPagePostion = arg0;
+
+        //Toast.makeText(context, arg0 + "", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void invalidateTabs(int currentItem) {
+        int childCount = scrollLiner.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            view = scrollLiner.getChildAt(i);
+            if (currentItem == Integer.parseInt(view.getTag().toString())) {
+
+                view.setBackground(context.getResources().getDrawable(
+                        R.drawable.tab_indicator_invoicelist_back));
+                int vLeft = view.getLeft();
+                int vRight = view.getRight();
+                int sWidth = scrollView.getWidth();
+                scrollView.smoothScrollTo(((vLeft + vRight - sWidth) / 2), 0);
+            } else {
+                view.setBackgroundColor(Color.parseColor("#E56E27"));
+            }
+        }
+    }
+
+    public void getSearchedInvoiceList(String searchText, int page_no, Constant.SERVICE_TYPE type,
+                                       boolean showProcessing, String invoice_status) throws JSONException {
+
+        JSONObject obj = new JSONObject();
+
+        obj.put(Constant.KEY_METHOD, "searchInvoice");
+        obj.put(Constant.KEY_PAGE_NO, page_no);
+        obj.put(Constant.KEY_PAGE_PER_REORD, 100);
+        obj.put(Constant.KEY_STATUS, "Active");
+        obj.put(Constant.KEY_INVOICE_STATUS, invoice_status);
+        obj.put("searchText", searchText);
+
+
+
+
+		/*
+         * WebRequest request = new WebRequest(context, obj,
+		 * Constant.forgotPasswordURL, type, this); request.execute();
+		 */
+        WebRequest request = new WebRequest(context, obj,
+                Constant.invoicelistURL, type, this, showProcessing);
+        request.execute();
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        switch (type) {
+            case GET_SEARCH_DATA:
+                pagerFragmentList.get(selectedPagePostion).getWebResult(type, result);
+                break;
+
+            case GET_FILTER_DATA:
+
+                pagerFragmentList.get(selectedPagePostion).getWebResult(type, result);
+                break;
+
+
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.searchCancle:
+                searchCancleImg.setVisibility(View.GONE);
+                searchEt.setText("");
+                pagerFragmentList.get(selectedPagePostion).setList();
+                break;
+            case R.id.filter_invoice:
+                Intent i = new Intent(context, Filter.class);
+                System.out.println("Value send :" + content[selectedPagePostion]);
+                i.putExtra(Constant.KEY_INVOICE_STATUS, content[selectedPagePostion]);
+
+                getActivity().startActivityForResult(i,
+                        Constant.requestCodeCretateInvoiceFilter);// Activity
+
+                break;
+
+            case R.id.createModule:
+                createModule.addView(getActivity());
+                break;
+
+
+        }
+    }
+}

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:alpha="0.9"
+    android:id="@+id/relative">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="50dp">
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tableLayout"
+            android:layout_alignParentRight="true"
+            android:paddingRight="10dp">
+
+
+            <TableRow
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+android:background="@drawable/box_background"
+                    android:text="Invoice"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/invoice"
+                    />
+
+
+            </TableRow>
+
+            <TableRow
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:background="@drawable/box_background"
+                    android:text="Estimate"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/estimate"
+         />
+
+
+            </TableRow>
+
+            <TableRow
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+android:background="@drawable/box_background"
+                    android:text="Recurring"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/recurring"
+                    />
+
+
+            </TableRow>
+
+            <TableRow
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+android:background="@drawable/box_background"
+                    android:text="Client"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/create_client"
+                    />
+
+
+            </TableRow>
+
+            <TableRow
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+android:background="@drawable/box_background"
+                    android:text="Product"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/doc" />
+
+
+            </TableRow>
+
+            <TableRow
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                            android:background="@drawable/box_background"
+                    android:text="Expense"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/doc" />
+
+
+            </TableRow>
+
+
+        </TableLayout>
+
+        <ImageView
+            android:layout_gravity="center"
+            android:padding="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/tableLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/cross"
+            android:id="@+id/close" />
+    </RelativeLayout>
+</RelativeLayout>

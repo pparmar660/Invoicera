@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout xmlns:rfal="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/label_list_sample_rfal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        rfal:rfal_frame_alpha="0.7"
+        rfal:rfal_frame_color="#ffffff">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/aboveline_backround"
+            android:orientation="vertical"
+            android:paddingTop="1dp">
+
+            <LinearLayout
+                android:id="@+id/liner1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bottom_line_background"
+                android:orientation="horizontal"
+                android:padding="2dp">
+
+
+                <ImageView
+                    android:id="@+id/searchCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:src="@drawable/back" />
+
+
+                <ImageView
+                    android:id="@+id/img_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:src="@drawable/search" />
+
+                <EditText
+                    android:id="@+id/searchEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+
+                    android:gravity="center_vertical"
+                    android:hint="Search"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:padding="5dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="#8D8D93"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/liner2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/liner3"
+                android:layout_below="@+id/liner1"
+                android:orientation="vertical">
+
+
+                <android.support.v4.widget.SwipeRefreshLayout
+                    android:id="@+id/swipe_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ListView
+                        android:id="@+id/list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:longClickable="true" />
+
+                </android.support.v4.widget.SwipeRefreshLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/liner3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="#E2E2E2"
+                android:gravity="center"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:id="@+id/filter_recurring"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/filter"
+                    android:padding="5dp"
+                    android:text="Filter"
+                    android:textColor="#505050"
+                    android:textSize="10sp" />
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+        <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton xmlns:rfab="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/label_list_sample_rfab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="40dp"
+            android:layout_marginRight="15dp"
+            rfab:rfab_color_normal="@color/orange2"
+            rfab:rfab_color_pressed="@color/orange2"
+            rfab:rfab_drawable="@drawable/rfab__drawable_rfab_default"
+            rfab:rfab_shadow_color="@color/orange2"
+            rfab:rfab_shadow_dx="0dp"
+            rfab:rfab_shadow_dy="5dp"
+            rfab:rfab_shadow_radius="7dp"
+            rfab:rfab_size="normal" />
+    </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
+
+    <RelativeLayout
+        android:id="@+id/actionRelative"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.3"
+            android:background="@color/black"></LinearLayout>
+
+        <TableLayout
+            android:id="@+id/actionTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:background="@drawable/box_background"
+
+            android:padding="1dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                android:weightSum="100">
+
+
+                <TextView
+                    android:id="@+id/recurringNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_weight="100"
+                    android:gravity="center"
+                    android:text="Recurring No"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/closeAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="right"
+                    android:padding="10dp"
+                    android:src="@drawable/cross_new" />
+
+
+            </TableRow>
+
+
+            <TableRow
+                android:id="@+id/startLinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Start Recurring"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/stop_recurringlinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Stop Recurring"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/exportPdflinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Export Pdf"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </TableRow>
+
+
+            <TableRow
+                android:id="@+id/send_recurringlinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Send Invoice"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </TableRow>
+
+
+            <TableRow
+                android:id="@+id/archiveLinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp">
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Mark as Archive"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/activelinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Active"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/deleteLinear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/underline_background"
+                android:gravity="left"
+                android:padding="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Delete"
+                    android:textColor="#FFE50A00"
+                    android:textSize="15sp" />
+
+            </TableRow>
+
+        </TableLayout>
+    </RelativeLayout>
+</FrameLayout>

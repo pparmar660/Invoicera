@@ -1,0 +1,190 @@
+package com.invoicera.androidapp;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+import com.invoicera.GlobalData.Preferences;
+import com.invoicera.Utility.Validation;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class Login extends BaseActivity implements WebApiResult,
+        OnClickListener {
+    EditText et_mailId, et_psswd;
+    TextView sign_up;
+    boolean mSignInClicked;
+    boolean mIntentInProgress, doubleBackToExitPressedOnce = false;
+    int RC_SIGN_IN = 0;
+    Intent intent, Ravi_avcd;
+    static Context ctx;
+    SERVICE_TYPE type;
+    Preferences pref;
+    Button google_plus, loginBtn;
+    WebRequest request;
+    CheckBox cb;
+    Boolean isLogin;
+    int i = 0;
+    String personName = "N", email = "N", personPhotoUrl = "N",
+            newpersonPhotoUrl = "N";
+
+    void sendRequest() {
+        request = new WebRequest(this, new JSONObject(), Constant.loginURL,
+                type, this, true);
+        request.execute();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.login);
+        ctx = Login.this;
+        pref = new Preferences(getApplicationContext());
+        isLogin = pref.getBoolean("logincheck");
+        loginBtn = (Button) findViewById(R.id.Login_button);
+        sign_up = (TextView) findViewById(R.id.sign_up_text);
+        et_mailId = (EditText) findViewById(R.id.email);
+        et_psswd = (EditText) findViewById(R.id.password);
+        cb = (CheckBox) findViewById(R.id.check_box);
+
+        // Check if remember me is ON/OFF
+        if (isLogin == true) {
+            et_mailId.setText(pref.getString("mail"));
+            et_psswd.setText(pref.getString("password"));
+            cb.setChecked(true);
+        }
+
+        sign_up.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Login.this, Sign_up.class);
+                startActivity(i);
+
+            }
+        });
+
+        loginBtn.setOnClickListener(this);
+
+        type = SERVICE_TYPE.LOGIN;
+
+    }
+
+    private void sendData() throws JSONException {
+        // TODO Auto-generated method stub
+
+        JSONObject obj = new JSONObject();
+        obj.put(Constant.KEY_USER_NAME, et_mailId.getText());
+        obj.put(Constant.KEY_PASSWORD, et_psswd.getText());
+
+		/*
+         * WebRequest request = new WebRequest(context, obj,
+		 * Constant.forgotPasswordURL, type, this); request.execute();
+		 */
+        WebRequest request = new WebRequest(context, obj, Constant.loginURL, type, this, true);
+        request.execute();
+    }
+
+	/*
+     * private void writeToFile(String data) { try { String path =
+	 * context.getExternalFilesDir(null).getAbsolutePath();
+	 * System.out.println(path); File file = new File(path + "/my.txt");
+	 * FileOutputStream stream = new FileOutputStream(file); try {
+	 * stream.write(data.getBytes()); } finally { stream.close(); } } catch
+	 * (IOException e) { Log.e("Exception", "File write failed: " +
+	 * e.toString()); } }
+	 */
+
+    @Override
+    public void getWebResult(SERVICE_TYPE type, JSONObject result) {
+        // TODO Auto-generated method stub
+
+        // String st = result.toString();
+        // writeToFile(st);
+
+        try {
+
+            String token = result.getString("token");
+            pref.setString("token", token);
+
+            global.token = token;
+
+            Intent i = new Intent(context, Home.class);
+            startActivity(i);
+
+
+            global.token = token;
+
+            //Intent i = new Intent(context, WalkThrough.class);
+            startActivity(i);
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        // TODO Auto-generated method stub
+
+        switch (v.getId()) {
+            case R.id.Login_button:
+                try {
+
+                    if (checkValidation()) {
+                        if (cb.isChecked()) {
+                            String user_name = et_mailId.getText().toString();
+                            String password = et_psswd.getText().toString();
+                            pref.setBoolean("logincheck", true);
+                            pref.setString("mail", user_name);
+                            pref.setString("password", password);
+                        } else {
+                            pref.setclear();
+                        }
+                        sendData();
+
+                        Toast.makeText(Login.this, "Login Sucussfully",
+                                Toast.LENGTH_LONG).show();
+
+                    } else {
+                        Toast.makeText(Login.this, "Field required",
+                                Toast.LENGTH_LONG).show();
+                    }
+
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    private boolean checkValidation() {
+        boolean ret = true;
+
+        if (!Validation.hasText(et_mailId, Constant.ErrorMessage_UserName))
+            ret = false;
+        if (!Validation.hasLength(et_psswd, Constant.ErrorMessage_password))
+            ret = false;
+        return ret;
+    }
+}

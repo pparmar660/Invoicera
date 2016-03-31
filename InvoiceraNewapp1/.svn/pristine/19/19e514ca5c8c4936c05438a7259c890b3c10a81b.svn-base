@@ -1,0 +1,83 @@
+package com.invoicera.Fragment;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import com.invoicera.CustomView.CanvasView;
+import com.invoicera.ViewPagerAdpter.GraphPagerAdpter;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.model.GraphItemModel;
+
+import java.util.ArrayList;
+
+public class GraphFragment extends Fragment {
+	// Store instance variables
+	private String title;
+	private int page;
+	ArrayList<GraphItemModel> model;
+	static String DATA_LIST = "data_list";
+
+/*	// newInstance constructor for creating fragment with arguments
+	public GraphFragment newInstance(int page, ArrayList<GraphItemModel> model) {
+		this.model = model;
+		GraphFragment fragmentFirst = new GraphFragment();
+		Bundle args = new Bundle();
+		args.putInt("someInt", page);
+
+		fragmentFirst.setArguments(args);
+		return fragmentFirst;
+	}*/
+
+	// Store instance variables based on arguments passed
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+	//	page = getArguments().getInt("someInt", 0);
+		//title = getArguments().getString("someTitle");
+	}
+
+	// Inflate the view for the fragment based on layout XML
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		View view = inflater.inflate(R.layout.graph, container, false);
+		
+		model=getArguments().getParcelableArrayList(DATA_LIST);
+
+		LinearLayout liner = (LinearLayout) view.findViewById(R.id.linerlayout);
+
+		GraphPagerAdpter.centerX = HomePageFragment.global.screenWidth / 2;
+		GraphPagerAdpter.centerY = ((HomePageFragment) getParentFragment()).pager
+				.getLayoutParams().height / 2;
+
+		GraphPagerAdpter.radiusOfOuter = (GraphPagerAdpter.centerX * 90) / 100;
+
+		if (((GraphPagerAdpter.centerY * 90) / 100) < GraphPagerAdpter.radiusOfOuter) {
+
+			GraphPagerAdpter.radiusOfOuter = ((GraphPagerAdpter.centerY * 70) / 100);
+			GraphPagerAdpter.radiusOfInner = GraphPagerAdpter.radiusOfOuter * 80 / 100;
+
+		}
+		
+		GraphPagerAdpter.outerCircleStrok=(int) (8 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.innertCricleStrork=(int) (10 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.radiusOfCircleOnArc=(int) (13 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.arcTextSize=(int) (11 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.centerTextSize=(int) (15 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.hintCircleTextSize=(int) (10 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.hintCircleRadius=(int) (4 * getResources().getDisplayMetrics().density);
+		GraphPagerAdpter.gabBetweenHint=(int) (4 * getResources().getDisplayMetrics().density);
+
+		View myCanView = new CanvasView(Home.context, model);
+		liner.addView(myCanView);
+
+		return view;
+	}
+}

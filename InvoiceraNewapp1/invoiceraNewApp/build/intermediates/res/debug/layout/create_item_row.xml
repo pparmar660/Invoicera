@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="0dp"
+
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/cross_new"
+                android:padding="10dp"
+                android:id="@+id/cross" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="0dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Searivce "
+                    android:textColor="@color/black"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="5dp"
+                    android:textStyle="bold"
+                    android:id="@+id/itemName"
+
+                    />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="QTY: 2 US: 4 = 110"
+                    android:textColor="@color/gray"
+                    android:paddingBottom="2dp"
+                    android:paddingTop="2dp"
+                    android:id="@+id/qty_uc"
+                    android:singleLine="false"
+                    android:paddingLeft="5dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Discount : 110"
+                        android:id="@+id/discount"
+                    android:textColor="@color/gray"
+                    android:paddingBottom="2dp"
+
+                    android:paddingLeft="5dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="@color/lightgray02"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$500"
+        android:paddingRight="5dp"
+        android:textColor="@color/orange2"
+         android:id="@+id/total"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+</RelativeLayout><!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/layout/create_item_row.xml -->

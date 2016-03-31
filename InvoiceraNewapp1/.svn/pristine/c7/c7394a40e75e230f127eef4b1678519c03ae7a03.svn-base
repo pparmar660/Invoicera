@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/underline_background"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:padding="5dp"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Add Client"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="5dp"
+            android:src="@drawable/save" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F7F7F7"
+
+        >
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/box_background"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/clientName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Client Name"
+                android:inputType="textPersonName"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/businessName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Business name"
+                android:inputType="text"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/busimessEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Business email"
+                android:inputType="textEmailAddress"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+
+            <TextView
+                android:id="@+id/countryName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:padding="10dp"
+                android:text="Country :"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/currencyName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:padding="10dp"
+                android:text="Currency :"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/phoneNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Phone no"
+                android:inputType="phone"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+
+            <EditText
+                android:id="@+id/billingAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Billing Address"
+                android:inputType="text"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+            <CheckBox
+                android:id="@+id/isShipingAddressSameCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:button="@null"
+                android:drawableLeft="@drawable/custom_checkbox"
+                android:drawablePadding="10dp"
+                android:padding="10dp"
+                android:text="Is shipping address is same as billing address"
+                android:textColor="#000"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp"></CheckBox>
+
+            <EditText
+                android:id="@+id/shippingAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Shipping Address"
+                android:inputType="text"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+
+            <EditText
+                android:id="@+id/note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/underline_background"
+                android:hint="Note"
+                android:inputType="text"
+                android:minHeight="70dp"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor"
+                android:textSize="15sp" />
+
+
+        </LinearLayout>
+
+
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,190 @@
+package com.invoicera.androidapp;
+
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import com.invoicera.Utility.Validation;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
+/**
+ * Created by vinove on 12/10/15.
+ */
+public class AutoBillingActivity extends Activity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+    // UI Variable
+    LinearLayout ly_AutoBill;
+    ImageView img_Back, img_Remove;
+    CheckBox chk_Own, chk_Client;
+    EditText et_Payment, et_FirstName, et_LastName, et_CardName, et_Address, et_Country, et_City, et_State, et_Zip, et_CardType, et_CardNo, et_Cvv, et_Expiry;
+    Button btn_Save;
+
+    // Other Variable
+    String bill_option;
+    Calendar myCalendar;
+    DatePickerDialog.OnDateSetListener myDate;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.auto_billing);
+
+        ly_AutoBill = (LinearLayout) findViewById(R.id.ly_AutoBill);
+
+        img_Back = (ImageView) findViewById(R.id.img_back);
+        img_Remove = (ImageView) findViewById(R.id.img_remove);
+
+        chk_Own = (CheckBox) findViewById(R.id.chk_Own);
+        chk_Client = (CheckBox) findViewById(R.id.chk_Client);
+
+        et_Payment = (EditText) findViewById(R.id.paymentGateway);
+        et_FirstName = (EditText) findViewById(R.id.et_FirstName);
+        et_LastName = (EditText) findViewById(R.id.et_LastName);
+        et_CardName = (EditText) findViewById(R.id.et_CardName);
+        et_Address = (EditText) findViewById(R.id.et_Address);
+        et_Country = (EditText) findViewById(R.id.et_Country);
+        et_City = (EditText) findViewById(R.id.et_City);
+        et_State = (EditText) findViewById(R.id.et_State);
+        et_Zip = (EditText) findViewById(R.id.et_Zip);
+        et_CardType = (EditText) findViewById(R.id.et_CardType);
+        et_CardNo = (EditText) findViewById(R.id.et_CardNo);
+        et_Cvv = (EditText) findViewById(R.id.et_Cvv);
+        et_Expiry = (EditText) findViewById(R.id.et_Expiry);
+
+        btn_Save = (Button) findViewById(R.id.btn_Save);
+
+
+        img_Back.setOnClickListener(this);
+        btn_Save.setOnClickListener(this);
+        et_Expiry.setOnClickListener(this);
+
+        chk_Own.setOnCheckedChangeListener(this);
+        chk_Client.setOnCheckedChangeListener(this);
+
+        myCalendar = Calendar.getInstance();
+        myDate = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                updateFields();
+            }
+
+        };
+    }
+
+    private void updateFields() {
+        String myFormat = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        et_Expiry.setText(sdf.format(myCalendar.getTime()));
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            case R.id.img_back:
+                finish();
+                break;
+
+            case R.id.btn_Save:
+                if (checkValidation()) {
+
+                    Intent intent = new Intent();
+
+                    intent.putExtra("detail_option", bill_option);
+                    intent.putExtra("payment_gateway", et_Payment.getText().toString());
+                    intent.putExtra("first_name", et_FirstName.getText().toString());
+                    intent.putExtra("last_name", et_LastName.getText().toString());
+                    intent.putExtra("name_on_card", et_CardName.getText().toString());
+                    intent.putExtra("address", et_Address.getText().toString());
+                    intent.putExtra("country", et_Country.getText().toString());
+                    intent.putExtra("city", et_City.getText().toString());
+                    intent.putExtra("state", et_State.getText().toString());
+                    intent.putExtra("zip", et_Zip.getText().toString());
+                    intent.putExtra("card_type", et_CardType.getText().toString());
+                    intent.putExtra("card_number", et_CardNo.getText().toString());
+                    intent.putExtra("cvv", et_Cvv.getText().toString());
+                    intent.putExtra("expiry_date", et_Expiry.getText().toString());
+
+                    setResult(1, intent);
+
+                    finish();
+
+                }
+                break;
+
+            case R.id.et_Expiry:
+                new DatePickerDialog(this, myDate, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                break;
+        }
+
+    }
+
+    private boolean checkValidation() {
+        boolean valid_return = true;
+
+        if (!Validation.hasText(et_FirstName, "Please enter first name"))
+            return false;
+        if (!Validation.hasText(et_LastName, "Please enter last name"))
+            return false;
+        if (!Validation.hasText(et_CardName, "Please enter name on card"))
+            return false;
+        if (!Validation.hasText(et_Address, "Please enter address"))
+            return false;
+        if (!Validation.hasText(et_City, "Please enter city"))
+            return false;
+        if (!Validation.hasText(et_State, "Please enter state"))
+            return false;
+        if (!Validation.hasText(et_Zip, "Please enter zip code"))
+            return false;
+        if (!Validation.hasText(et_CardNo, "Please enter card number"))
+            return false;
+        if (!Validation.hasText(et_Cvv, "Please enter cvv number"))
+            return false;
+        if (!Validation.hasText(et_Expiry, "Please select expiry date"))
+            return false;
+
+        return valid_return;
+
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        switch (buttonView.getId()) {
+            case R.id.chk_Own:
+                if (chk_Own.isChecked()) {
+                    chk_Client.setChecked(false);
+                    ly_AutoBill.setVisibility(View.VISIBLE);
+                    bill_option = "Own";
+                }
+                break;
+
+            case R.id.chk_Client:
+                if (chk_Own.isChecked()) {
+                    chk_Client.setChecked(false);
+                    ly_AutoBill.setVisibility(View.GONE);
+                    bill_option = "Client";
+                }
+                break;
+        }
+
+    }
+}

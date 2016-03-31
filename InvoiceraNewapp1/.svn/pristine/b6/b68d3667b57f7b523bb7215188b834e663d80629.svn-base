@@ -1,0 +1,367 @@
+package com.invoicera.Fragment;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.ListViewAdpter.HomeGrid;
+import com.invoicera.ViewPagerAdpter.GraphPagerAdpter;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+import com.invoicera.model.GraphItemModel;
+import com.nirhart.parallaxscroll.views.ParallaxListView;
+import com.nirhart.parallaxscroll.views.ParallaxScrollView;
+import com.viewpagerindicator.TabPageIndicator;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class HomePageFragment extends BaseFragment implements WebApiResult, ViewPager.OnPageChangeListener, OnScrollListener {
+
+    ParallaxScrollView paralaxScrolView;
+    public ViewPager pager;
+    TextView totalTV;
+    GraphPagerAdpter graphAdpter;
+    public static String TAG_NOOFITEM = "noofitem";
+    public static String TAG_ITEMCOLOR = "itemcolour";
+    TabPageIndicator indicator;
+    static String FRAGMENT_POS = "fragment_pos";
+    static String DATA_LIST = "data_list";
+    // ExpandableHeightGridView gridView;
+    HomeGrid gridAdter;
+    ParallaxListView listView;
+    public static TextView textView;
+    FragmentChanger fragmentChanger;
+    JSONObject obj = null;
+    DatabaseHelper db;
+    ContentValues values;
+    public int initialPos = -1, lastPOs = -1;
+    private boolean mIsScrollingUp, temp = false, init = true;
+
+    public static ArrayList<Integer> totalItem = new ArrayList<>();
+    View convertView, convertView2;
+    /*
+     * ArrayList<ArrayList<GraphItemModel>> itemList = new
+     * ArrayList<ArrayList<GraphItemModel>>();
+     */
+    ArrayList<GraphFragment> myFragmentList = new ArrayList<GraphFragment>();
+    boolean showProgress = false;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+        View rootView = inflater.inflate(R.layout.home_page_fragment,
+                container, false);
+
+
+        listView = (ParallaxListView) rootView.findViewById(R.id.list_view);
+        gridAdter = new HomeGrid(context, fragmentChanger);
+        Home.toolbarText.setText("Home");
+
+        showProgress = false;
+        db = new DatabaseHelper(context);
+
+
+        inflater = (LayoutInflater) Home.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        convertView = inflater.inflate(R.layout.home_viewpager, null);
+        convertView2 = inflater.inflate(R.layout.animation_text, null);
+        pager = (ViewPager) convertView.findViewById(R.id.pager);
+        pager.getLayoutParams().height = (global.screenHeight * 90) / 200;
+        pager.invalidate();
+        indicator = (TabPageIndicator) convertView.findViewById(R.id.indicator);
+        textView = (TextView) convertView2.findViewById(R.id.textView);
+        textView.getLayoutParams().height = (global.screenHeight * 90) / 200;
+
+        listView.addParallaxedHeaderView(convertView);
+
+
+        listView.setAdapter(gridAdter);
+
+        listView.setOnScrollListener(this);
+        graphAdpter = new GraphPagerAdpter(getChildFragmentManager());
+        pager.setAdapter(graphAdpter);
+        pager.setOnPageChangeListener(this);
+        indicator.setOnPageChangeListener(this);
+
+        //-------------------------------------------Get local data------------------------------------
+
+        boolean isProgressShowing = false;
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_GraphData;
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+            graphAdpter.clear();
+            for (int i = 0; i < cursor.getCount(); i++) {
+                try {
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+                    JSONObject colorObj = object.getJSONObject("ColorCode");
+                    global.colourArray = new HashMap<>();
+                    global.colourArray.put(Constant.KEY_SENT, colorObj.getString(Constant.KEY_SENT));
+                    global.colourArray.put(Constant.KEY_DRAFT, colorObj.getString(Constant.KEY_DRAFT));
+                    global.colourArray.put(Constant.KEY_OUTSTANDING, colorObj.getString(Constant.KEY_OUTSTANDING));
+                    global.colourArray.put(Constant.KEY_PAID, colorObj.getString(Constant.KEY_PAID));
+                    global.colourArray.put(Constant.KEY_PARTIAL_PAID, colorObj.getString(Constant.KEY_PARTIAL_PAID));
+                    global.colourArray.put(Constant.KEY_INVOICED, colorObj.getString(Constant.KEY_INVOICED));
+                    global.colourArray.put(Constant.KEY_UNBILLED, colorObj.getString(Constant.KEY_UNBILLED));
+                    global.colourArray.put(Constant.KEY_EXPIRED, colorObj.getString(Constant.KEY_EXPIRED));
+                    global.colourArray.put(Constant.KEY_ACCEPTED, colorObj.getString(Constant.KEY_ACCEPTED));
+                    global.colourArray.put(Constant.KEY_REJECTED, colorObj.getString(Constant.KEY_REJECTED));
+                    graphAdpter.add(getGraphItem("Invoice", object));
+                    graphAdpter.add(getGraphItem("Estimate", object));
+                    graphAdpter.add(getGraphItem("Expense", object));
+                    indicator.setViewPager(pager);
+                    indicator.setVisibility(View.VISIBLE);
+                    pager.setOffscreenPageLimit(graphAdpter.getCount());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            isProgressShowing = false;
+            onPageSelected(pager.getCurrentItem());
+        } else
+
+            isProgressShowing = true;
+
+
+        try {
+            obj = new JSONObject();
+            obj.put(Constant.KEY_METHOD, "getHomeData");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        WebRequest request = new WebRequest(context, obj,
+                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, this, isProgressShowing);
+        request.execute();
+
+
+        //-------------------------
+        return rootView;
+    }
+
+
+    public Fragment getGraphItem(String key, JSONObject obj) {
+        GraphFragment fragment;
+
+        try {
+            JSONArray array = obj.getJSONArray(key);
+            GraphItemModel map;
+            ArrayList<GraphItemModel> model = new ArrayList<GraphItemModel>();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject valueObj = array.getJSONObject(i);
+                map = new GraphItemModel();
+                map.setNumberOfIem(Integer.parseInt(valueObj.getString("value")));
+                map.setColourCode(global.colourArray.get(valueObj.getString("name")));
+                map.setItemName(valueObj.getString("name"));
+                map.setType(key);
+                model.add(map);
+
+            }
+
+            fragment = new GraphFragment();
+            Bundle arguments = new Bundle();
+            arguments.putInt(FRAGMENT_POS, 0);
+            arguments.putParcelableArrayList(DATA_LIST, model);
+            fragment.setArguments(arguments);
+            return fragment;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        // TODO Auto-generated method stub
+        super.onAttach(activity);
+        fragmentChanger = (FragmentChanger) getActivity();
+    }
+
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        switch (type) {
+
+            case GET_DATA:
+                db.ClearTable(DatabaseHelper.Table_GraphData);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+
+                db.insert(DatabaseHelper.Table_GraphData, values);
+
+
+                String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_GraphData;
+
+                Cursor cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    graphAdpter.clear();
+                    //totalItem = new ArrayList<>();
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        try {
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            // set color array
+
+                            JSONObject colorObj = object.getJSONObject("ColorCode");
+                            global.colourArray = new HashMap<>();
+                            global.colourArray.put(Constant.KEY_SENT, colorObj.getString(Constant.KEY_SENT));
+
+                            global.colourArray.put(Constant.KEY_DRAFT, colorObj.getString(Constant.KEY_DRAFT));
+                            global.colourArray.put(Constant.KEY_OUTSTANDING, colorObj.getString(Constant.KEY_OUTSTANDING));
+                            global.colourArray.put(Constant.KEY_PAID, colorObj.getString(Constant.KEY_PAID));
+                            global.colourArray.put(Constant.KEY_PARTIAL_PAID, colorObj.getString(Constant.KEY_PARTIAL_PAID));
+                            global.colourArray.put(Constant.KEY_INVOICED, colorObj.getString(Constant.KEY_INVOICED));
+                            global.colourArray.put(Constant.KEY_UNBILLED, colorObj.getString(Constant.KEY_UNBILLED));
+                            global.colourArray.put(Constant.KEY_EXPIRED, colorObj.getString(Constant.KEY_EXPIRED));
+                            global.colourArray.put(Constant.KEY_ACCEPTED, colorObj.getString(Constant.KEY_ACCEPTED));
+                            global.colourArray.put(Constant.KEY_REJECTED, colorObj.getString(Constant.KEY_REJECTED));
+
+
+                            // set  Invoice -----------------------
+
+                            graphAdpter.add(getGraphItem("Invoice", object));
+                            graphAdpter.add(getGraphItem("Estimate", object));
+                            graphAdpter.add(getGraphItem("Expense", object));
+                            indicator.setViewPager(pager);
+                            indicator.setVisibility(View.VISIBLE);
+                            pager.setOffscreenPageLimit(graphAdpter.getCount());
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                    onPageSelected(pager.getCurrentItem());
+                }
+
+
+                break;
+
+
+        }
+
+
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+        System.out.println("As: " + position + "," + totalItem.size());
+
+        if (totalItem.size() > position)
+            switch (position) {
+                case 0:
+
+                    textView.setText("Invoice " + totalItem.get(position));
+                    break;
+                case 1:
+
+                    textView.setText("Estimate " + totalItem.get(position));
+                    break;
+                case 2:
+
+                    textView.setText("Expense " + totalItem.get(position));
+                    break;
+
+
+            }
+
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+        if (initialPos < 0)
+            initialPos = firstVisibleItem;
+
+        if (listView.getChildAt(initialPos).getY() <= -10) {
+
+            if (listView.getHeaderViewsCount() == 1 && !temp) {
+                listView.removeHeaderView(convertView);
+                listView.addParallaxedHeaderView(convertView2);
+
+                temp = true;
+                init = false;
+            }
+
+        } else {
+            if (listView.getChildAt(initialPos).getY() >= -20)
+                if (listView.getHeaderViewsCount() == 1 && temp
+                        && !init) {
+                    listView.removeHeaderView(convertView2);
+                    listView.addParallaxedHeaderView(convertView);
+
+                    temp = false;
+                }
+
+        }
+
+    }
+}

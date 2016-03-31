@@ -1,0 +1,73 @@
+package com.invoicera.model;
+
+/**
+ * Created by vinove on 28/9/15.
+ */
+public class ExpenseAttribute {
+
+    String expense_id,date,status,expense_status,amount,category,client,currency;
+
+    public String getExpense_id() {
+        return expense_id;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public void setExpense_id(String expense_id) {
+        this.expense_id = expense_id;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getExpense_status() {
+        return expense_status;
+    }
+
+    public void setExpense_status(String expense_status) {
+        this.expense_status = expense_status;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+}

@@ -1,0 +1,335 @@
+package com.invoicera.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class InvoiceItem implements Parcelable {
+
+	private String productId;
+	private String proName;
+	private String proType;
+	private String proDescription;
+	private String proUnitCost;
+	private String proQuantity;
+	private String proTax1Id;
+	private String proTax2Id;
+	private String proCurrencyId;
+
+	private String proDiscount;
+	private String proDiscountType;
+	private String promultiSum;
+	private String subTotal;
+	private String proTax1name;
+	private String proTax1value;
+	private String proTax1type;
+
+	private String proTax2name;
+	private String proTax2value;
+	private String proTax2type;
+	private String proInvoiceType;
+	private String totalTaxvalue;
+
+	// private String productName;
+	// private String productDate;
+	// private String productStatus;
+
+	/**
+	 * 
+	 * This field is needed for Android to be able to create new objects,
+	 * individually or as arrays.
+	 * 
+	 * This also means that you can use use the default constructor to create
+	 * the object and use another method to hyrdate it as necessary.
+	 * 
+	 * I just find it easier to use the constructor. It makes sense for the way
+	 * my brain thinks ;-)
+	 * 
+	 */
+	@SuppressWarnings("rawtypes")
+	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+		@Override
+		public InvoiceItem createFromParcel(Parcel in) {
+			return new InvoiceItem(in);
+		}
+
+		@Override
+		public InvoiceItem[] newArray(int size) {
+			return new InvoiceItem[size];
+		}
+	};
+
+	public InvoiceItem() {
+
+	}
+
+	/**
+	 * 
+	 * Constructor to use when re-constructing object from a parcel
+	 * 
+	 * @param in
+	 *            a parcel from which to read this object
+	 */
+	public InvoiceItem(Parcel in) {
+		readFromParcel(in);
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public String getProCurrencyId() {
+		return proCurrencyId;
+	}
+
+	public String getProDescription() {
+		return proDescription;
+	}
+
+	public String getProDiscount() {
+		return proDiscount;
+	}
+
+	public String getProDiscountType() {
+		return proDiscountType;
+	}
+
+	public String getProductId() {
+		return productId;
+	}
+
+	public String getProInvoiceType() {
+		return proInvoiceType;
+	}
+
+	public String getProMultiSum() {
+		return promultiSum;
+	}
+
+	public String getProName() {
+		return proName;
+	}
+
+	public String getProQuantity() {
+		return proQuantity;
+	}
+
+	public String getProTax1Id() {
+		return proTax1Id;
+	}
+
+	/*
+	 * public String getProSubtotal() { return subTotal; } public void
+	 * setProSubtotal(String subTotal) { this.subTotal = subTotal; }
+	 */
+	public String getProTAX1Name() {
+		return proTax1name;
+	}
+
+	public String getProTAX1Type() {
+		return proTax1type;
+	}
+
+	public String getProTAX1Value() {
+		return proTax1value;
+	}
+
+	public String getProTax2Id() {
+		return proTax2Id;
+	}
+
+	public String getProTAX2Name() {
+		return proTax2name;
+	}
+
+	public String getProTAX2Type() {
+		return proTax2type;
+	}
+
+	public String getProTAX2Value() {
+		return proTax2value;
+	}
+
+	public String getProType() {
+		return proType;
+	}
+
+	public String getProUnitCost() {
+		return proUnitCost;
+	}
+
+	public String getSubTotal() {
+		return subTotal;
+	}
+
+	public String getTotalTaxValue() {
+		return totalTaxvalue;
+	}
+
+	/**
+	 * 
+	 * Called from the constructor to create this object from a parcel.
+	 * 
+	 * @param in
+	 *            parcel from which to re-create object
+	 */
+	private void readFromParcel(Parcel in) {
+
+		// readParcelable needs the ClassLoader
+		// but that can be picked up from the class
+		// This will solve the BadParcelableException
+		// because of ClassNotFoundException
+		// obj = in.readParcelable(ObjectA.class.getClassLoader());
+		// The rest is the same as in ObjectA
+
+		productId = in.readString();
+		proName = in.readString();
+		proType = in.readString();
+		proDescription = in.readString();
+		proQuantity = in.readString();
+		proUnitCost = in.readString();
+		proDiscount = in.readString();
+		proDiscountType = in.readString();
+		promultiSum = in.readString();
+		proTax1name = in.readString();
+		proTax1value = in.readString();
+		proTax1type = in.readString();
+		proTax2name = in.readString();
+		proTax2value = in.readString();
+		proTax2type = in.readString();
+		subTotal = in.readString();
+		totalTaxvalue = in.readString();
+
+		/*
+		 * productName = in.readString(); productDate = in.readString();
+		 * productStatus = in.readString();
+		 */
+	}
+
+	public void setProCurrencyId(String proCurrencyId) {
+		this.proCurrencyId = proCurrencyId;
+	}
+
+	public void setProDescription(String proDescription) {
+		this.proDescription = proDescription;
+	}
+
+	public void setProDiscount(String proDiscount) {
+		this.proDiscount = proDiscount;
+	}
+
+	public void setProDiscountType(String proDiscountType) {
+		this.proDiscountType = proDiscountType;
+	}
+
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+
+	public void setProInvoiceType(String proInvoiceType) {
+		this.proInvoiceType = proInvoiceType;
+	}
+
+	public void setProMultiSum(String promultiSum) {
+		this.promultiSum = promultiSum;
+	}
+
+	public void setProName(String proName) {
+		this.proName = proName;
+	}
+
+	public void setProQuantity(String proQuantity) {
+		this.proQuantity = proQuantity;
+	}
+
+	public void setProTax1Id(String proTax1Id) {
+		this.proTax1Id = proTax1Id;
+	}
+
+	public void setProTAX1Name(String proTax1name) {
+		this.proTax1name = proTax1name;
+	}
+
+	public void setProTAX1Type(String proTax1type) {
+		this.proTax1type = proTax1type;
+	}
+
+	public void setProTAX1Value(String proTax1value) {
+		this.proTax1value = proTax1value;
+	}
+
+	public void setProTax2Id(String proTax2Id) {
+		this.proTax2Id = proTax2Id;
+	}
+
+	public void setProTAX2Name(String proTax2name) {
+		this.proTax2name = proTax2name;
+	}
+
+	public void setProTAX2Type(String proTax2type) {
+		this.proTax2type = proTax2type;
+	}
+
+	public void setProTAX2Value(String proTax2value) {
+		this.proTax2value = proTax2value;
+	}
+
+	public void setProType(String proType) {
+		this.proType = proType;
+	}
+
+	/*
+	 * public String getProductName() { return productName; } public void
+	 * setProductName(String productName) { this.productName = productName; }
+	 * 
+	 * public String getProductDate() { return productDate; } public void
+	 * setProductDate(String productDate) { this.productDate = productDate; }
+	 * public String getProductStatus() { return productStatus; } public void
+	 * setProductStatus(String productStatus) { this.productStatus =
+	 * productStatus; }
+	 */
+
+	public void setProUnitCost(String proUnitCost) {
+		this.proUnitCost = proUnitCost;
+	}
+
+	public void setSubTotal(String subTotal) {
+		this.subTotal = subTotal;
+	}
+
+	public void setTotalTaxValue(String totalTaxvalue) {
+		this.totalTaxvalue = totalTaxvalue;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+
+		// The writeParcel method needs the flag
+		// as well - but thats easy.
+		// dest.writeParcelable(obj, flags);
+		// Same as in ObjectA
+		dest.writeString(productId);
+		dest.writeString(proName);
+		dest.writeString(proType);
+		dest.writeString(proDescription);
+		dest.writeString(proQuantity);
+		dest.writeString(proUnitCost);
+		dest.writeString(proDiscount);
+		dest.writeString(proDiscountType);
+		dest.writeString(promultiSum);
+		dest.writeString(proTax1name);
+		dest.writeString(proTax1value);
+		dest.writeString(proTax1type);
+		dest.writeString(proTax2name);
+		dest.writeString(proTax2value);
+		dest.writeString(proTax2type);
+		dest.writeString(subTotal);
+		dest.writeString(totalTaxvalue);
+
+		/*
+		 * dest.writeString(productName); dest.writeString(productDate);
+		 * dest.writeString(productStatus);
+		 */
+	}
+}

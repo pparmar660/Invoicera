@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/indicater_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:text="Recent"
+
+        android:textColor="@color/white"
+
+        android:textSize="15sp" />
+
+</LinearLayout>
+<!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/layout/indicater_text.xml -->

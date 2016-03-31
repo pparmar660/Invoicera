@@ -1,0 +1,215 @@
+package com.invoicera.Webservices;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.view.View;
+
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Utility.ConnectionDetector;
+import com.invoicera.androidapp.Home;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+public final class WebRequest extends AsyncTask<String, String, JSONObject> {
+
+    String requestApi;
+    Context mContext;
+
+    ConnectionDetector status;
+    HttpURLConnection connection;
+    SERVICE_TYPE type;
+    ProgressDialog prog;
+    WebApiResult webServiceResult;
+    Hashtable<String, String> postParameters;
+    //Global global;
+    boolean showProcessing = true;
+
+
+    /**
+     * Initizalize web address calling object
+     *
+     * @param mContext
+     * @param url
+     * @param type
+     * @param webResultInterface
+     */
+    public WebRequest(Context mContext, JSONObject jObj, String url,
+                      SERVICE_TYPE type, String token, WebApiResult webResultInterface,
+                      boolean showProgress) {
+        this.showProcessing = showProgress;
+        this.mContext = mContext;
+        //   global = (Global) mContext.getApplicationContext();
+        this.requestApi = url;
+        this.type = type;
+        this.postParameters = new Hashtable<String, String>();
+        postParameters.put("json_data", jObj.toString());
+        if (token!=null)
+        postParameters.put("token", token);
+
+        this.webServiceResult = webResultInterface;
+        status = new ConnectionDetector(mContext);
+
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss");
+        String format = s.format(new Date());
+        Log.e("time when send request ", format);
+
+        if (!showProcessing) return;
+        prog = new ProgressDialog(mContext);
+        prog.setMessage("Loading..." + "\nPlease wait");
+        prog.setIndeterminate(false);
+        prog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        prog.setCancelable(false);
+        prog.show();
+
+    }
+
+    @Override
+    protected JSONObject doInBackground(String... params) {
+        try {
+            URL url = new URL(this.requestApi);
+            //	System.out.println("REQUEST : " + url);
+
+            Log.e("Url:", requestApi);
+            Log.e("Request:", getPostParamString(postParameters));
+
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Content-Type",
+                    "application/x-www-form-urlencoded");
+            connection.setConnectTimeout(30000);
+            connection.setRequestMethod("POST");
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            try {
+                // Send request
+                if (postParameters != null) {
+                    DataOutputStream outputStream = new DataOutputStream(
+                            connection.getOutputStream());
+                    outputStream.writeBytes(getPostParamString(postParameters));
+                    outputStream.flush();
+                    outputStream.close();
+                }
+            } catch (ConnectException e) {
+                e.printStackTrace();
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            } finally {
+
+            }
+
+            // Get Response
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(inputStream));
+            String line;
+            StringBuffer response = new StringBuffer();
+            while ((line = bufferedReader.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            }
+            bufferedReader.close();
+
+            try {
+                return new JSONObject(response.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Pass Hashtable of key value pair we need to post
+     *
+     * @param params
+     * @return
+     */
+    private String getPostParamString(Hashtable<String, String> params) {
+        if (params.size() == 0)
+            return "";
+        StringBuffer buf = new StringBuffer();
+        Enumeration<String> keys = params.keys();
+        while (keys.hasMoreElements()) {
+            buf.append(buf.length() == 0 ? "" : "&");
+            String key = keys.nextElement();
+            buf.append(key).append("=").append(params.get(key));
+        }
+        //  Log.v("WebRequest_", buf.toString());
+        return buf.toString();
+    }
+
+    @Override
+    protected void onPostExecute(JSONObject result) {
+
+        if (Home.progressBarHome != null)
+            Home.progressBarHome.setVisibility(View.GONE);
+        if (prog != null)
+            if (prog.isShowing()) {
+                prog.dismiss();
+                prog = null;
+            }
+
+        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss");
+        String format = s.format(new Date());
+        Log.e("time when get data ",format);
+
+
+
+
+        if (result != null) {
+            Log.e("type=" + type, "result=" + result.toString());
+
+            webServiceResult.getWebResult(type, result);
+        } else Log.e("Web services response ", "Null");
+
+        if (!showProcessing)
+            return;
+        super.onPostExecute(result);
+
+    }
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        if (Home.progressBarHome != null)
+            Home.progressBarHome.setVisibility(View.GONE)
+                    ;
+        if (prog != null)
+            if (prog.isShowing()) {
+                prog.dismiss();
+                prog = null;
+            }
+    }
+}

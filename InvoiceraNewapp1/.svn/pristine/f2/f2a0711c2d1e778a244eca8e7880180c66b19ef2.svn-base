@@ -1,0 +1,36 @@
+package com.invoicera.androidapp;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+/**
+ * Created by vinove on 12/10/15.
+ */
+public class AutoBillingActivity extends Activity {
+    LinearLayout ly_AutoBill;
+    ImageView img_Back, img_Remove;
+    CheckBox chk_Product, chk_Service;
+    EditText Payment;
+
+    Button btn_Save;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.auto_billing);
+
+        ly_AutoBill = (LinearLayout) findViewById(R.id.ly_AutoBill);
+        img_Back = (ImageView) findViewById(R.id.img_back);
+        img_Remove = (ImageView) findViewById(R.id.img_remove);
+
+        chk_Product = (CheckBox) findViewById(R.id.chk_Product);
+        chk_Service = (CheckBox) findViewById(R.id.chk_Service);
+
+
+    }
+}

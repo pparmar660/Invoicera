@@ -1,0 +1,96 @@
+package com.invoicera.ListViewAdpter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.invoicera.androidapp.R;
+import com.invoicera.model.InvoiceAtribute;
+
+import java.util.ArrayList;
+
+public class InvoiceListPagerFragemtListAdpter extends BaseAdapter {
+
+	Context context;
+	public ArrayList<InvoiceAtribute> InvoicesList;
+
+	public InvoiceListPagerFragemtListAdpter(Context context) {
+		// TODO Auto-generated constructor stub
+		this.InvoicesList = new ArrayList<InvoiceAtribute>();
+		this.context = context;
+
+	}
+	
+	public void add(InvoiceAtribute attribute) {
+		InvoicesList.add(attribute);
+		notifyDataSetChanged();
+	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return InvoicesList.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getItemId(int position) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+
+		ViewHolder holder;
+
+		if (convertView == null) {
+			LayoutInflater inflater = (LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			convertView = inflater.inflate(
+					R.layout.invoice_list_pager_list_adpter, parent, false);
+
+			holder = new ViewHolder();
+			holder.invNumberTv = (TextView) convertView
+
+					.findViewById(R.id.invoice_no);
+			holder.orgnigationTv = (TextView) convertView
+					.findViewById(R.id.organization);
+			holder.netBalanceTv = (TextView) convertView
+					.findViewById(R.id.netbalance);
+			holder.time = (TextView) convertView.findViewById(R.id.time);
+			convertView.setTag(holder);
+
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+
+		}
+
+		holder.orgnigationTv.setText(InvoicesList.get(position)
+				.getOrganigation());
+
+		holder.invNumberTv.setText(InvoicesList.get(position).getInvoice_no());
+
+		holder.netBalanceTv.setText(InvoicesList.get(position).getCurrency()
+				+ " " + InvoicesList.get(position).getNet_balance());
+
+		holder.time.setText(InvoicesList.get(position).getDate());
+
+		return convertView;
+	}
+
+	class ViewHolder {
+
+		TextView orgnigationTv, invNumberTv, netBalanceTv, time;
+
+	}
+
+}

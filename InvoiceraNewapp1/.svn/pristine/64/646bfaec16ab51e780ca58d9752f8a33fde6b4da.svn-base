@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/indicater_invoicelist_back" android:state_focused="false" android:state_pressed="false" android:state_selected="false"/>
+    <item android:drawable="@drawable/tab_indicator_invoicelist_back" android:state_focused="false" android:state_pressed="false" android:state_selected="true"/>
+    <item android:drawable="@color/indicater_invoicelist_back" android:state_focused="true" android:state_pressed="false" android:state_selected="false"/>
+    <item android:drawable="@drawable/tab_indicator_invoicelist_back" android:state_focused="true" android:state_pressed="false" android:state_selected="true"/>
+
+</selector><!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/drawable/tab_indicator_invoicelist.xml -->

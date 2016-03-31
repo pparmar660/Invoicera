@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape= "rectangle"  >
+    <solid android:color="#E56E27"/>
+    <stroke android:width="1dip"  android:color="#B75A25"/>
+</shape>
+<!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/drawable/table_header_border.xml -->

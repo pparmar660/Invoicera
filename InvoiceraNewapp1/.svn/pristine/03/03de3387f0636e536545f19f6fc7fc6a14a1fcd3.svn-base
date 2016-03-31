@@ -1,0 +1,78 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.invoicera.Fragment.InvoicePreviewCreateFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.Webservices.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
+public class PreviewInvoicePagerFragment extends InvoicePreviewCreateFragment implements WebApiResult {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+
+        View view = inflater.inflate(R.layout.invoice_preview, container, false);
+
+        System.out.println("Id3:"+invoice_id);
+        getInvoicedata(invoice_id);
+
+        return view;
+
+    }
+
+
+    public void getInvoicedata(String invoiceId) {
+
+
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject();
+
+            obj.put(Constant.KEY_METHOD, "getInvoice");
+            obj.put(Constant.KEY_INVOICE_ID, invoiceId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        WebRequest request = new WebRequest(context, obj,
+                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, this, true);
+        request.execute();
+
+
+    }
+
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+}

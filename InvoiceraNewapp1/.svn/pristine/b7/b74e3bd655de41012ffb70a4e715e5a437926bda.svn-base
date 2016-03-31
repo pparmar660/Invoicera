@@ -1,0 +1,260 @@
+package com.invoicera.androidapp;
+
+import android.app.DatePickerDialog;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.invoicera.CustomView.CustomPopup;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.Utility.Validation;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+
+/**
+ * Created by Parvesh on 3/8/15.
+ */
+public class CreateEstimateDetail extends BaseActivity implements View.OnClickListener {
+
+
+    EditText Estimate_noET, Estimate_titleET, Estimate_noteET, term_conditionET;
+
+    int requestCode;
+    TextView Estimate_dateTV, schedule_onTV;
+
+    ImageView save, back;
+    DatePickerDialog.OnDateSetListener datePicker;
+    CustomPopup customPopUp;
+    Calendar myCalendar;
+    DatabaseHelper db;
+
+    ContentValues values;
+    int dateFor = 1;
+
+
+    ArrayList<HashMap<String, String>> lateFeeList;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.create_estimate_detail);
+
+        lateFeeList = new ArrayList<>();
+        Intent intent = getIntent();
+        db = new DatabaseHelper(context);
+
+
+        Estimate_noET = (EditText) findViewById(R.id.number);
+        Estimate_dateTV = (TextView) findViewById(R.id.estimate_date);
+        Estimate_titleET = (EditText) findViewById(R.id.estimateTitle);
+        schedule_onTV = (TextView) findViewById(R.id.scheduled_on);
+
+        save = (ImageView) findViewById(R.id.save);
+
+        Estimate_noteET = (EditText) findViewById(R.id.estimateNote);
+        term_conditionET = (EditText) findViewById(R.id.estimateTermAndCondition);
+        back = (ImageView) findViewById(R.id.back);
+        myCalendar = Calendar.getInstance();
+        //   itemModelsList=new ArrayList<>();
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        Estimate_dateTV.setText(sdf.format(myCalendar.getTime()));
+
+
+        if (intent.getStringExtra(Constant.KEY_NO) != null)
+            Estimate_noET.setText(intent.getStringExtra(Constant.KEY_NO));
+
+        if (intent.getStringExtra(Constant.KEY_TITLE) != null)
+            Estimate_titleET.setText(intent.getStringExtra(Constant.KEY_TITLE));
+
+        if (intent.getStringExtra(Constant.KEY_DATE) != null)
+            Estimate_dateTV.setText(intent.getStringExtra(Constant.KEY_DATE));
+
+        if (intent.getStringExtra(Constant.KEY_SCHEDUAL_DATE) != null)
+            schedule_onTV.setText(intent.getStringExtra(Constant.KEY_SCHEDUAL_DATE));
+
+
+        if (intent.getStringExtra(Constant.KEY_NOTE) != null)
+            Estimate_noteET.setText(intent.getStringExtra(Constant.KEY_NOTE));
+
+
+        if (intent.getStringExtra(Constant.KEY_TermsAndCondition) != null)
+            term_conditionET.setText(intent.getStringExtra(Constant.KEY_TermsAndCondition));
+
+
+        requestCode = intent.getIntExtra(Constant.KEY_REQUEST, 0);
+
+
+        save.setOnClickListener(this);
+        back.setOnClickListener(this);
+        Estimate_dateTV.setOnClickListener(this);
+        schedule_onTV.setOnClickListener(this);
+
+
+        datePicker = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                view.setMinDate(System.currentTimeMillis() - 1000);
+                updateLabel();
+            }
+
+        };
+
+
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        DatePickerDialog dialog;
+
+        switch (v.getId())
+
+        {
+            case R.id.save:
+
+                if (!Validation.hasText(Estimate_noET, "Please enter estimate number"))
+                    return;
+                Intent intent = new Intent();
+                intent.putExtra(Constant.KEY_NO, Estimate_noET.getText().toString());
+                intent.putExtra(Constant.KEY_DATE, Estimate_dateTV.getText().toString());
+                intent.putExtra(Constant.KEY_TITLE, Estimate_titleET.getText().toString());
+
+                intent.putExtra(Constant.KEY_SCHEDUAL_DATE, schedule_onTV.getText().toString());
+                intent.putExtra(Constant.KEY_NOTE, Estimate_noteET.getText().toString());
+                intent.putExtra(Constant.KEY_TermsAndCondition, term_conditionET.getText().toString());
+
+
+                setResult(requestCode, intent);
+
+                finish();
+
+                break;
+
+            case R.id.back:
+                finish();
+
+                break;
+
+
+            case R.id.scheduled_on:
+                dateFor = 3;
+                if (!schedule_onTV.getText().toString().equalsIgnoreCase("0000-00-00") || !schedule_onTV.getText().toString().isEmpty()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        myCalendar.setTime(sdf.parse(schedule_onTV.getText().toString()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                dialog = new DatePickerDialog(this, datePicker, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH));
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                dialog.show();
+                break;
+
+
+            case R.id.estimate_date:
+                if (!Estimate_dateTV.getText().toString().equalsIgnoreCase("0000-00-00") || !Estimate_dateTV.getText().toString().isEmpty()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        myCalendar.setTime(sdf.parse(Estimate_dateTV.getText().toString()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                dateFor = 1;
+                dialog = new DatePickerDialog(this, datePicker, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH));
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                dialog.show();
+                break;
+
+
+        }
+
+
+    }
+
+    private void updateLabel() {
+
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+
+        switch (dateFor) {
+            case 1:
+                Estimate_dateTV.setText(sdf.format(myCalendar.getTime()));
+                schedule_onTV.setText("");
+                break;
+
+            case 2:
+
+            case 3:
+                if (CheckDates(Estimate_dateTV.getText().toString(), sdf.format(myCalendar.getTime()).toString())) {
+
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Calendar cal = Calendar.getInstance();
+                    cal.add(Calendar.DATE, 1);
+
+                    if (CheckDates(dateFormat.format(cal.getTime()), sdf.format(myCalendar.getTime()).toString()))
+                        schedule_onTV.setText(sdf.format(myCalendar.getTime()));
+                    else global.showAlert("Schedule date should be after current date", context);
+                } else {
+                    global.showAlert("Schedule date should be after Estimate date", context);
+                    schedule_onTV.setText("");
+                }
+                break;
+
+
+        }
+
+
+    }
+
+    public boolean CheckDates(String startDate, String endDate) {
+        Log.e("dates ", startDate + "," + endDate);
+
+        SimpleDateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
+
+        boolean b = false;
+
+        try {
+            if (dfDate.parse(startDate).before(dfDate.parse(endDate))) {
+                b = true;  // If start date is before end date.
+            } else if (dfDate.parse(startDate).equals(dfDate.parse(endDate))) {
+                b = true;  // If two dates are equal.
+            } else {
+                b = false; // If start date is after the end date.
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return b;
+    }
+
+
+}
+

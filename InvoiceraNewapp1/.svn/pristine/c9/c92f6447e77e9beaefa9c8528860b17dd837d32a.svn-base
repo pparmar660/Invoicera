@@ -1,0 +1,100 @@
+package com.invoicera.CustomView;
+
+import android.app.Activity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+
+import com.invoicera.Animation.MyAnimation;
+import com.invoicera.androidapp.R;
+
+/**
+ * Created by vinove on 12/6/15.
+ */
+public class CreateModulesOption {
+
+
+    Activity activity;
+    View view;
+    LayoutInflater inflater;
+    // MyAnimation animatioon;
+    View Myview;
+    ViewGroup contentFrame;
+    ImageView removeImag;
+
+    public void addView(Activity activity) {
+
+
+        this.activity = activity;
+        //  animatioon = new MyAnimation(activity.getApplicationContext());
+        contentFrame = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        // view = activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        inflater = LayoutInflater.from(activity.getApplicationContext());
+        Myview = inflater.inflate(R.layout.cretae_all_module, contentFrame, false);
+        contentFrame.addView(Myview);
+
+        RelativeLayout rel = (RelativeLayout) Myview.findViewById(R.id.relative);
+        rel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        removeImag = (ImageView) Myview.findViewById(R.id.close);
+        removeImag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                contentFrame.removeView(Myview);
+            }
+        });
+
+
+        // animation((TableLayout) Myview.findViewById(R.id.tableLayout));
+        new MyAnimation(activity.getApplicationContext()).amimation((TableLayout) Myview.findViewById(R.id.tableLayout), R.anim.animation_sub_menu_open);
+
+      //  animation((TableLayout) Myview.findViewById(R.id.tableLayout));
+
+
+
+ /*       activity.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            public void onGlobalLayout() {
+                getViewTreeObserver().removeGlobalOnLayoutListener(this);
+
+                int[] locations = new int[2];
+                image.getLocationOnScreen(locations);
+                int x = locations[0];
+                int y = locations[1];
+            }
+        });*/
+    }
+
+
+/*    public void animation(final TableLayout rl_footer) {
+        Animation slide = null;
+    *//*    slide = new TranslateAnimation(RELATIVE_TO_SELF, 0.0f,
+                RELATIVE_TO_SELF, 0.0f, RELATIVE_TO_SELF,
+                0.0f, RELATIVE_TO_SELF, 5.2f);*//*
+
+        Log.e("Length",removeImag.getTop()+"");
+        slide = new TranslateAnimation(0.0f, 0.0f, 500, 0.0f);
+
+
+        slide.setDuration(1000);
+        slide.setFillAfter(true);
+       *//* slide.setFillEnabled(true);*//*
+
+        slide.setRepeatCount(Animation.INFINITE);
+
+        slide.setRepeatMode(Animation.RESTART);
+
+
+        slide.setInterpolator(new LinearInterpolator());
+        rl_footer.startAnimation(slide);
+    }*/
+
+
+}

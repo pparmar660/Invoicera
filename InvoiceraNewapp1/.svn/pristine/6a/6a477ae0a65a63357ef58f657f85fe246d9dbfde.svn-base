@@ -1,0 +1,1206 @@
+package com.invoicera.androidapp;
+
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.CustomView.CustomPopup;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.PopUpResult;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+
+/**
+ * Created by vinove on 20/10/15.
+ */
+public class ExpenseCreateEdit extends BaseActivity implements OnClickListener, WebApiResult, RadioGroup.OnCheckedChangeListener, PopUpResult {
+
+    TextView categoryTv, dateTv, staffTv, tax1Tv, tax2Tv, frequencyTv, utilityTv, recurringEndDateTv, assignToProjectTV, assignToClientTV;
+    EditText amountEt, vendorEt, expenseNoteEt;
+    RadioGroup assignRadioGroup;
+    CheckBox recurringChk;
+    boolean isShowProgressBar = false;
+    String selectQuery;
+    Cursor cursor;
+    CustomPopup myPopUp;
+    String[] createFrequencyArray = {"Weekly", "2 Weeks", "3 Weeks", "4 Weeks", "Monthly", "Quarterly", "Half Yearly", "11 Month", "Yearly", "2 Years", "3 Years"};
+    ArrayAdapter<String> createFrequencyAdapter;
+
+    String[] utilityArray = {"Forever", "End Date"};
+    ArrayAdapter<String> utilityAdapter;
+
+    ArrayList<HashMap<String, String>> taxList;
+    ArrayList<HashMap<String, String>> categoryList;
+    ArrayList<HashMap<String, String>> staffList;
+    ArrayList<HashMap<String, String>> projectList;
+
+    ArrayList<HashMap<String, String>> clientList;
+    WebRequest request;
+    ContentValues values;
+    String TaxId1="", TaxId2="";
+    String staffId="", projectId="", clientId="", categoryId="", date="";
+
+    DatePickerDialog.OnDateSetListener datePicker;
+    boolean isValueSelected = false;
+    Calendar myCalendar;
+    String dateFor = "";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.expense_create_edit);
+        categoryTv = (TextView) findViewById(R.id.category1);
+        dateTv = (TextView) findViewById(R.id.date);
+        staffTv = (TextView) findViewById(R.id.staff);
+        tax1Tv = (TextView) findViewById(R.id.tax1);
+        tax2Tv = (TextView) findViewById(R.id.tax2);
+        amountEt = (EditText) findViewById(R.id.amount);
+        vendorEt = (EditText) findViewById(R.id.vendorName);
+        expenseNoteEt = (EditText) findViewById(R.id.expenseNote);
+        assignRadioGroup = (RadioGroup) findViewById(R.id.assignGroup);
+        recurringChk = (CheckBox) findViewById(R.id.recurringChk);
+        recurringEndDateTv = (TextView) findViewById(R.id.recurringEndDate);
+        utilityTv = (TextView) findViewById(R.id.recurringUtility);
+        frequencyTv = (TextView) findViewById(R.id.recurringFrequency);
+        assignToClientTV = (TextView) findViewById(R.id.assignToClient);
+        assignToProjectTV = (TextView) findViewById(R.id.assignToProject);
+        assignToClientTV.setVisibility(View.VISIBLE);
+        assignToProjectTV.setVisibility(View.GONE);
+        myCalendar = Calendar.getInstance();
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        dateTv.setText(sdf.format(myCalendar.getTime()));
+        createFrequencyAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, createFrequencyArray);
+
+        utilityAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, utilityArray);
+        frequencyTv.setOnClickListener(this);
+
+        categoryList = new ArrayList<>();
+        taxList = new ArrayList<>();
+        staffList = new ArrayList<>();
+        assignToClientTV.setOnClickListener(this);
+        assignToProjectTV.setOnClickListener(this);
+        categoryTv.setOnClickListener(this);
+        dateTv.setOnClickListener(this);
+        staffTv.setOnClickListener(this);
+        tax2Tv.setOnClickListener(this);
+        tax1Tv.setOnClickListener(this);
+        utilityTv.setOnClickListener(this);
+        recurringEndDateTv.setOnClickListener(this);
+        assignRadioGroup.setOnCheckedChangeListener(this);
+        recurringChk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if (isChecked) {
+                    frequencyTv.setVisibility(View.VISIBLE);
+                    utilityTv.setVisibility(View.VISIBLE);
+                    recurringEndDateTv.setVisibility(View.VISIBLE);
+
+                } else {
+                    frequencyTv.setVisibility(View.GONE);
+                    utilityTv.setVisibility(View.GONE);
+                    recurringEndDateTv.setVisibility(View.VISIBLE);
+                }
+
+            }
+        });
+
+        datePicker = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                view.setMinDate(System.currentTimeMillis() - 1000);
+                updateLabel();
+            }
+
+        };
+
+
+    }
+
+    private void updateLabel() {
+
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        if (dateFor.equalsIgnoreCase("expenseDate"))
+            dateTv.setText(sdf.format(myCalendar.getTime()));
+        if (dateFor.equalsIgnoreCase("EndDate"))
+            recurringEndDateTv.setText(sdf.format(myCalendar.getTime()));
+
+
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        JSONObject obj;
+        DatePickerDialog dialog;
+
+        HashMap<String, String> map;
+        switch (v.getId()) {
+
+            case R.id.category1:
+                isShowProgressBar = false;
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_CategoryList;
+                cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    categoryList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONArray("catagory").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONArray("catagory").getJSONObject(k);
+
+                                // if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                map.put(Constant.KEY_ID, chargeObj.getString("category_id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+
+                                categoryList.add(map);
+                                //  }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, categoryList, Constant.POP_UP.CATEGORY_LIST, true, this, "Select Category");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "getCategoryList");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.CATEGORY_LIST, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+
+            case R.id.date:
+
+                if (!dateTv.getText().toString().equalsIgnoreCase("0000-00-00") || !dateTv.getText().toString().isEmpty()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        myCalendar.setTime(sdf.parse(dateTv.getText().toString()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                dialog = new DatePickerDialog(this, datePicker, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH));
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                dateFor = "expenseDate";
+                dialog.show();
+
+                break;
+            case R.id.recurringUtility:
+                new AlertDialog.Builder(context).setTitle("Recurring")
+                        .setAdapter(utilityAdapter, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                                utilityTv.setText("Utility : " + utilityArray[i].toString());
+                                if (i == 1) {
+                                    recurringEndDateTv.setVisibility(View.VISIBLE);
+                                } else recurringEndDateTv.setVisibility(View.GONE);
+
+                            }
+                        }).show();
+                break;
+            case R.id.recurringEndDate:
+
+
+                if (!recurringEndDateTv.getText().toString().equalsIgnoreCase("0000-00-00") || !recurringEndDateTv.getText().toString().isEmpty()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        myCalendar.setTime(sdf.parse(recurringEndDateTv.getText().toString()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                dialog = new DatePickerDialog(this, datePicker, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH));
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                dateFor = "EndDate";
+                dialog.show();
+
+
+                break;
+
+            case R.id.staff:
+                isShowProgressBar = false;
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_StaffList;
+                cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    staffList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("staff_users").getJSONArray("staff").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("staff_users").getJSONArray("staff").getJSONObject(k);
+
+                                // if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                map.put(Constant.KEY_ID, chargeObj.getString("staff_id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+
+
+                                staffList.add(map);
+                                //  }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, staffList, Constant.POP_UP.STAFF_LIST, true, this, "Select Staff");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "getStaffList");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.STAFF_LIST, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+            case R.id.recurringFrequency:
+
+                new AlertDialog.Builder(context).setTitle("Frequency")
+                        .setAdapter(createFrequencyAdapter, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                frequencyTv.setText("Frequency : " + createFrequencyArray[i].toString());
+                                dialog.dismiss();
+                            }
+                        }).show();
+
+                break;
+
+            case R.id.tax1:
+                isShowProgressBar = false;
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+
+                                if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                    map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                    map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                    map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                    taxList.add(map);
+                                }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST1, true, this, "Select Tax");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listGblTax");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_TAX_LIST1, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+            case R.id.tax2:
+                isShowProgressBar = false;
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+                                map.put(Constant.KEY_ID, chargeObj.getString("id"));
+
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                if (chargeObj.getString("type").equalsIgnoreCase("Compound")) {
+                                    map.put(Constant.KEY_NAME, "#" + chargeObj.getString("name"));
+
+                                } else {
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                }
+                                taxList.add(map);
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST2, true, this, "Select Tax");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listGblTax");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_TAX_LIST2, Constant.token, this, isShowProgressBar);
+                request.execute();
+
+                break;
+
+            case R.id.assignToProject:
+
+                isShowProgressBar = false;
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProjectList;
+
+
+                cursor = db.getRecords(selectQuery);
+                projectList = new ArrayList<>();
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+
+                            JSONArray projectsArray = object.getJSONObject("result").getJSONObject("projects").getJSONArray("project");
+
+                            for (int j = 0; j < projectsArray.length(); j++) {
+
+                                map = new HashMap<>();
+                                map.put(Constant.KEY_NAME, projectsArray.getJSONObject(j).getString("project_name"));
+
+                                map.put(Constant.KEY_ID, projectsArray.getJSONObject(j).getString("project_id"));
+                                projectList.add(map);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, projectList, Constant.POP_UP.PROJECT_LIST, true, this, "Select Project List");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listProjectForExpense");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_PROJECT_LIST, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+            case R.id.assignToClient:
+
+
+                isShowProgressBar = false;
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.TAble_ClientList;
+
+
+                cursor = db.getRecords(selectQuery);
+                clientList = new ArrayList<>();
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+
+                            JSONArray clientsArray = object.getJSONObject("clients").getJSONArray("client");
+
+                            for (int j = 0; j < clientsArray.length(); j++) {
+
+                                map = new HashMap<>();
+                                map.put(Constant.KEY_NAME, clientsArray.getJSONObject(j).getString("organization"));
+
+                                map.put(Constant.KEY_ID, clientsArray.getJSONObject(j).getString("client_id"));
+                                clientList.add(map);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, clientList, Constant.POP_UP.CLIENT_LIST, true, this, "Select Client List");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listClient");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_CLIENT_LIST, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+
+
+
+
+        }
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        HashMap<String, String> map;
+
+        boolean updatePopUp = false;
+        switch (type) {
+
+            case GET_PROJECT_LIST:
+
+                db.ClearTable(DatabaseHelper.Table_ProjectList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_ProjectList, values);
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProjectList;
+
+                cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    projectList = new ArrayList<>();
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+
+                            JSONArray projectsArray = object.getJSONObject("result").getJSONObject("projects").getJSONArray("project");
+
+                            for (int j = 0; j < projectsArray.length(); j++) {
+
+                                map = new HashMap<>();
+                                map.put(Constant.KEY_NAME, projectsArray.getJSONObject(j).getString("project_name"));
+
+                                map.put(Constant.KEY_ID, projectsArray.getJSONObject(j).getString("project_id"));
+                                projectList.add(map);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, projectList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, projectList, Constant.POP_UP.PROJECT_LIST, false, this, "Select Project");
+                            myPopUp.show();
+
+                        }
+
+
+                    }
+                }
+
+
+                break;
+
+            case GET_CLIENT_LIST:
+
+                db.ClearTable(DatabaseHelper.TAble_ClientList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.TAble_ClientList, values);
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.TAble_ClientList;
+
+                cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    projectList = new ArrayList<>();
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+
+                            JSONArray clientsArray = object.getJSONObject("clients").getJSONArray("client");
+
+                            for (int j = 0; j < clientsArray.length(); j++) {
+
+                                map = new HashMap<>();
+                                map.put(Constant.KEY_NAME, clientsArray.getJSONObject(j).getString("organization"));
+
+                                map.put(Constant.KEY_ID, clientsArray.getJSONObject(j).getString("client_id"));
+                                clientList.add(map);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, clientList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, clientList, Constant.POP_UP.CLIENT_LIST, false, this, "Select Client");
+                            myPopUp.show();
+
+                        }
+
+
+                    }
+                }
+
+
+                break;
+
+            case CATEGORY_LIST:
+                db.ClearTable(DatabaseHelper.Table_CategoryList);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_CategoryList, values);
+                selectQuery = "select " + DatabaseHelper.JSON_DATA + " From " + DatabaseHelper.Table_CategoryList;
+                cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    categoryList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONArray("catagory").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONArray("catagory").getJSONObject(k);
+
+                                // if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                map.put(Constant.KEY_ID, chargeObj.getString("category_id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+
+                                categoryList.add(map);
+                                //  }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, categoryList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, categoryList, Constant.POP_UP.CATEGORY_LIST, false, this, "Select Category");
+                            myPopUp.show();
+
+                        }
+                    }
+                }
+                break;
+
+            case STAFF_LIST:
+                db.ClearTable(DatabaseHelper.Table_StaffList);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_StaffList, values);
+                selectQuery = "select " + DatabaseHelper.JSON_DATA + " From " + DatabaseHelper.Table_StaffList;
+                cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    staffList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("staff_users").getJSONArray("staff").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("staff_users").getJSONArray("staff").getJSONObject(k);
+
+                                // if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                map.put(Constant.KEY_ID, chargeObj.getString("staff_id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+
+
+                                staffList.add(map);
+                                //  }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (myPopUp != null)
+                        if (myPopUp.isShowing())
+                            updatePopUp = true;
+
+
+                    if (updatePopUp)
+                        myPopUp.updateList(false, staffList);
+                    else {
+
+                        myPopUp = new CustomPopup((Activity) context, staffList, Constant.POP_UP.STAFF_LIST, false, this, "Select Category");
+                        myPopUp.show();
+
+                    }
+                }
+
+
+                break;
+
+
+            case GET_TAX_LIST1:
+
+                db.ClearTable(DatabaseHelper.Table_TaxList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_TaxList, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+
+                                if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+                                    map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                    map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                    map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                    taxList.add(map);
+                                }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, taxList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST1, false, this, "Select Tax");
+                            myPopUp.show();
+
+                        }
+                    }
+                }
+
+                break;
+
+
+            case GET_TAX_LIST2:
+
+                db.ClearTable(DatabaseHelper.Table_TaxList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_TaxList, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+                                map.put(Constant.KEY_ID, chargeObj.getString("id"));
+
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                if (chargeObj.getString("type").equalsIgnoreCase("Compound")) {
+                                    map.put(Constant.KEY_NAME, "#" + chargeObj.getString("name"));
+
+                                } else {
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                }
+                                taxList.add(map);
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, taxList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST2, false, this, "Select Tax");
+                            myPopUp.show();
+
+                        }
+                    }
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+        if (checkedId == R.id.project) {
+            assignToProjectTV.setVisibility(View.VISIBLE);
+            assignToClientTV.setVisibility(View.GONE);
+        } else {
+            assignToProjectTV.setVisibility(View.GONE);
+            assignToClientTV.setVisibility(View.VISIBLE);
+
+
+        }
+
+    }
+
+    @Override
+    public void getPopUpResult(Constant.POP_UP type, int pos, boolean clear) {
+        if (request != null)
+            request.cancel(true);
+        switch (type) {
+            case STAFF_LIST:
+                if (clear) {
+                    staffTv.setText("Staff: ");
+                    staffId = "";
+                    return;
+
+                }
+                staffTv.setText("Staff: " + staffList.get(pos).get(Constant.KEY_NAME));
+                staffId = staffList.get(pos).get(Constant.KEY_ID);
+                break;
+
+            case CATEGORY_LIST:
+                if (clear) {
+
+                    categoryTv.setText("Category: ");
+                    categoryId = "";
+                    return;
+
+                }
+
+                categoryTv.setText("Category: " + categoryList.get(pos).get(Constant.KEY_NAME));
+                categoryId = categoryList.get(pos).get(Constant.KEY_ID);
+                break;
+
+            case TAX_LIST1:
+                if (clear) {
+
+                    tax1Tv.setText("ApplyTax 1");
+                    TaxId1 = "";
+                    tax2Tv.setText("ApplyTax 2");
+                    TaxId2 = "";
+                    return;
+                }
+                if (TaxId1.isEmpty())
+                    TaxId1 = taxList.get(pos).get(Constant.KEY_ID).toString();
+                else {
+
+                    if (taxList.get(pos).get(Constant.KEY_ID).toString().equalsIgnoreCase(TaxId2)) {
+                        global.showAlert("This tax has already been selected", context);
+                        return;
+                    }
+                }
+
+                tax1Tv.setText(taxList.get(pos).get(Constant.KEY_NAME) + "(" + taxList.get(pos).get(Constant.KEY_VALUE).toString() + "%)");
+                TaxId1 = taxList.get(pos).get(Constant.KEY_ID).toString();
+
+                break;
+
+
+            case TAX_LIST2:
+
+
+                if (clear) {
+
+                    tax2Tv.setText("ApplyTax 2");
+                    TaxId2 = "";
+                    return;
+                }
+
+                if (TaxId1.isEmpty()) {
+                    global.showAlert("Please select tax1", context);
+                    return;
+                } else {
+
+                    if (TaxId1.equalsIgnoreCase(taxList.get(pos).get(Constant.KEY_ID).toString())) {
+                        global.showAlert("This tax has already been selected", context);
+                        return;
+                    }
+                }
+
+
+                if (taxList.get(pos).get(Constant.KEY_TYPE).toString().equalsIgnoreCase("Compound")) {
+                    if (TaxId1.isEmpty()) {
+                        global.showAlert("Please apply tax 1 before compound tax", context);
+                        return;
+                    }
+                }
+
+                tax2Tv.setText(taxList.get(pos).get(Constant.KEY_NAME) + "(" + taxList.get(pos).get(Constant.KEY_VALUE).toString() + "%)");
+                TaxId2 = taxList.get(pos).get(Constant.KEY_ID).toString();
+                break;
+            case PROJECT_LIST:
+
+                if (clear) {
+
+                    projectId = "";
+                    assignToProjectTV.setText("Project : ");
+                    return;
+                }
+                projectId = projectList.get(pos).get(Constant.KEY_ID);
+                assignToProjectTV.setText("Project : " + projectList.get(pos).get(Constant.KEY_NAME));
+
+                break;
+
+
+
+            case CLIENT_LIST:
+
+                if (clear) {
+
+                    clientId = "";
+                    assignToClientTV.setText("Client : ");
+                    return;
+                }
+                clientId = clientList.get(pos).get(Constant.KEY_ID);
+                assignToClientTV.setText("Client : " + clientList.get(pos).get(Constant.KEY_NAME));
+
+                break;
+
+        }
+    }
+
+
+    public void sendDataToServer() {
+
+
+        try {
+            JSONObject createExpenseObj = new JSONObject();
+            createExpenseObj.put("staff_id", staffId);
+            createExpenseObj.put("method", "createExpense");
+            createExpenseObj.put("notes", expenseNoteEt.getText().toString());
+            createExpenseObj.put("category_id", categoryId);
+
+            createExpenseObj.put("tax1", TaxId1);
+            createExpenseObj.put("tax2", TaxId2);
+            createExpenseObj.put("date", dateTv.getText().toString());
+            createExpenseObj.put("staffId", staffId);
+            createExpenseObj.put("amount", amountEt.getText().toString());
+            createExpenseObj.put("vendor", vendorEt.getText().toString());
+            createExpenseObj.put("date", date);
+
+
+            if (recurringChk.isChecked()) {
+                createExpenseObj.put("recurring_frequency", getFrequency(frequencyTv.getText().toString()));
+                createExpenseObj.put("until", utilityTv.getText().toString());
+                createExpenseObj.put("recurring_end_date", recurringEndDateTv.getText());
+
+            }
+
+            int radioButtonID = assignRadioGroup.getCheckedRadioButtonId();
+            View radioButton = assignRadioGroup.findViewById(radioButtonID);
+            int idx = assignRadioGroup.indexOfChild(radioButton);
+
+            switch (idx) {
+                case R.id.project:
+                    createExpenseObj.put("project_id", projectId);
+                    break;
+                case R.id.client:
+                    createExpenseObj.put("client_id", clientId);
+                    break;
+
+            }
+
+
+        } catch (Exception e)
+
+        {
+            e.printStackTrace();
+
+        }
+    }
+
+    public String getFrequency(String recurring_frequency) {
+        String freqstr = "";
+        if (recurring_frequency.equalsIgnoreCase("None")) {
+            freqstr = "";
+        } else if (recurring_frequency.equalsIgnoreCase("Weekly")) {
+            freqstr = "7";
+        } else if (recurring_frequency.equalsIgnoreCase("2 Weeks")) {
+            freqstr = "14";
+        } else if (recurring_frequency.equalsIgnoreCase("4 Weeks")) {
+            freqstr = "28";
+        } else if (recurring_frequency.equalsIgnoreCase("Monthly")) {
+            freqstr = "30";
+        } else if (recurring_frequency.equalsIgnoreCase("2 Months")) {
+            freqstr = "60";
+        } else if (recurring_frequency.equalsIgnoreCase("3 Months")) {
+            freqstr = "90";
+        } else if (recurring_frequency.equalsIgnoreCase("6 Months")) {
+            freqstr = "180";
+        } else if (recurring_frequency.equalsIgnoreCase("Yearly")) {
+            freqstr = "365";
+        } else if (recurring_frequency.equalsIgnoreCase("2 Years")) {
+            freqstr = "730";
+        } else if (recurring_frequency.equalsIgnoreCase("3 Years")) {
+            freqstr = "1095";
+        } else {
+            freqstr = recurring_frequency;
+        }
+        return freqstr;
+    }
+}
+
+

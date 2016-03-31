@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/popUpLiner"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Option"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:background="@drawable/underline_background"
+        android:textSize="15sp"
+        android:layout_gravity="center"
+        android:padding="15dp"
+        android:textStyle="bold"/>
+
+
+    <TextView
+        android:id="@+id/delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:textColor="@color/red"
+        android:textSize="15sp"
+        android:drawableRight="@drawable/ar"
+        android:background="@drawable/underline_background"
+        android:layout_gravity="center"
+        android:padding="15dp"
+        android:textStyle="normal"/>
+
+    <TextView
+        android:id="@+id/accountStatement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Account Statement"
+
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:drawableRight="@drawable/ar"
+        android:background="@drawable/underline_background"
+        android:layout_gravity="center"
+        android:padding="15dp"
+        android:textStyle="normal"/>
+
+    <TextView
+        android:id="@+id/addCredit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Credit"
+
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:drawableRight="@drawable/ar"
+        android:background="@drawable/underline_background"
+        android:layout_gravity="center"
+        android:padding="15dp"
+        android:textStyle="normal"/>
+
+
+    <TextView
+        android:id="@+id/sendLoginInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Login Info"
+
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:drawableRight="@drawable/ar"
+        android:background="@drawable/underline_background"
+        android:layout_gravity="center"
+        android:padding="15dp"
+        android:textStyle="normal"/>
+
+    <TextView
+        android:id="@+id/cancel_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+
+
+        android:textColor="@color/white"
+        android:textSize="15sp"
+
+        android:background="@color/orange2"
+        android:layout_gravity="center"
+       android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textStyle="normal"/>
+
+
+
+
+</LinearLayout>

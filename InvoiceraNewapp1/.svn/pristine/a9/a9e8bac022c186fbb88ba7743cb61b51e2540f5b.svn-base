@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion '21.1.2'
+    defaultConfig {
+        applicationId "com.invoicera.androidapp"
+        minSdkVersion 16
+        targetSdkVersion 21
+        //multiDexEnabled = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    productFlavors {
+    }/*
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }*/
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile project(':FloatingActionButton')
+    compile project(':library')
+    compile project(':parallaxScroll')
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+}

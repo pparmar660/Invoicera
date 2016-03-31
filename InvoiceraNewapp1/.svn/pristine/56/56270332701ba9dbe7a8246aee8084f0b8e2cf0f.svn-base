@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/contact_name_frag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bottom_line_background"
+            android:drawableLeft="@drawable/contact_name"
+            android:drawablePadding="10dp"
+            android:hint="Contact Name"
+            android:textCursorDrawable="@drawable/color_cursor"
+            android:padding="10dp"
+            android:textColor="#3F3F3F"
+            android:textColorHint="@color/lightgray02" />
+
+        <EditText
+            android:id="@+id/comp_size_frag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bottom_line_background"
+            android:drawableLeft="@drawable/cm_size"
+            android:drawablePadding="10dp"
+            android:hint="Company Size"
+            android:textCursorDrawable="@drawable/color_cursor"
+            android:padding="10dp"
+            android:textColor="#3F3F3F"
+            android:textColorHint="@color/lightgray02" />
+
+        <EditText
+            android:id="@+id/add_frag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bottom_line_background"
+            android:drawableLeft="@drawable/add"
+            android:drawablePadding="10dp"
+            android:textCursorDrawable="@drawable/color_cursor"
+            android:hint="Address"
+            android:padding="10dp"
+            android:textColor="#3F3F3F"
+            android:textColorHint="@color/lightgray02" />
+
+        <EditText
+            android:id="@+id/cu_name_frag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bottom_line_background"
+            android:drawableLeft="@drawable/cu_name"
+            android:drawablePadding="10dp"
+            android:hint="Country Name"
+            android:textCursorDrawable="@drawable/color_cursor"
+            android:padding="10dp"
+            android:textColor="#3F3F3F"
+            android:textColorHint="@color/lightgray02" />
+
+        <EditText
+            android:id="@+id/ph_frag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bottom_line_background"
+            android:drawableLeft="@drawable/ph_tx"
+            android:drawablePadding="10dp"
+            android:hint="Phone"
+            android:padding="10dp"
+            android:textColor="#3F3F3F"
+            android:textCursorDrawable="@drawable/color_cursor"
+            android:textColorHint="@color/lightgray02" />
+    </LinearLayout>
+
+</ScrollView>

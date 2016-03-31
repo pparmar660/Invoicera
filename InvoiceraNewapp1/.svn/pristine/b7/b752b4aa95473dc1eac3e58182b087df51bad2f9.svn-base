@@ -1,0 +1,67 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+
+import com.invoicera.Fragment.BaseFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.ListViewAdpter.informationListAdapter;
+import com.invoicera.Utility.Information;
+import com.invoicera.androidapp.R;
+
+import java.util.ArrayList;
+
+public class InformationInvoicePagerFragment extends BaseFragment {
+
+
+	ListView listView;
+
+	ArrayList<Information>list;
+	informationListAdapter adpter;
+	@Override
+	@Nullable
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		View view = inflater.inflate(R.layout.invoice_information, container,
+				false);
+		list=new ArrayList<>();
+		listView=(ListView)view.findViewById(R.id.list);
+		Information info=new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.HEADER);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.HEADER);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		info = new Information();
+		info.setRow_type(Constant.INFORMATION_ROW_TYPE.INFORMATION);
+		list.add(info);
+		adpter =new informationListAdapter(context,list);
+		listView.setAdapter(adpter);
+
+		return view;
+	}
+
+}

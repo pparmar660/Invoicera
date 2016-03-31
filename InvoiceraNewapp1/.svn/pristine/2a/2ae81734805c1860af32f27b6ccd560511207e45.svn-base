@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+   
+    <EditText
+        android:id="@+id/prefix"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:drawablePadding="10dp"
+        android:hint="Prefix"
+        android:textCursorDrawable="@drawable/color_cursor"
+        android:padding="10dp"
+        android:textColor="#3F3F3F"
+        android:textColorHint="@color/lightgray02" />
+
+    <EditText
+        android:id="@+id/next_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:drawablePadding="10dp"
+        android:hint="Next Number"
+        android:padding="10dp"
+        android:textColor="#3F3F3F"
+        android:textColorHint="@color/lightgray02" />
+
+    <EditText
+        android:id="@+id/note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:drawablePadding="10dp"
+        android:hint="Note"
+        android:padding="10dp"
+        android:textColor="#3F3F3F"
+        android:textColorHint="@color/lightgray02" />
+
+    <EditText
+        android:id="@+id/t_d"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:drawablePadding="10dp"
+        android:hint="Term &amp; Condition"
+        android:padding="10dp"
+        android:textColor="#3F3F3F"
+        android:textColorHint="@color/lightgray02" />
+
+</LinearLayout>

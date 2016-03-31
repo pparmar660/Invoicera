@@ -1,0 +1,925 @@
+package com.invoicera.androidapp;
+
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Utility.DecimalDigitsInputFilter;
+import com.invoicera.Utility.Utils;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+
+
+public class OfflinePayment extends BaseActivity implements OnClickListener, WebApiResult {
+    ImageView backbutton;
+
+    private String message = "", title = "";
+
+    private Handler hand = new Handler();
+    String invoiceid, invoice_no;
+
+    public static final String TAG_INVOICE_PAYMENT_MODES = "payment_modes";
+    public static final String TAG_PAYMENT_MODE = "payment_mode";
+
+    public static final String TAG_isPartialPayment = "isPartialPayment";
+
+    public static final String TAG_VALIDCODE = "code";
+    public static final String TAG_MESSAGE = "message";
+    public static final String TAG_PAYMENT_DETAIL = "payment_detail";
+    public static final String TAG_INVOICE_PAYMENT_HISTORY = "invoicePaymentHistory";
+    public static final String TAG_PAYMENT_DATE = "payment_date";
+    public static final String TAG_INVOICE_NUMBER = "invoice_number";
+    public static final String TAG_PAYMENT_METHOD = "payment_method";
+    public static final String TAG_PAYMENT_NOTE = "payment_note";
+    public static final String TAG_PAID_AMOUNT = "paid_amount";
+    public static final String TAG_TRANSACTION_ID = "transaction_id";
+    public static final String TAG_LAST_FEES = "latefee_amount";
+    public static final String TAG_INVOICE_TDS_AMOUNT = "invice_tds_amount";
+    public static final String TAG_TDS_ON = "TDSOn";
+    public static final String TAG_TDS_AMOUNT = "invice_tds_amount";
+
+    public static final String TAG_TOTAL_AMOUNT = "total_amount";
+    HashMap<String, String> PaymentDataDel;
+    int delIndex;
+
+    final ArrayList<HashMap<String, String>> paymentHistoryList = new ArrayList<HashMap<String, String>>();
+    ArrayList<String> paymentMethodList = new ArrayList<String>();
+    TableLayout tbl;
+    EditText methodET, amountET, dateET, notesET;
+    TextView invAmtTV, totalPaidTV, netBalanceTV;
+
+    String invAmountString = "";
+    double totalPaidFloat = 0.00f, late_fee_Amount = 0;
+    private TextView off_tv_invamount, off_tv_outamount, off_tv_latefeeamount;
+    String methodPayment;
+    static final int DATE_DIALOG_ID = 0;
+    private static String[] MONTHS = {"Jan", "Feb", "Mar", "Apr", "May",
+            "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    String schMonth, schDay, schYear;
+    private int mYear;
+    private int mMonth;
+    private int mDay;
+
+    private Button off_Payment, off_Cancel;
+    private String validation_message;
+    private CheckBox send_notification;
+    String dateS;
+    Boolean payment_created = false;
+    private Boolean doubleBackToExitPressedOnce = false;
+    private LinearLayout listlayout;
+    TextView ph_invoicenum, ph_currency;
+    String code;
+    // PaymentHistoryAdaptor paymentAdapter;
+    // TableRow tds_area;
+    String tdsOn = "Yes", isPartialPayment = "Y";
+    private LayoutInflater lf;
+    String invDate, invCurrency, late_fee = "0.0";
+    public static final int REQ_CODE_ADD_NOTE = 102;
+    FrameLayout off_date;
+    int positionvar;
+    TableRow latefee_rel;
+    DatePickerDialog dpicker;
+    HashMap<String, String> Payment;
+    WebApiResult webApiResult;
+    double latefeeAmount;
+    int requestCode;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.offline_payment);
+
+        backbutton = (ImageView) findViewById(R.id.back_button);
+        invoiceid = getIntent().getStringExtra(Constant.KEY_INVOICE_ID);
+        invoice_no = getIntent().getStringExtra(Constant.KEY_INVOICE_NO);
+        invDate = getIntent().getStringExtra(Constant.KEY_DATE);
+        invCurrency = getIntent().getStringExtra(Constant.KEY_CURRENCY);
+        late_fee = getIntent().getStringExtra(Constant.KEY_LATE_FEE);
+        requestCode=getIntent().getIntExtra(Constant.KEY_REQUEST,0);
+        webApiResult = this;
+
+        ph_invoicenum = (TextView) findViewById(R.id.ph_invoicenum);
+        ph_invoicenum.setText("Invoice No. " + invoice_no);
+        off_Payment = (Button) findViewById(R.id.off_Payment);
+        off_Cancel = (Button) findViewById(R.id.off_Cancel);
+        ph_currency = (TextView) findViewById(R.id.ph_currency);
+        invAmtTV = (TextView) findViewById(R.id.off_incoive_amount);
+        totalPaidTV = (TextView) findViewById(R.id.off_total_paid);
+        // balanceTV = (TextView) findViewById(R.id.off_balance);
+        netBalanceTV = (TextView) findViewById(R.id.off_net_balnce);
+        listlayout = (LinearLayout) findViewById(R.id.phList);
+        latefee_rel = (TableRow) findViewById(R.id.latefee_rel);
+        tbl = (TableLayout) findViewById(R.id.tablelayoutph);
+        // tds_area = (TableRow) findViewById(R.id.tds_area);
+        // paymentAdapter = new PaymentHistoryAdaptor(OfflinePayment.this,
+        // paymentHistoryList);
+        lf = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        off_tv_invamount = (TextView) findViewById(R.id.off_tv_invamount);
+        off_tv_outamount = (TextView) findViewById(R.id.off_tv_outamount);
+        off_tv_latefeeamount = (TextView) findViewById(R.id.off_tv_latefeeamount);
+        dateET = (EditText) findViewById(R.id.off_date_et);
+        notesET = (EditText) findViewById(R.id.off_notes_et);
+        send_notification = (CheckBox) findViewById(R.id.off_chk);
+        methodET = (EditText) findViewById(R.id.off_method_et);
+        if (paymentMethodList.size() > 0) {
+            methodPayment = paymentMethodList.get(0).toString();
+            methodET.setText(paymentMethodList.get(0).toString());
+        }
+        amountET = (EditText) findViewById(R.id.off_amount_et);
+
+        amountET.setFilters(new InputFilter[]{new DecimalDigitsInputFilter(2)});
+
+        amountET.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1,
+                                          int arg2, int arg3) {
+                if (isPartialPayment.equalsIgnoreCase("N")) {
+                    amountET.setOnClickListener(new OnClickListener() {
+
+                        @Override
+                        public void onClick(View arg0) {
+                            validation_message = "Partial Payment is not allowed in this invoice.";
+                            validationByToastMessage();
+                            amountET.setFocusable(false);
+
+                        }
+
+                    });
+
+                }
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                                      int arg3) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+        amountET.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+
+                    if (amountET.getText().toString().trim().equals("0.00")) {
+                        amountET.setText("");
+                    }
+                } else {
+
+                    if (amountET.getText().toString().trim().equals("")) {
+                        amountET.setText("0.00");
+                    }
+
+                }
+
+            }
+        });
+
+
+        // setting current date default
+        getCurrentDateandTime();
+
+        dateET.setText(new StringBuilder().append(MONTHS[mMonth].toString())
+                .append(" ").append(mDay).append(", ").append(mYear));
+        ph_invoicenum.setText("Invoice No: " + invoice_no);
+        ph_currency.setText("Currency: " + invCurrency + "");
+        off_Payment.setOnClickListener(this);
+        off_Cancel.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra(Constant.KEY_INVOICE_ID, invoiceid);
+                setResult(requestCode, intent);
+
+                finish();
+            }
+        });
+
+
+        methodET.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                try {
+                    ArrayAdapter<String> adapter_tax = new ArrayAdapter<String>(
+                            OfflinePayment.this,
+                            R.layout.simplelist_center_text, paymentMethodList);
+
+
+                    if (paymentMethodList.size() > 0) {
+                        new AlertDialog.Builder(OfflinePayment.this)
+                                .setTitle("Payment Method")
+                                .setAdapter(adapter_tax,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which) {
+                                                // TODO Auto-generated method
+                                                // stub
+                                                methodPayment = paymentMethodList
+                                                        .get(which).toString();
+                                                methodET.setText(paymentMethodList
+                                                        .get(which).toString());
+                                            }
+                                        }).show();
+                    } else {
+                        methodET.setText(Constant.no_op);
+                    }
+                } catch (Exception e) {
+                    Toast toast = Toast.makeText(OfflinePayment.this,
+                            Constant.No_REcord_Found, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, -30, 2);
+                    toast.show();
+                    return;
+                }
+            }
+        });
+        dateET.setOnTouchListener(new OnTouchListener() {
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                getCurrentDateandTime();
+                showDialog(DATE_DIALOG_ID);
+
+                return false;
+            }
+        });
+
+        dateET.setOnClickListener(new OnClickListener() {
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onClick(View v) {
+                getCurrentDateandTime();
+                showDialog(DATE_DIALOG_ID);
+
+            }
+        });
+
+        // / mListView = (ListView) findViewById(R.id.listviewPaymenthistory);
+        backbutton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                finish();
+
+            }
+        });
+
+        // get Data
+
+        JSONObject paymentHistory = new JSONObject();
+        try {
+            paymentHistory.put("method", "invoicePaymentHistory");
+            paymentHistory.put("invoice_id", invoiceid);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        WebRequest request = new WebRequest(context, paymentHistory, Constant.invoicelistURL, Constant.SERVICE_TYPE.PAYMENT_HISTORY, Constant.token, this, true);
+        request.execute();
+
+
+    }
+
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DATE_DIALOG_ID:
+
+                dpicker = new DatePickerDialog(this, mDateSetListener, mYear,
+                        mMonth, mDay);
+
+                SimpleDateFormat curFormater2 = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    Date date2 = curFormater2.parse(invDate);
+                    dpicker.getDatePicker().setMinDate(date2.getTime());
+                } catch (ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                return dpicker;
+
+        }
+        return null;
+    }
+
+    private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
+            // TODO Auto-generated method stub
+            mYear = year;
+            mMonth = monthOfYear;
+            mDay = dayOfMonth;
+
+            dateET.setText(new StringBuilder()
+                    // Month is 0 based so add 1
+                    .append(MONTHS[mMonth].toString()).append(" ").append(mDay)
+                    .append(", ").append(mYear));
+
+        }
+    };
+
+    private void setInLayout(
+            ArrayList<HashMap<String, String>> paymentHistoryList) {
+        listlayout.removeAllViews();
+        listlayout.removeAllViewsInLayout();
+        for (int i = 0; i < paymentHistoryList.size(); i++) {
+
+            Payment = paymentHistoryList.get(i);
+            final int position = i;
+            View view = lf.inflate(R.layout.paymenthistory_row, null);
+
+            TextView paymentdate = (TextView) view.findViewById(R.id.date);
+            TextView tdsamount = (TextView) view.findViewById(R.id.tdsmount);
+            ImageButton deleteItem = (ImageButton) view
+                    .findViewById(R.id.deleteItem);
+            if (Payment.get(TAG_TDS_ON).equals("Yes")) {
+
+                tdsamount.setText("TDS: "
+                        + Utils.FloatToStringLimits(Payment
+                        .get(TAG_TDS_AMOUNT)));
+            }
+            TextView paymentamount = (TextView) view.findViewById(R.id.amount);
+            TextView paymentmode = (TextView) view
+                    .findViewById(R.id.paymentmode);
+
+            TextView notes = (TextView) view.findViewById(R.id.notes);
+
+            if (!Payment.get(TAG_PAYMENT_NOTE).trim()
+                    .equals("null")) {
+
+                String notesStr = "Notes: "
+                        + Payment.get(TAG_PAYMENT_NOTE);
+                if (notesStr.length() > 225) {
+                    notesStr = notesStr.substring(0, 222) + "...";
+
+                }
+                notes.setText(notesStr);
+            }
+            paymentdate.setText(Payment.get(TAG_PAYMENT_DATE)
+                    + "");
+            paymentamount.setText(Utils.FloatToStringLimits(Payment
+                    .get(TAG_PAID_AMOUNT)));
+
+            paymentmode.setText("Paid by "
+                    + Payment.get(TAG_PAYMENT_METHOD));
+
+            deleteItem.setTag(position);
+            deleteItem.setOnClickListener(new OnClickListener() {
+
+                @Override
+                public void onClick(View arg0) {
+                    if (Payment.get("payment_type").equalsIgnoreCase("Offline")) {
+
+                        positionvar = position;
+                        deleteInvoiceAlertDialog(position);
+                    } else {
+                        Toast.makeText(OfflinePayment.this,
+                                "You can delete offline payments only. ",
+                                Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
+
+            listlayout.addView(view);
+
+        }
+    }
+
+    public void deleteInvoiceAlertDialog(int position) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                OfflinePayment.this);
+        alertDialog.setTitle(Constant.title);
+        alertDialog.setMessage(Constant.DeleteHistory);
+        alertDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (global.isNetworkAvailable()) {
+                            try {
+                                JSONObject paymentHistory = new JSONObject();
+                                paymentHistory.put("method",
+                                        "deleteOfflinePayment");
+                                paymentHistory.put("invoice_id", invoiceid);
+
+                                paymentHistory
+                                        .put("lateAmt",
+                                                paymentHistoryList
+                                                        .get(positionvar)
+                                                        .get(TAG_LAST_FEES));
+                                paymentHistory
+                                        .put("transaction_id",
+                                                paymentHistoryList
+                                                        .get(positionvar)
+                                                        .get(TAG_TRANSACTION_ID));
+
+                                WebRequest request = new WebRequest(context, paymentHistory, Constant.invoicelistURL, Constant.SERVICE_TYPE.DELETE_OFF_LINE_PAYMENT, Constant.token, webApiResult, true);
+
+                                request.execute();
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+
+                            }
+
+                        }
+                    }
+                });
+        alertDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.show();
+
+    }
+
+    public void getCurrentDateandTime() {
+
+        try {
+            final Calendar c = Calendar.getInstance();
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+            schMonth = "" + (mMonth + 1);
+            schYear = "" + mYear;
+            schDay = "" + mDay;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void validationByToastMessage() {
+        Toast toast = Toast.makeText(OfflinePayment.this, validation_message,
+                Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, -30, 2);
+        toast.show();
+        return;
+    }
+
+    @Override
+    public void onClick(View v) {
+
+
+        switch (v.getId()) {
+
+            case R.id.off_Payment:
+
+
+                try {
+                    dateS = dateET.getText().toString();
+                    String dateday = "", datemonth = "";
+                    int dateyypos = dateET.getText().toString()
+                            .lastIndexOf(", ");
+                    int dateddpos = dateET.getText().toString()
+                            .indexOf(" ");
+                    String dateYear = dateET.getText().toString()
+                            .substring(dateyypos + 2);
+                    String dateDay = dateET.getText().toString()
+                            .substring(dateddpos + 1, dateyypos);
+                    String dateMonth = dateET.getText().toString()
+                            .substring(0, dateddpos);
+                    int dateMonthValue = 0;
+                    for (int i = 0; i < MONTHS.length; i++) {
+                        if (dateMonth.equals(MONTHS[i])) {
+                            dateMonthValue = i;
+                            break;
+                        }
+                    }
+                    if ((dateMonthValue + 1) < 10) {
+                        datemonth = "0" + (dateMonthValue + 1);
+                    } else {
+                        datemonth = "" + (dateMonthValue + 1);
+                    }
+                    if (Integer.parseInt(dateDay) < 10) {
+                        dateday = "0" + Integer.parseInt(dateDay);
+                    } else {
+                        dateday = "" + Integer.parseInt(dateDay);
+                    }
+                    // dateS = dateYear + "-" + (datemonth) + "-" + dateday;
+                    dateS = dateYear + "-" + (datemonth) + "-" + dateday;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                String client_notification = "0";
+                if (send_notification.isChecked()) {
+
+                    client_notification = "1";
+                }
+
+
+                if ((Double
+                        .parseDouble(invAmountString)
+                        - totalPaidFloat) < Double.parseDouble(amountET.getText().toString())) {
+                    global.showAlert("Amount should be less than balance", context);
+                    return;
+
+                }
+
+
+                JSONObject invoiceOfflinePayment = null;
+                try {
+                    invoiceOfflinePayment = new JSONObject();
+                    JSONObject invoice = new JSONObject();
+                    invoice.put("id", invoiceid);
+                    invoice.put("comment", "");
+                    invoice.put("method", methodET.getText().toString().trim());
+                    invoice.put("amount", amountET.getText().toString());
+                    invoice.put("date", dateS);
+                    invoice.put("notes", notesET.getText().toString());
+                    invoice.put("client_notification", client_notification);
+                    invoiceOfflinePayment.put("invoice", invoice);
+                    invoiceOfflinePayment
+                            .put("method", "invoiceOfflinePayment");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                WebRequest request = new WebRequest(context, invoiceOfflinePayment, Constant.invoicelistURL, Constant.SERVICE_TYPE.OFF_LINE_PAYMENT, Constant.token, this, true);
+                request.execute();
+
+
+                break;
+
+
+        }
+
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        switch (type) {
+            case OFF_LINE_PAYMENT:
+
+
+                try {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                message = Constant.offlinepayment_created;
+                                title = Constant.title;
+
+                                AlertDialog alertDialog = new AlertDialog.Builder(OfflinePayment.this)
+                                        .create();
+                                alertDialog.setTitle(title);
+                                alertDialog.setMessage(message);
+                                alertDialog.setCancelable(false);
+                                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // start Invoice List
+                                        Intent intent = new Intent();
+                                        intent.putExtra(Constant.KEY_INVOICE_ID, invoiceid);
+                                        setResult(requestCode, intent);
+
+                                        finish();
+
+                                    }
+                                });
+                                alertDialog.show();
+                            } catch (Exception e) {
+
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+                } catch (Exception e) {
+
+                }
+
+
+                break;
+
+            case PAYMENT_HISTORY:
+
+                try {
+
+                    String has_paid;
+
+
+                    has_paid = result.getString("has_paid");
+                    if (has_paid.equals("Yes")) {
+                        tdsOn = result.getString(TAG_TDS_ON);
+                        isPartialPayment = result
+                                .getString(TAG_isPartialPayment);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tbl.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+                        invAmountString = result
+                                .getString(TAG_TOTAL_AMOUNT);
+
+                        invAmountString = invAmountString.replaceAll(",", "");
+
+                        JSONArray PaymentModes = result.getJSONObject(
+                                TAG_INVOICE_PAYMENT_MODES).getJSONArray(
+                                TAG_PAYMENT_MODE);
+
+                        for (int i = 0; i < PaymentModes.length(); i++) {
+
+                            paymentMethodList.add(PaymentModes.get(i)
+                                    .toString());
+
+                        }
+                        JSONArray PaymentHistory = result.getJSONObject(
+                                TAG_INVOICE_PAYMENT_HISTORY).getJSONArray(
+                                TAG_PAYMENT_DETAIL);
+                        for (int i = 0; i < PaymentHistory.length(); i++) {
+                            JSONObject c = PaymentHistory.getJSONObject(i);
+
+                            try {
+                                String date = c.getString(TAG_PAYMENT_DATE);
+                                String invoiceNo = c
+                                        .getString(TAG_INVOICE_NUMBER);
+                                String paymentMethod = c
+                                        .getString(TAG_PAYMENT_METHOD);
+                                String paidAmount = c
+                                        .getString(TAG_PAID_AMOUNT);
+                                String payment_type = c
+                                        .getString("payment_type");
+                                paidAmount = paidAmount.replaceAll(",", "");
+                                String tdsAmount = c
+                                        .getString(TAG_INVOICE_TDS_AMOUNT);
+                                tdsAmount = tdsAmount.replaceAll(",", "");
+                                try {
+                                    Double.parseDouble(tdsAmount);
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                                try {
+                                    totalPaidFloat = totalPaidFloat
+                                            + Double.parseDouble(paidAmount);
+                                } catch (Exception ex) {
+
+                                    ex.printStackTrace();
+                                }
+
+
+                                if (c.has(TAG_LAST_FEES)) {
+                                    late_fee = c
+                                            .getString(TAG_LAST_FEES).replaceAll(",", "");
+                                    if (late_fee.length() != 0)
+                                        late_fee_Amount = Double.parseDouble(late_fee);
+
+                                }
+
+
+                                HashMap<String, String> map = new HashMap<String, String>();
+                                map.put(TAG_PAYMENT_DATE, date);
+                                map.put(TAG_INVOICE_NUMBER, invoiceNo);
+                                map.put(TAG_PAYMENT_METHOD, paymentMethod);
+                                map.put(TAG_PAID_AMOUNT, paidAmount);
+                                map.put(TAG_TDS_ON, tdsOn);
+                                map.put(TAG_isPartialPayment, isPartialPayment);
+                                map.put("payment_type", payment_type);
+                                map.put(TAG_INVOICE_TDS_AMOUNT, tdsAmount);
+
+                                map.put(TAG_LAST_FEES,
+                                        c.getString(TAG_LAST_FEES));
+                                map.put(TAG_TRANSACTION_ID,
+                                        c.getString(TAG_TRANSACTION_ID));
+
+                                map.put(TAG_PAYMENT_NOTE,
+                                        c.getString(TAG_PAYMENT_NOTE));
+                                paymentHistoryList.add(map);
+                                /**** adding HashMap to Array List ****/
+                                System.out.println(paymentHistoryList.size()
+                                        + " size");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+
+
+                            }
+
+                        }
+                        // set text to amount paid
+                    } else {
+
+                        invAmountString = result
+                                .getString(TAG_TOTAL_AMOUNT);
+
+                        isPartialPayment = result
+                                .getString(TAG_isPartialPayment);
+                        invAmountString = invAmountString.replaceAll(",", "");
+
+                        JSONArray PaymentModes = result.getJSONObject(
+                                TAG_INVOICE_PAYMENT_MODES).getJSONArray(
+                                TAG_PAYMENT_MODE);
+
+                        for (int i = 0; i < PaymentModes.length(); i++) {
+
+                            paymentMethodList.add(PaymentModes.get(i)
+                                    .toString());
+
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    tbl.setVisibility(View.GONE);
+                                } catch (Exception e) {
+
+                                }
+                            }
+                        });
+
+                    }
+
+
+                    invAmtTV.setText(Utils.FloatToStringLimits(invAmountString));
+                    totalPaidTV.setText(Utils
+                            .FloatToStringLimits(totalPaidFloat));
+
+                    if (!invAmountString.equals("")) {
+
+                        netBalanceTV.setText(invCurrency
+                                + " "
+                                + Utils.FloatToStringLimits(Double
+                                .parseDouble(invAmountString)
+                                - totalPaidFloat));
+
+                        off_tv_outamount.setText(invCurrency
+                                + " "
+                                + Utils.FloatToStringLimits(Double
+                                .parseDouble(invAmountString)
+                                - totalPaidFloat
+                                + Double.parseDouble(late_fee
+                                .replaceAll(",", ""))));
+
+                        off_tv_invamount.setText(invCurrency + " "
+                                + Utils.FloatToStringLimits(invAmountString));
+
+                        try {
+
+                            if (Double.parseDouble(late_fee.replaceAll(",", "")) > 0)
+                                latefee_rel.setVisibility(View.VISIBLE);
+                            else latefee_rel.setVisibility(View.GONE);
+
+                        } catch (NumberFormatException ex) {
+                            ex.printStackTrace();
+                            latefee_rel.setVisibility(View.GONE);
+
+                        }
+                        off_tv_latefeeamount.setText(invCurrency + " "
+                                + Utils.FloatToStringLimits(late_fee));
+
+
+                        double amount = Double.parseDouble((Utils
+                                .FloatToStringLimits(invAmountString.replace(
+                                        ",", ""))).replace(",", ""))
+                                - totalPaidFloat
+                                + Double.parseDouble(late_fee.replaceAll(",",
+                                ""));
+
+
+                        amountET.setText(Utils.FloatToStringLimits(amount)
+                                .replaceAll(",", ""));
+
+                    }
+                    if (paymentMethodList.size() > 0) {
+                        System.out
+                                .println("paymentMethodList.get(0).toString()"
+                                        + paymentMethodList.get(0).toString());
+                        methodPayment = paymentMethodList.get(0).toString();
+                        methodET.setText(paymentMethodList.get(0).toString());
+                    }
+
+                    setInLayout(paymentHistoryList);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+
+                }
+
+
+                break;
+
+            case DELETE_OFF_LINE_PAYMENT:
+
+
+                try {
+
+
+                    try {
+
+                        new AlertDialog.Builder(OfflinePayment.this)
+                                .setTitle(Constant.title)
+                                .setCancelable(false)
+                                .setMessage(
+                                        Constant.delete_successfully)
+                                .setPositiveButton(
+                                        "Ok",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int id) {
+
+                                                finish();
+                                                startActivity(getIntent());
+
+                                            }
+                                        }).show();
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+
+                }
+
+
+                break;
+
+
+        }
+
+    }
+}

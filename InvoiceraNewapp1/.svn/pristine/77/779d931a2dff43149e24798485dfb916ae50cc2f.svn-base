@@ -1,0 +1,496 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.Fragment.InvoiceList;
+import com.invoicera.Fragment.InvoicePreviewCreateFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.ListViewAdpter.InvoiceListPagerFragmentListAdapter;
+import com.invoicera.Utility.MyDateFormat;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+import com.invoicera.model.InvoiceAtribute;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+public class InvoiceListPagerFragment extends InvoiceList implements
+        WebApiResult {
+    public FragmentChanger frgmentChanger;
+    View listFooter;
+    ListView listView;
+    public  InvoiceListPagerFragmentListAdapter adapter;
+    DatabaseHelper db;
+    ContentValues values;
+   public int pageNo = 1;
+    InvoiceList parentFragmet;
+    int total_pagesInt = 0;
+    int recordPerPage = 10;
+    private SwipeRefreshLayout swipeContainer;
+
+
+    int currentScrollState;
+    boolean isLoading = false;
+    int position = 0;
+
+    boolean isActionPopOpen = false;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    // Inflate the view for the fragment based on layout XML
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.invoice_list_pager_fragment,
+                container, false);
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.container);
+        position = getArguments().getInt(FRAGMENT_POS);
+
+        LayoutInflater footerInflater = LayoutInflater.from(getActivity());
+        listFooter = footerInflater.inflate(R.layout.list_footer, null, false);
+        listFooter.setVisibility(View.GONE);
+        listView = (ListView) view.findViewById(R.id.list);
+        parentFragmet = (InvoiceList) getParentFragment();
+        listView.addFooterView(listFooter);
+        db = new DatabaseHelper(context);
+
+        adapter = new InvoiceListPagerFragmentListAdapter(context);
+        listView.setAdapter(adapter);
+
+        swipeContainer.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                try {
+                    getInvoiveList(1, SERVICE_TYPE.GET_UPPER_DATA, false,
+                            InvoiceList.content[position]);
+                } catch (JSONException e) {
+
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        swipeContainer.setColorSchemeResources(
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_green_light,
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_red_light);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                if (position >= adapter.InvoicesList.size()) return;
+                Bundle arguments = new Bundle();
+                System.out.println("Id1:" + adapter.InvoicesList.get(position).getInvoice_id());
+                arguments.putString(Constant.KEY_INVOICE_ID, adapter.InvoicesList.get(position).getInvoice_id());
+                arguments.putInt(Constant.KEY_POSITION, 1);
+
+                if (global.isNetworkAvailable()) {
+                    frgmentChanger.onFragmentAddWithBackStack(new InvoicePreviewCreateFragment(), Constant.InovicePreviewCreateEditFragmentTag, arguments);
+                } else global.showAlert("No connection to internet", context);
+
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Log.v("long clicked", "pos: " + position);
+                getActiveFragment();
+
+
+   /*             if (isActionPopOpen)
+                    return true;*/
+
+                isActionPopOpen = true;
+
+
+                parentFragmet.actionRelative.setVisibility(View.VISIBLE);
+                parentFragmet.invoiceId =adapter.InvoicesList.get(position).getInvoice_id();
+                parentFragmet.InvoiceNoTV.setText("Invoice no : "+ invoiceId);
+                parentFragmet.position=position;
+
+                animation(parentFragmet.actionTable, R.anim.bottom_up, Constant.INVOICE_LIST_ACTION_ANIMATION_TYPE.OPEN);
+
+
+                return true;
+
+
+            }
+        });
+
+        parentFragmet.closeActionPopUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                animation(parentFragmet.actionTable, R.anim.bottom_down, Constant.INVOICE_LIST_ACTION_ANIMATION_TYPE.CLOSE);
+
+            }
+        });
+        parentFragmet.actionRelative.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        listView.setOnScrollListener(new OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                currentScrollState = scrollState;
+
+
+            }
+
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                if ((firstVisibleItem + visibleItemCount == totalItemCount)
+                        && !isLoading && (visibleItemCount != totalItemCount)) {
+
+
+                    try {
+                        listFooter.setVisibility(View.VISIBLE);
+                        isLoading = true;
+
+                        try {
+
+                            getInvoiveList(++pageNo,
+                                    SERVICE_TYPE.GET_BOTTOM_DATA,
+                                    false,
+                                    InvoiceList.content[position]);
+
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        setList();
+
+        return view;
+    }
+
+    public String getActiveFragment() {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+            return null;
+        }
+        String tag = getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount() - 1).getName();
+        Log.e("Tag", tag);
+        return tag;
+    }
+
+
+    @Override
+    public void onStart() {
+        // TODO Auto-generated method stub
+        System.out.println("ONstart");
+        super.onStart();
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        frgmentChanger = (FragmentChanger) activity;
+    }
+
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        // .makeText(context, position+"", Toast.LENGTH_SHORT).show();
+
+    }
+
+
+    public void getInvoiveList(int page_no, SERVICE_TYPE type,
+                               boolean showProcessing, String invoice_status) throws JSONException {
+
+        JSONObject obj = new JSONObject();
+
+        obj.put(Constant.KEY_METHOD, "listInvoice");
+        obj.put(Constant.KEY_PAGE_NO, page_no);
+        obj.put(Constant.KEY_PAGE_PER_REORD, recordPerPage);
+        obj.put(Constant.KEY_STATUS, "Active");
+        obj.put(Constant.KEY_INVOICE_STATUS, invoice_status);
+
+        this.pageNo = page_no;
+
+		/*
+         * WebRequest request = new WebRequest(context, obj,
+		 * Constant.forgotPasswordURL, type, this); request.execute();
+		 */
+
+        Home.progressBarHome.setVisibility(View.VISIBLE);
+
+        WebRequest request = new WebRequest(context, obj,
+                Constant.invoicelistURL, type, Constant.token, this, false);
+        request.execute();
+
+    }
+
+    @Override
+    public void getWebResult(SERVICE_TYPE type, JSONObject result) {
+        // TODO Auto-generated method stub
+        listFooter.setVisibility(View.GONE);
+        Home.progressBarHome.setVisibility(View.GONE);
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        boolean isSearchResult = false;
+
+        switch (type) {
+            case GET_UPPER_DATA:
+                // listView.onRefreshComplete();
+                swipeContainer.setRefreshing(false);
+                break;
+
+            case GET_BOTTOM_DATA:
+                isLoading = false;
+
+                // listView.onLoadMoreComplete();
+                break;
+            case GET_SEARCH_DATA:
+                isSearchResult = true;
+                break;
+
+
+            case GET_FILTER_DATA:
+                isSearchResult = true;
+                break;
+            default:
+                break;
+        }
+
+        if (!isSearchResult) {
+
+            try {
+                if (pageNo == 1) {
+
+                    values = new ContentValues();
+                    values.put(InvoiceList.table_field[position], (String) null);
+                    db.clearTableColumn(DatabaseHelper.Table_InvoiceList, values);
+                    adapter.InvoicesList = new ArrayList<>();
+
+
+                    values = new ContentValues();
+                    values.put(InvoiceList.table_field[position], result.toString()); // Contact
+
+                    db.insert(DatabaseHelper.Table_InvoiceList, values);
+
+                    String selectQuery = "Select " + InvoiceList.table_field[position]
+                            + " From " + DatabaseHelper.Table_InvoiceList + " WHERE "
+                            + InvoiceList.table_field[position] + " !='' AND "
+                            + InvoiceList.table_field[position] + " IS NOT NULL";
+
+                    Cursor cursor = db.getRecords(selectQuery);
+
+                    if (cursor.moveToFirst() && cursor.getCount() > 0)
+                        for (int i = 0; i < cursor.getCount(); i++) {
+                            updateUI(new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(InvoiceList.table_field[position]))));
+                        }
+                } else updateUI(result);
+
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            adapter.InvoicesList = new ArrayList<>();
+            updateUI(result);
+        }
+
+    }
+
+    public void setList() {
+        String selectQuery = "Select " + InvoiceList.table_field[position]
+                + " From " + DatabaseHelper.Table_InvoiceList + " WHERE "
+                + InvoiceList.table_field[position] + " !='' AND "
+                + InvoiceList.table_field[position] + " IS NOT NULL";
+
+        Cursor cursor = db.getRecords(selectQuery);
+      /*  Toast.makeText(
+                context,
+                "cusror Length " + position + "," + cursor.getCount() + ","
+                        + cursor.moveToFirst(), Toast.LENGTH_SHORT).show();*/
+        try {
+            if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                for (int i = 0; i < cursor.getCount(); i++) {
+
+                    adapter.InvoicesList = new ArrayList<>();
+
+                    updateUI(new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(InvoiceList.table_field[position]))));
+
+                    getInvoiveList(1, SERVICE_TYPE.GET_UPPER_DATA, false,
+                            InvoiceList.content[position]);
+
+                }
+            } else {
+                pageNo = 1;
+                getInvoiveList(1, SERVICE_TYPE.GET_UPPER_DATA, true,
+                        InvoiceList.content[position]);
+
+            }
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    private void updateUI(JSONObject jsonreturn) {
+
+        try {
+            JSONArray invoice = jsonreturn.getJSONObject(
+                    Constant.KEY_INVOICELIST)
+                    .getJSONArray(Constant.KEY_INVOICE);
+
+			/*
+             * if (!requestingLoadmore) { invoiceList.clear(); //
+			 * invoiceadapter.notifyDataSetChanged(); }
+			 */
+
+            JSONObject attributes = jsonreturn.getJSONObject(
+                    Constant.KEY_INVOICELIST).getJSONObject("@attributes");
+
+            String total_pages = attributes.getString("total_pages");
+
+            total_pagesInt = Integer.parseInt(total_pages);
+
+            for (int i = 0; i < invoice.length(); i++) {
+                JSONObject c = invoice.getJSONObject(i);
+
+                /***** Storing each JSON item in variable ****/
+
+                JSONObject client = c.getJSONObject(Constant.KEY_CLIENT);
+
+                InvoiceAtribute atribute = new InvoiceAtribute();
+
+                atribute.setCurrency(c.getString(Constant.KEY_CURRENCY));
+                atribute.setDate(MyDateFormat.GetDate(c
+                        .getString(Constant.KEY_DATE)));
+                atribute.setInvoice_id(c.getString(Constant.KEY_INVOICE_ID));
+                atribute.setInvoice_no(c.getString(Constant.KEY_INV_NO));
+                atribute.setInvoice_status(c
+                        .getString(Constant.KEY_INVOICE_STATUS));
+                atribute.setNet_balance(c.getString(Constant.KEY_NET_BALANCE));
+                atribute.setOrganigation(client
+                        .getString(Constant.KEY_ORGANIZATION));
+                if (c.has(Constant.KEY_STATUS))
+                atribute.setStatus(c.getString(Constant.KEY_STATUS));
+                atribute.setInvoiceTitile(c.getString(Constant.KEY_INVOICE_TITLE));
+                atribute.setLatefee(c.getString(Constant.KEY_LATE_FEE));
+
+                adapter.add(atribute);
+
+            }
+
+        } catch (JSONException e) {
+            // TODO: handle exception
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void animation(TableLayout layout, int animationId, final Constant.INVOICE_LIST_ACTION_ANIMATION_TYPE type) {
+
+        android.view.animation.Animation animationInfo;
+
+        animationInfo = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                animationId);
+
+        animationInfo.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+                switch (type) {
+
+                    case OPEN:
+
+
+                        break;
+                    case CLOSE:
+                        isActionPopOpen = false;
+
+                        parentFragmet.actionRelative.setVisibility(View.GONE);
+                        break;
+
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        layout.startAnimation(animationInfo);
+
+
+    }
+
+}

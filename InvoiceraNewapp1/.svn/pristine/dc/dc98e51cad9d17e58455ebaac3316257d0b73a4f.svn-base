@@ -1,0 +1,831 @@
+package com.invoicera.Fragment;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.CustomView.FloatingAction;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.ListViewAdpter.ProductServicesListAdapter;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+import com.invoicera.model.ProductServicesAttribute;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * Created by vinove on 25/8/15.
+ */
+public class ProductServicesList extends BaseFragment implements
+        WebApiResult, View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
+
+
+    public ImageView searchCancelImg;
+    public RelativeLayout actionRelative;
+    public TableLayout actionTable;
+    public ImageView closeActionPopUp;
+    public TableRow deleteLinear, archiveLinear, restoreLinear, editLiner;
+    boolean isActionPopOpen = false;
+    WebApiResult webApiResult;
+    private RapidFloatingActionLayout rfaLayout;
+    private RapidFloatingActionHelper rfabHelper;
+    private RapidFloatingActionButton rfaButton;
+    RapidFloatingActionContentLabelList rfaContent;
+    public boolean isSearchEnable = false;
+    int selectedPosition = 0;
+    DatabaseHelper db;
+    ContentValues values;
+
+    FragmentChanger fragmentChanger;
+
+    public TextView deleteTV, archiveTV, NameTV, activeTV, productTv, serviceTv;
+
+    //public String clientId;
+
+
+    View view;
+
+    public EditText searchEt;
+    WebRequest request;
+
+
+    ArrayList<ProductServicesAttribute> productsList;
+
+    ArrayList<ProductServicesAttribute> servicesList;
+    ProductServicesListAdapter adapter;
+
+
+    ListView listView;
+    FloatingAction floatingAction;
+
+    boolean isProductSelected;
+
+    //TextView addInvoiceTv,addEstimateTv,deleteClient,archiveClient,restoreClient,addCredit;
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+
+        final View view = inflater.inflate(R.layout.product_services_list, container,
+                false);
+
+        Home.toolbarText.setText("Item");
+
+        isProductSelected = true;
+
+        searchEt = (EditText) view.findViewById(R.id.searchEdit);
+
+        listView = (ListView) view.findViewById(R.id.productServicesList);
+        productsList = new ArrayList<>();
+        servicesList = new ArrayList<>();
+
+
+        searchCancelImg = (ImageView) view.findViewById(R.id.searchCancel);
+        actionTable = (TableLayout) view.findViewById(R.id.actionTable);
+        searchCancelImg.setOnClickListener(this);
+        closeActionPopUp = (ImageView) view.findViewById(R.id.closeAction);
+        actionRelative = (RelativeLayout) view.findViewById(R.id.actionRelative);
+        deleteTV = (TextView) view.findViewById(R.id.delete);
+        archiveTV = (TextView) view.findViewById(R.id.archive);
+        NameTV = (TextView) view.findViewById(R.id.productServicesName);
+
+        activeTV = (TextView) view.findViewById(R.id.active);
+        productTv = (TextView) view.findViewById(R.id.product);
+        serviceTv = (TextView) view.findViewById(R.id.service);
+
+
+        restoreLinear = (TableRow) view.findViewById(R.id.restoreLinear);
+        deleteLinear = (TableRow) view.findViewById(R.id.deleteLinear);
+        archiveLinear = (TableRow) view.findViewById(R.id.archiveLinear);
+
+        editLiner = (TableRow) view.findViewById(R.id.editProductServicesLinear);
+
+
+        webApiResult = this;
+        activeTV.setOnClickListener(this);
+        deleteTV.setOnClickListener(this);
+        archiveTV.setOnClickListener(this);
+
+
+        deleteLinear.setOnClickListener(this);
+
+        restoreLinear.setOnClickListener(this);
+        archiveLinear.setOnClickListener(this);
+        editLiner.setOnClickListener(this);
+        productTv.setOnClickListener(this);
+        serviceTv.setOnClickListener(this);
+
+        closeActionPopUp.setOnClickListener(this);
+
+        searchCancelImg.setVisibility(View.GONE);
+        db = new DatabaseHelper(context);
+        searchCancelImg.setOnClickListener(this);
+
+
+        ///floating tap-------------
+        rfaContent = new RapidFloatingActionContentLabelList(context);
+        rfaButton = (RapidFloatingActionButton) view.findViewById(R.id.label_list_sample_rfab);
+        rfaLayout = (RapidFloatingActionLayout) view.findViewById(R.id.label_list_sample_rfal);
+
+        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
+        String backColor = "#00000";
+
+        floatingAction = new FloatingAction(context, fragmentChanger, rfaLayout, rfaButton, rfaContent);
+
+
+        //client list
+
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                /*Intent i = new Intent(context, ClientPreview.class);
+                i.putExtra(Constant.KEY_CLIENT_ID, clientModels.get(position).getClientId());
+                context.startActivity(i);
+*/
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                if (!global.isNetworkAvailable()) {
+                    global.showAlert("No network connection", context);
+                    return true;
+                }
+
+   /*             if (isActionPopOpen)
+                    return true;*/
+
+                isActionPopOpen = true;
+                //selectClientId = clientModels.get(position).getClientId();
+                selectedPosition = position;
+                actionRelative.setVisibility(View.VISIBLE);
+                //clientId = clientModels.get(position).getClientId();
+                if (isProductSelected)
+                    NameTV.setText(productsList.get(position).getName());
+                ProductServicesAttribute attribute;
+                if (isProductSelected)
+                    attribute = productsList.get(position);
+                else attribute = servicesList.get(position);
+
+                if (attribute.getStatus().equalsIgnoreCase("Cancel") || attribute.getStatus().equalsIgnoreCase("Deleted")) {
+                    restoreLinear.setVisibility(View.VISIBLE);
+                    deleteLinear.setVisibility(View.GONE);
+                    archiveLinear.setVisibility(View.VISIBLE);
+
+
+                } else if (attribute.getStatus().equalsIgnoreCase("Archived")) {
+
+                    restoreLinear.setVisibility(View.VISIBLE);
+                    deleteLinear.setVisibility(View.VISIBLE);
+                    archiveLinear.setVisibility(View.GONE);
+
+                } else {
+
+                    restoreLinear.setVisibility(View.GONE);
+                    deleteLinear.setVisibility(View.VISIBLE);
+                    archiveLinear.setVisibility(View.VISIBLE);
+                }
+
+                animation(actionTable, R.anim.bottom_up, Constant.LIST_ACTION_ANIMATION_TYPE.OPEN);
+
+
+                return true;
+            }
+        });
+
+        searchEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    try {
+
+
+                        JSONObject obj = new JSONObject();
+
+                        if (isProductSelected)
+                            obj.put(Constant.KEY_METHOD, "searchProduct");
+                        else obj.put(Constant.KEY_METHOD, "searchServices");
+                        obj.put(Constant.KEY_PAGE_NO, "1");
+                        obj.put(Constant.KEY_PAGE_PER_REORD, 200);
+                        obj.put(Constant.KEY_STATUS, "");
+
+                        obj.put("searchText", searchEt.getText());
+
+
+                        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+
+                        WebRequest request = new WebRequest(context, obj,
+                                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SEARCH_DATA, Constant.token, webApiResult, true);
+                        if (global.isNetworkAvailable())
+                            request.execute();
+                        else {
+                            global.showAlert("No connection", context);
+                            isSearchEnable = true;
+
+
+                            searchCancelImg.setVisibility(View.VISIBLE);
+                        }
+
+                    } catch (JSONException e) {
+
+                        Log.i("exception", e.getMessage());
+
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
+        return view;
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(Constant.KEY_METHOD, "listGblProduct");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        request = new WebRequest(context, obj,
+                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SERVICE_LIST, Constant.token, this, false);
+        request.execute();
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ProductAndServices;
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+            productsList = new ArrayList<>();
+            servicesList = new
+                    ArrayList<>();
+
+            ProductServicesAttribute map;
+            for (int i = 0; i < cursor.getCount(); i++) {
+                try {
+                    setListData(new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+    }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        // TODO Auto-generated method stub
+        fragmentChanger = (FragmentChanger) activity;
+
+        super.onAttach(activity);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        Intent intent;
+        String selectQuery;
+
+        Cursor cursor;
+
+        switch (v.getId()) {
+
+            case R.id.closeAction:
+                animation(actionTable, R.anim.bottom_down, Constant.LIST_ACTION_ANIMATION_TYPE.CLOSE);
+                break;
+
+            case R.id.searchCancel:
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProductAndServices;
+
+                cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    productsList = new ArrayList<>();
+                    servicesList = new
+                            ArrayList<>();
+
+                    ProductServicesAttribute map;
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        try {
+                            setListData(new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                searchEt.setText("");
+                searchCancelImg.setVisibility(View.GONE);
+
+                break;
+
+
+            case R.id.editProductServicesLinear:
+
+         /*       i = new Intent(context, CreateEditClient.class);
+                i.putExtra(Constant.KEY_CLIENT_ID, clientModels.get(selectedClientPosition).getClientId());
+                startActivity(i);
+
+                isActionPopOpen = false;
+                actionRelative.setVisibility(View.GONE);*/
+
+                break;
+            case R.id.deleteLinear:
+
+                DeleteAlertDialog();
+                isActionPopOpen = false;
+                actionRelative.setVisibility(View.GONE);
+
+                break;
+            case R.id.archiveLinear:
+
+                if (global.isNetworkAvailable()) {
+
+
+                    try {
+                        JSONObject deleteItemObject = new JSONObject();
+
+                        JSONObject jsonObject = new JSONObject();
+                        deleteItemObject.put("type", "Archived");// Deleted - >Deleted ,
+                        // Archive->Archive
+                        if (isProductSelected) {
+                            deleteItemObject.put("product_id", productsList.get(selectedPosition).getId());
+                            jsonObject.put("deleteProduct", deleteItemObject);
+                        } else {
+                            deleteItemObject.put("service_id", servicesList.get(selectedPosition).getId());
+                            jsonObject.put("deleteService", deleteItemObject);
+
+                        }
+
+
+                        request = new WebRequest(context, jsonObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.ARCHIVE, Constant.token, webApiResult, true);
+                        request.execute();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+                break;
+            case R.id.restoreLinear:
+
+                if (global.isNetworkAvailable()) {
+
+
+                    try {
+                        JSONObject deleteItemObject = new JSONObject();
+
+                        JSONObject jsonObject = new JSONObject();
+                        deleteItemObject.put("type", "Active");// Deleted - >Deleted ,
+                        // Archive->Archive
+                        if (isProductSelected) {
+                            deleteItemObject.put("product_id", productsList.get(selectedPosition).getId());
+                            jsonObject.put("deleteProduct", deleteItemObject);
+                        } else {
+                            deleteItemObject.put("service_id", servicesList.get(selectedPosition).getId());
+                            jsonObject.put("deleteService", deleteItemObject);
+
+                        }
+
+
+                        request = new WebRequest(context, jsonObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.ACTIVE, Constant.token, webApiResult, true);
+                        request.execute();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+                break;
+
+            case R.id.product:
+                isProductSelected = true;
+                productTv.setBackgroundColor(Color.parseColor("#8A8A8A"));
+                productTv.setTextColor(Color.parseColor("#ffffff"));
+                serviceTv.setBackgroundColor(Color.parseColor("#ffffff"));
+                serviceTv.setTextColor(Color.parseColor("#8A8A8A"));
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProductAndServices;
+
+                cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    productsList = new ArrayList<>();
+                    servicesList = new
+                            ArrayList<>();
+
+                    ProductServicesAttribute map;
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        try {
+                            setListData(new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                break;
+            case R.id.service:
+                isProductSelected = false;
+                serviceTv.setBackgroundColor(Color.parseColor("#8A8A8A"));
+                serviceTv.setTextColor(Color.parseColor("#ffffff"));
+                productTv.setBackgroundColor(Color.parseColor("#ffffff"));
+                productTv.setTextColor(Color.parseColor("#8A8A8A"));
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProductAndServices;
+
+                cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    productsList = new ArrayList<>();
+                    servicesList = new
+                            ArrayList<>();
+
+                    ProductServicesAttribute map;
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        try {
+                            setListData(new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                break;
+
+
+        }
+
+
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        Log.e("pause", "");
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+        if (result == null)
+            return;
+
+        searchEt.setText("");
+        isActionPopOpen = false;
+        actionRelative.setVisibility(View.GONE);
+
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        switch (type) {
+
+            case GET_SERVICE_LIST:
+                db.ClearTable(DatabaseHelper.Table_ProductAndServices);
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_ProductAndServices, values);
+
+
+                String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProductAndServices;
+
+                Cursor cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    productsList = new ArrayList<>();
+                    servicesList = new
+                            ArrayList<>();
+
+                    ProductServicesAttribute map;
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        try {
+                            setListData(new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+
+                break;
+
+            case GET_SEARCH_DATA:
+
+
+                setListData(result);
+
+                break;
+            case DELETE:
+            case ARCHIVE:
+            case ACTIVE:
+
+                JSONObject obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listGblProduct");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SERVICE_LIST, Constant.token, this, true);
+                request.execute();
+
+
+                break;
+
+
+            case GET_FILTER_DATA:
+                setListData(result);
+
+                break;
+
+
+        }
+
+
+    }
+
+
+    @Override
+    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
+        // showToastMessage("clicked label: " + position);
+
+        floatingAction.createFunction(position);
+
+    }
+
+    @Override
+    public void onRFACItemIconClick(int position, RFACLabelItem item) {
+
+        floatingAction.createFunction(position);
+
+
+    }
+
+    public void animation(TableLayout layout, int animationId, final Constant.LIST_ACTION_ANIMATION_TYPE type) {
+
+        android.view.animation.Animation animationInfo;
+
+        animationInfo = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                animationId);
+
+        animationInfo.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+                switch (type) {
+
+                    case OPEN:
+
+
+                        break;
+                    case CLOSE:
+                        isActionPopOpen = false;
+
+                        actionRelative.setVisibility(View.GONE);
+                        break;
+
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        layout.startAnimation(animationInfo);
+
+
+    }
+
+
+    public void setListData(JSONObject object) {
+
+
+        try {
+            ProductServicesAttribute map;
+
+            for (int k = 0; k < object.getJSONObject("products").getJSONArray("product").length(); k++) {
+                map = new ProductServicesAttribute();
+                JSONObject chargeObj = object.getJSONObject("products").getJSONArray("product").getJSONObject(k);
+                map.setId(chargeObj.getString("product_id"));
+                map.setName(chargeObj.getString("product_name"));
+                map.setUnitCost(chargeObj.getString("unit_cost"));
+                map.setQuantity(chargeObj.getString("quantity"));
+                map.setDescription(chargeObj.getString("description"));
+                map.setDate(chargeObj.getString("date"));
+                map.setStatus(chargeObj.getString("status"));
+                map.setTax_one_value(chargeObj.getString("product_tax_value1"));
+                map.setTax_two_value(chargeObj.getString("product_tax_value2"));
+
+                //map.put(Constant.KEY_PRODUCT_TAX_VALUE2, chargeObj.getString("product_tax_value2"));
+                map.setCurrency_id(chargeObj.getString("product_currency_id"));
+                map.setCurrency_name(chargeObj.getString("product_currency_name"));
+                map.setTax_one_name(chargeObj.getString("product_tax_one_name"));
+                map.setTax_two_name(chargeObj.getString("product_tax_two_name"));
+                map.setInventoryCurrentStock(chargeObj.getString("inventory_current_stock"));
+                map.setTrackInventory(chargeObj.getString("track_inventory"));
+                map.setTaxId1(chargeObj.getString("product_taxID1"));
+                map.setTaxId2(chargeObj.getString("product_taxID2"));
+                map.setCreateBy(chargeObj.getString("created_by"));
+                map.setType("Product");
+
+                productsList.add(map);
+            }
+
+
+            for (int k = 0; k < object.getJSONObject("services").getJSONArray("service").length(); k++) {
+                map = new ProductServicesAttribute();
+                JSONObject chargeObj = object.getJSONObject("services").getJSONArray("service").getJSONObject(k);
+                map.setId(chargeObj.getString("service_id"));
+                map.setName(chargeObj.getString("service_name"));
+                map.setUnitCost(chargeObj.getString("unit_cost"));
+                map.setQuantity(chargeObj.getString("quantity"));
+                map.setDescription(chargeObj.getString("description"));
+                map.setDate(chargeObj.getString("date"));
+                map.setStatus(chargeObj.getString("status"));
+
+
+                map.setTax_one_value(chargeObj.getString("service_tax_value1"));
+                map.setTax_two_value(chargeObj.getString("service_tax_value2"));
+                map.setCurrency_id(chargeObj.getString("service_currency_id"));
+                map.setCurrency_name(chargeObj.getString("service_currency_name"));
+                map.setTax_one_name(chargeObj.getString("service_tax_one_name"));
+
+                map.setTax_two_name(chargeObj.getString("service_tax_two_name"));
+                map.setInventoryCurrentStock(chargeObj.getString("inventory_current_stock"));
+                map.setTrackInventory(chargeObj.getString("track_inventory"));
+                map.setTaxId1(chargeObj.getString("service_taxID1"));
+                map.setTaxId2(chargeObj.getString("service_taxID2"));
+                map.setCreateBy(chargeObj.getString("created_by"));
+                map.setType("Service");
+
+
+                servicesList.add(map);
+
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        // }
+        //}
+        if (isProductSelected)
+            adapter = new ProductServicesListAdapter(context, productsList);
+        else adapter = new ProductServicesListAdapter(context, servicesList);
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+    }
+
+
+    public void DeleteAlertDialog() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                context);
+        alertDialog.setTitle(Constant.title);
+        alertDialog.setMessage(Constant.delete_message);
+        alertDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if (global.isNetworkAvailable()) {
+
+
+                            try {
+                                JSONObject deleteItemObject = new JSONObject();
+
+                                JSONObject jsonObject = new JSONObject();
+                                deleteItemObject.put("type", "Deleted");// Deleted - >Deleted ,
+                                // Archive->Archive
+                                if (isProductSelected) {
+                                    deleteItemObject.put("product_id", productsList.get(selectedPosition).getId());
+                                    jsonObject.put("deleteProduct", deleteItemObject);
+                                } else {
+                                    deleteItemObject.put("service_id", servicesList.get(selectedPosition).getId());
+                                    jsonObject.put("deleteService", deleteItemObject);
+
+                                }
+
+
+                                request = new WebRequest(context, jsonObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.DELETE, Constant.token, webApiResult, true);
+                                request.execute();
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
+                        }
+
+                    }
+                });
+        alertDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.show();
+    }
+
+
+}

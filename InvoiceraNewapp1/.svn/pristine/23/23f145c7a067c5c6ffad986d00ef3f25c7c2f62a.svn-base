@@ -1,0 +1,9 @@
+package com.invoicera.ViewPagerFragment;
+
+import com.invoicera.Fragment.BaseFragment;
+
+/**
+ * Created by vinove on 31/8/15.
+ */
+public class ExpenseListPagerFragment extends BaseFragment {
+}

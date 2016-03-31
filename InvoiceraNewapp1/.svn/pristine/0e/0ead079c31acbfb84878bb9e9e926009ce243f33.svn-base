@@ -1,0 +1,24 @@
+package com.invoicera.androidapp;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+
+public class BaseActivity extends Activity{
+		Global global;
+	Context context;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		global=(Global)this.getApplicationContext();
+		context=this;
+
+
+	}
+
+	
+
+
+}
+

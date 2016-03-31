@@ -1,0 +1,200 @@
+package com.invoicera.androidapp;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.ListViewAdpter.SelectPaymentAdapter;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * Created by vinove on 7/7/15.
+ */
+public class SelectPaymentGateWay extends BaseActivity implements WebApiResult, OnClickListener {
+
+
+    ArrayList<HashMap<String, String>> paymentGatewayList;
+    ListView listView;
+    ImageView save, back;
+    SelectPaymentAdapter adapter;
+    String selectQuery;
+    Cursor cursor;
+    DatabaseHelper db;
+    WebRequest request;
+    JSONObject obj;
+    ContentValues values;
+    ArrayList<String> selectedList;
+
+    boolean isShowProgressBar = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.selectpayment_gateway);
+        listView = (ListView) findViewById(R.id.list);
+        save = (ImageView) findViewById(R.id.save);
+        back = (ImageView) findViewById(R.id.back);
+        paymentGatewayList = new ArrayList<>();
+        adapter = new SelectPaymentAdapter(context);
+        listView.setAdapter(adapter);
+        selectedList = new ArrayList<>();
+        save.setOnClickListener(this);
+        back.setOnClickListener(this);
+        db = new DatabaseHelper(context);
+        selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ProductAndServices;
+
+        cursor = db.getRecords(selectQuery);
+
+        Log.e("cusor length ", cursor.getCount() + "");
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+            paymentGatewayList = new ArrayList<>();
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+                    HashMap<String, String> map;
+
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                    for (int k = 0; k < object.getJSONArray("PaymentGateway").length(); k++) {
+                        map = new HashMap<>();
+                        JSONObject chargeObj = object.getJSONArray("PaymentGateway").getJSONObject(k);
+                        map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                        map.put(Constant.KEY_NAME, chargeObj.getString("PaymentGatewayName"));
+
+
+                        paymentGatewayList.add(map);
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } else isShowProgressBar = true;
+        //-------------------call to server----------------------------------------------
+
+        adapter.update(paymentGatewayList);
+
+        obj = new JSONObject();
+        try {
+            obj.put(Constant.KEY_METHOD, "getUserGblPaymentGateways");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        request = new WebRequest(context, obj,
+                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_LIST,Constant.token, this, isShowProgressBar);
+        request.execute();
+
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        db.ClearTable(DatabaseHelper.Table_PaymentGateways);
+
+        values = new ContentValues();
+        values.put(DatabaseHelper.JSON_DATA, result.toString());
+        db.insert(DatabaseHelper.Table_PaymentGateways, values);
+        selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_PaymentGateways;
+
+        cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+            paymentGatewayList = new ArrayList<>();
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+                    HashMap<String, String> map;
+
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                    for (int k = 0; k < object.getJSONArray("PaymentGateway").length(); k++) {
+                        map = new HashMap<>();
+                        JSONObject chargeObj = object.getJSONArray("PaymentGateway").getJSONObject(k);
+                        map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                        map.put(Constant.KEY_NAME, chargeObj.getString("PaymentGatewayName"));
+
+
+                        paymentGatewayList.add(map);
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            adapter.update(paymentGatewayList);
+        }
+
+
+    }
+
+    @Override
+    public void
+    onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.save:
+
+                for (int i = 0; i < adapter.getCount(); i++) {
+
+
+                }
+
+                break;
+            case R.id.back:
+                finish();
+                break;
+        }
+
+
+    }
+}
+
+
+
+

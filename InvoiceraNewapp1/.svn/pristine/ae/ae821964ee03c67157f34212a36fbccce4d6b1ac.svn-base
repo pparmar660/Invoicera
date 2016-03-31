@@ -1,0 +1,577 @@
+package com.invoicera.Fragment;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.CustomView.CustomPopup;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.PopUpResult;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+
+/**
+ * Created by vinove on 27/8/15.
+ */
+public class AddItem extends BaseFragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener, PopUpResult, WebApiResult {
+
+
+    boolean isProductSelected = true;
+    RadioGroup productServiceRadioGroup;
+    EditText nameEt, productQuantityEt, productUnitCostEt, servicesCostEt, descriptionEt;
+    TextView saveTv, serviceUnitTv, tax1Tv, tax2Tv, currencyTv;
+    CheckBox isMangeMandatoryCheckBox;
+    String tax1IdStr = "", tax2IdStr = "", currencyStr = "", serviceUnitStr = "", currencyID = "";
+    String selectQuery;
+    ArrayList<HashMap<String, String>> currencyList;
+
+    public Comparator<HashMap<String, String>> mapComparator;
+    Cursor cursor;
+    CustomPopup myPopUp;
+    ArrayList<HashMap<String, String>> taxList;
+    WebRequest request;
+
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.product_service_create, container, false);
+
+        Home.toolbarText.setText("Add Item");
+
+
+        productServiceRadioGroup = (RadioGroup) view.findViewById(R.id.itemType);
+        nameEt = (EditText) view.findViewById(R.id.name);
+        productQuantityEt = (EditText) view.findViewById(R.id.productQuantity);
+        productUnitCostEt = (EditText) view.findViewById(R.id.unitCost);
+        servicesCostEt = (EditText) view.findViewById(R.id.serviceCost);
+        descriptionEt = (EditText) view.findViewById(R.id.description);
+        serviceUnitTv = (TextView) view.findViewById(R.id.servicesUnit);
+        tax1Tv = (TextView) view.findViewById(R.id.tax1);
+        tax2Tv = (TextView) view.findViewById(R.id.tax2);
+        currencyTv = (TextView) view.findViewById(R.id.currency);
+        isMangeMandatoryCheckBox = (CheckBox) view.findViewById(R.id.mangeInventory);
+
+        productServiceRadioGroup.setOnCheckedChangeListener(this);
+        saveTv = (TextView) view.findViewById(R.id.save);
+        currencyTv.setOnClickListener(this);
+        tax1Tv.setOnClickListener(this);
+        tax2Tv.setOnClickListener(this);
+        saveTv.setOnClickListener(this);
+        serviceUnitTv.setOnClickListener(this);
+
+
+        return view;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Home.backHome.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Home.backHome.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onClick(View v) {
+        ContentValues values;
+        boolean isShowProgressBar = false;
+        JSONObject obj;
+
+
+        switch (v.getId()) {
+
+
+            case R.id.currency:
+                break;
+            case R.id.tax1:
+
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            HashMap<String, String> map;
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+
+                                if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                    map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                    map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                    map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                    taxList.add(map);
+                                }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST1, true, this, "Select Tax");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listGblTax");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_TAX_LIST1, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+            case R.id.tax2:
+
+                if (tax1IdStr.isEmpty()) {
+                    global.showAlert("Please select tax 1 first", context);
+                    return;
+
+                }
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            HashMap<String, String> map;
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+
+                                if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+
+                                    map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                    map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                    map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                    taxList.add(map);
+                                }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                myPopUp.dismiss();
+                        myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST2, true, this, "Select Tax");
+                        myPopUp.show();
+                    }
+                } else isShowProgressBar = true;
+                //-------------------call to server----------------------------------------------
+
+                obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listGblTax");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_TAX_LIST2, Constant.token, this, isShowProgressBar);
+                request.execute();
+                break;
+
+            case R.id.save:
+                break;
+            case R.id.servicesUnit:
+                break;
+
+
+        }
+
+    }
+
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+        if (checkedId == R.id.productButton) {
+            isProductSelected = true;
+            serviceUnitTv.setVisibility(View.GONE);
+            servicesCostEt.setVisibility(View.GONE);
+            productUnitCostEt.setVisibility(View.VISIBLE);
+            productQuantityEt.setVisibility(View.VISIBLE);
+            reset();
+
+        } else {
+
+            isProductSelected = false;
+            serviceUnitTv.setVisibility(View.VISIBLE);
+            servicesCostEt.setVisibility(View.VISIBLE);
+            productUnitCostEt.setVisibility(View.GONE);
+            productQuantityEt.setVisibility(View.GONE);
+            reset();
+        }
+
+    }
+
+
+    public void reset() {
+
+
+        nameEt.setText("");
+        productQuantityEt.setText("");
+        productUnitCostEt.setText("");
+        isMangeMandatoryCheckBox.setChecked(false);
+        tax1Tv.setText("Apply tax1");
+        tax2Tv.setText("Apply tax2");
+        currencyTv.setText("Currency : ");
+        descriptionEt.setText("");
+        servicesCostEt.setText("");
+        serviceUnitTv.setText("Service Unit :");
+        currencyStr = "";
+        serviceUnitStr = "";
+        tax1IdStr = "";
+        tax2IdStr = "";
+        currencyID = "";
+
+
+    }
+
+    public void showCurrencyList() {
+
+
+        selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_CurrencyList;
+
+        cursor = db.getRecords(selectQuery);
+        currencyList = new ArrayList<>();
+        if (cursor.moveToFirst() && cursor.getCount() > 0)
+
+        {
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+                    HashMap<String, String> map;
+
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                    for (int k = 0; k < object.getJSONArray("Currency").length(); k++) {
+                        map = new HashMap<>();
+                        JSONObject chargeObj = object.getJSONArray("Currency").getJSONObject(k);
+                        map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                        map.put(Constant.KEY_CODE, chargeObj.getString("code"));
+
+
+                        currencyList.add(map);
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (myPopUp != null)
+                    if (myPopUp.isShowing())
+                        myPopUp.dismiss();
+
+
+                mapComparator = new Comparator<HashMap<String, String>>() {
+                    public int compare(HashMap<String, String> m1, HashMap<String, String> m2) {
+                        return m1.get(Constant.KEY_CODE).compareTo(m2.get(Constant.KEY_CODE));
+                    }
+                };
+
+                Collections.sort(currencyList, mapComparator);
+
+
+                myPopUp = new CustomPopup((Activity) context, currencyList, Constant.POP_UP.CURRENCY, false, this, "Select Currency");
+
+                myPopUp.show();
+            }
+        }
+
+
+    }
+
+    @Override
+    public void getPopUpResult(Constant.POP_UP type, int pos, boolean clear) {
+        switch (type) {
+
+
+            case CURRENCY:
+
+                if (clear) {
+
+                    currencyID = "";
+                    currencyTv.setText("Currency :");
+                    return;
+                }
+
+                currencyID = currencyList.get(pos).get(Constant.KEY_ID);
+
+                currencyTv.setText("Currency : " + currencyList.get(pos).get(Constant.KEY_CODE));
+
+                break;
+            case TAX_LIST1:
+
+
+                if (clear) {
+                    tax1Tv.setText("Apply tax1");
+                    tax2Tv.setText("Apply tax2");
+                    tax1IdStr = "";
+                    tax2IdStr = "";
+
+                    return;
+                }
+
+
+                if (taxList.get(pos).get(Constant.KEY_ID).toString().equalsIgnoreCase(tax2IdStr) && !tax2IdStr.isEmpty()) {
+                    global.showAlert("This tax has already been selected", context);
+                    return;
+                }
+
+
+                tax1Tv.setText(taxList.get(pos).get(Constant.KEY_NAME) + "(" + taxList.get(pos).get(Constant.KEY_VALUE).toString() + "%)");
+                tax1IdStr = taxList.get(pos).get(Constant.KEY_ID).toString();
+                break;
+
+            case TAX_LIST2:
+
+
+                if (clear) {
+
+                    tax2Tv.setText("Apply tax2");
+
+                    tax2IdStr = "";
+
+                    return;
+                }
+
+
+                if (taxList.get(pos).get(Constant.KEY_ID).toString().equalsIgnoreCase(tax1IdStr) && !tax1IdStr.isEmpty()) {
+                    global.showAlert("This tax has already been selected", context);
+                    return;
+                }
+
+
+                tax2Tv.setText(taxList.get(pos).get(Constant.KEY_NAME) + "(" + taxList.get(pos).get(Constant.KEY_VALUE).toString() + "%)");
+                tax2IdStr = taxList.get(pos).get(Constant.KEY_ID).toString();
+                break;
+
+        }
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ContentValues values;
+
+        boolean updatePopUp = false;
+        switch (type) {
+
+
+            case GET_TAX_LIST1:
+
+                db.ClearTable(DatabaseHelper.Table_TaxList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_TaxList, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            HashMap<String, String> map;
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+
+                                if (chargeObj.getString("type").equalsIgnoreCase("Normal")) {
+                                    map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                    map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                    map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                    taxList.add(map);
+                                }
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, taxList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST1, false, this, "Select Tax");
+                            myPopUp.show();
+
+                        }
+                    }
+                }
+
+                break;
+
+
+            case GET_TAX_LIST2:
+
+                db.ClearTable(DatabaseHelper.Table_TaxList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_TaxList, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    taxList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            HashMap<String, String> map;
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+                                map.put(Constant.KEY_ID, chargeObj.getString("id"));
+
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                if (chargeObj.getString("type").equalsIgnoreCase("Compound")) {
+                                    map.put(Constant.KEY_NAME, "#" + chargeObj.getString("name"));
+
+                                } else {
+                                    map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                }
+                                taxList.add(map);
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, taxList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) context, taxList, Constant.POP_UP.TAX_LIST2, false, this, "Select Tax");
+                            myPopUp.show();
+
+                        }
+                    }
+                }
+                break;
+        }
+    }
+}
+

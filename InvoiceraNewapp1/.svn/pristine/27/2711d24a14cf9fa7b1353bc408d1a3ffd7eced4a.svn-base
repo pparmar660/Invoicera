@@ -1,0 +1,11 @@
+package com.invoicera.InterFace;
+
+import com.invoicera.GlobalData.Constant;
+
+/**
+ * Created by Parvesh on 30/6/15.
+ */
+public interface PopUpResult {
+
+    public void getPopUpResult(Constant.POP_UP type,int pos,boolean clear);
+}

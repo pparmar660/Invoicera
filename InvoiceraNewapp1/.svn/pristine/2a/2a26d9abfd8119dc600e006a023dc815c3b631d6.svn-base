@@ -1,0 +1,29 @@
+package com.invoicera.androidapp;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+
+import org.json.JSONObject;
+
+public class BaseActivity extends Activity{
+	Global global;
+	 Context context;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		global=(Global)this.getApplicationContext();
+		context=this;
+	}
+	public void getWebResult(SERVICE_TYPE type, JSONObject result) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+
+}
+

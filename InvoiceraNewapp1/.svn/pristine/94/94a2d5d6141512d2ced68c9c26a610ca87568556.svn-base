@@ -1,0 +1,206 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    tools:context="com.invoicera.androidapp.Home">
+
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/liner1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/itemType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/liner1"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <RadioButton
+                    android:id="@+id/productButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@null"
+                    android:checked="true"
+
+                    android:drawableLeft="@drawable/custom_radiobuton"
+
+                    android:drawablePadding="5dp"
+                    android:text="Product"
+                    android:textColor="#3E3E3E" />
+
+                <RadioButton
+                    android:id="@+id/serviceButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:button="@null"
+                    android:drawableLeft="@drawable/custom_radiobuton"
+                    android:drawablePadding="5dp"
+                    android:text="Service"
+                    android:textColor="#3E3E3E" />
+            </RadioGroup>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:id="@+id/detailLinear">
+
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:hint="Name"
+
+                    android:padding="10dp"
+                    android:textColor="#3F3F3F"
+                    android:textColorHint="@color/lightgray02"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+                <EditText
+                    android:id="@+id/productQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:hint="Quantity"
+                    android:inputType="numberDecimal"
+                    android:padding="10dp"
+                    android:textColor="#3F3F3F"
+                    android:textColorHint="@color/lightgray02"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+
+
+
+                <EditText
+                    android:id="@+id/unitCost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:hint="Unit Cost"
+                    android:inputType="numberDecimal"
+                    android:padding="10dp"
+                    android:textColor="#3F3F3F"
+                    android:textColorHint="@color/lightgray02"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+                <TextView
+                    android:id="@+id/servicesUnit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Service Unit : "
+                    android:background="@drawable/underline_background"
+                    android:textColor="@color/black"
+                    android:drawableRight="@drawable/up_down"
+                    android:visibility="gone"
+                    android:padding="10dp"/>
+
+                <EditText
+                    android:id="@+id/serviceCost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:hint="Service Cost"
+                    android:visibility="gone"
+                    android:inputType="numberDecimal"
+                    android:padding="10dp"
+                    android:textColor="#3F3F3F"
+                    android:textColorHint="@color/lightgray02"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+
+
+
+
+
+
+                <TextView
+                    android:id="@+id/tax1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:drawableRight="@drawable/tx_ar"
+                    android:inputType="numberDecimal"
+                    android:padding="10dp"
+                    android:text="Apply tax1"
+                    android:textColor="#3F3F3F" />
+
+                <TextView
+                    android:id="@+id/tax2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:drawableRight="@drawable/tx_ar"
+                    android:inputType="numberDecimal"
+                    android:padding="10dp"
+                    android:text="Apply tax2"
+                    android:textColor="#3F3F3F" />
+
+                <EditText
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottom_line_background"
+                    android:hint="Description"
+                    android:padding="10dp"
+                    android:textColor="#3F3F3F"
+                    android:textColorHint="@color/lightgray02"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+
+                <TextView
+                    android:id="@+id/currency"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Currency:"
+                    android:background="@drawable/underline_background"
+                    android:textColor="@color/black"
+                    android:drawableRight="@drawable/up_down"
+                    android:padding="10dp"/>
+
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:id="@+id/save"
+                    android:background="@color/orange2"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:padding="15dp"
+                    android:textSize="18sp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+
+
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

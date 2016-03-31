@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/check_1" android:state_checked="true"/>
+    <item android:drawable="@drawable/check_1" android:state_pressed="true"/>
+    <item android:drawable="@drawable/uncheck_1"/>
+
+</selector><!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/drawable/custom_checkbox.xml -->

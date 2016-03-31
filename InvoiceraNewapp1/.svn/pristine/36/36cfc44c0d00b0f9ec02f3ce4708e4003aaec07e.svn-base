@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bottomline_background"
+    android:orientation="vertical" 
+    android:padding="10dp">
+
+    <LinearLayout
+        android:id="@+id/liner1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Marcel John"
+            android:id="@+id/organization"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/invoice_no"
+            android:text="INV 001 DUE ON 1/2/16"
+            android:textColor="#8D8D8D"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:id="@+id/liner2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+       
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 min ago"
+                android:textColor="#8D8D8D"
+                android:id="@+id/time"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$200"
+                android:id="@+id/netbalance"
+                android:textColor="#E56E27"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignRight="@id/liner2"
+            android:padding="10dp"
+            android:src="@drawable/ar" />
+    </LinearLayout>
+
+</RelativeLayout><!-- From: file:/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/src/main/res/layout/invoice_list_pager_list_adpter.xml -->

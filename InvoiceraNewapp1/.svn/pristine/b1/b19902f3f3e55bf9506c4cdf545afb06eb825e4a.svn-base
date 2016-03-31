@@ -1,0 +1,75 @@
+package com.invoicera.androidapp;
+
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+
+import org.json.JSONObject;
+
+/**
+ * Created by vinove on 20/10/15.
+ */
+public class ExpenseCreateEdit extends BaseActivity implements OnClickListener, WebApiResult, RadioGroup.OnCheckedChangeListener {
+
+    TextView categoryTv, dateTv, staffTv, tax1Tv, tax2Tv;
+    EditText amountEt, vendorEt, expenseNoteEt;
+    RadioGroup assignRadioGroup;
+    CheckBox recurringChk;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.expense_create_edit);
+
+        categoryTv = (TextView) findViewById(R.id.category);
+        dateTv = (TextView) findViewById(R.id.date);
+        staffTv = (TextView) findViewById(R.id.staff);
+        tax1Tv = (TextView) findViewById(R.id.tax1);
+        tax2Tv = (TextView) findViewById(R.id.tax2);
+        amountEt = (EditText) findViewById(R.id.amount);
+        vendorEt = (EditText) findViewById(R.id.vendorName);
+        expenseNoteEt = (EditText) findViewById(R.id.expenseNote);
+        assignRadioGroup = (RadioGroup) findViewById(R.id.assignGroup);
+        recurringChk = (CheckBox) findViewById(R.id.recurringChk);
+
+
+        categoryTv.setOnClickListener(this);
+        dateTv.setOnClickListener(this);
+        staffTv.setOnClickListener(this);
+        tax2Tv.setOnClickListener(this);
+        tax1Tv.setOnClickListener(this);
+        assignRadioGroup.setOnCheckedChangeListener(this);
+        recurringChk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+    }
+}

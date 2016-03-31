@@ -1,0 +1,131 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+
+import com.invoicera.Fragment.BaseFragment;
+import com.invoicera.Fragment.SelectClient;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.ListViewAdpter.ItemListAdpter;
+import com.invoicera.SpinnerAdpter.SpinerTaxAdpter;
+import com.invoicera.androidapp.CreateInvoiceNumberSelectDate;
+import com.invoicera.androidapp.CreateItem;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+import com.invoicera.model.InvoiceItem;
+
+import java.util.ArrayList;
+
+public class CreteInvoicePagerFragment extends BaseFragment implements
+		OnClickListener {
+
+	RelativeLayout selectClientView, SelectItemView, createInvoiceNumberVew;;
+	FragmentChanger fragmentChanger;
+	ListView itemListView;
+	ItemListAdpter itemListAdpter;
+	Spinner taxSpinner1, taxSpinner2;
+	SpinerTaxAdpter taxAdpter;
+	ArrayList<InvoiceItem> itemList=new ArrayList<InvoiceItem>();
+
+
+	@Override
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+
+		View view = inflater.inflate(R.layout.create_invoice, container, false);
+		selectClientView = (RelativeLayout) view
+				.findViewById(R.id.selectClientView);
+		SelectItemView = (RelativeLayout) view
+				.findViewById(R.id.selectItemView);
+		createInvoiceNumberVew = (RelativeLayout) view
+				.findViewById(R.id.creteNumber);
+
+		// Tax spinner---------------------------------
+		taxSpinner1 = (Spinner) view.findViewById(R.id.tax1);
+		taxSpinner2 = (Spinner) view.findViewById(R.id.tax2);
+		taxAdpter = new SpinerTaxAdpter(context, new ArrayList<String>());
+		taxSpinner1.setAdapter(taxAdpter);
+		taxAdpter.notifyDataSetChanged();
+
+		taxAdpter = new SpinerTaxAdpter(context, new ArrayList<String>());
+		taxSpinner2.setAdapter(taxAdpter);
+		taxAdpter.notifyDataSetChanged();
+
+		// -----------------------------------------------------
+		// setItemList
+		itemListView = (ListView) view.findViewById(R.id.itemList);
+		itemListAdpter = new ItemListAdpter(context);
+		// ---
+
+		selectClientView.setOnClickListener(this);
+		SelectItemView.setOnClickListener(this);
+		createInvoiceNumberVew.setOnClickListener(this);
+		return view;
+
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		// TODO Auto-generated method stub
+		super.onAttach(activity);
+
+		fragmentChanger = (FragmentChanger) getActivity();
+
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+
+		switch (v.getId()) {
+		case R.id.selectClientView:
+			fragmentChanger.onFragmentReplaceWithBackStack(new SelectClient(),
+					"Select Client", new Bundle());
+			break;
+
+		case R.id.selectItemView:
+
+			Intent i = new Intent(context, CreateItem.class);
+			getActivity().startActivityForResult(i,
+					Constant.requestCodeCretateInvoiceItem);// Activity
+			// is
+			// started
+			// with
+			// requestCode
+			// 2
+
+			break;
+		case R.id.creteNumber:
+
+			Intent i1 = new Intent(context, CreateInvoiceNumberSelectDate.class);
+			startActivity(i1);
+
+		default:
+			break;
+		}
+
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (requestCode == Constant.requestCodeCretateInvoiceItem) {
+			
+
+		}
+
+	}
+
+}

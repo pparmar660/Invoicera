@@ -1,0 +1,15 @@
+package com.invoicera.androidapp;
+
+import android.os.Bundle;
+
+/**
+ * Created by vinove on 17/7/15.
+ */
+public class OfflinePayment extends BaseActivity {
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+}

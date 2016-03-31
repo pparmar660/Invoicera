@@ -1,0 +1,550 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TableLayout;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.Fragment.BaseFragment;
+import com.invoicera.Fragment.CreateEditProductServices;
+import com.invoicera.Fragment.ProductServicesList;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.ListViewAdpter.ProductServicesListAdapter;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.model.ProductServicesAttribute;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * Created by vinove on 28/8/15.
+ */
+public class ProductServicePagerFragment extends BaseFragment implements
+        WebApiResult {
+
+    View listFooter;
+    ListView listView;
+    public ProductServicesListAdapter adapter;
+    DatabaseHelper db;
+    ContentValues values;
+    public int pageNo = 1;
+    ProductServicesList parentFragment;
+    int total_pagesInt = 0;
+    int recordPerPage = 100;
+    private SwipeRefreshLayout swipeContainer;
+    boolean isProductSelected = true;
+
+    int currentScrollState;
+    boolean isLoading = false;
+    int position = 0;
+    boolean isTotalRecordGet = false;
+
+    public boolean isActionPopOpen = false;
+
+    WebRequest request;
+    WebApiResult webApiResult;
+    public ArrayList<ProductServicesAttribute> productsList;
+
+    public ArrayList<ProductServicesAttribute> servicesList;
+
+    public int selectedPosition;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    // Inflate the view for the fragment based on layout XML
+    @Override
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.list_pager_fragment,
+                container, false);
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.container);
+        position = getArguments().getInt(Constant.FRAGMENT_POS);
+        if (position == 0)
+            isProductSelected = true;
+        else isProductSelected = false;
+        webApiResult = this;
+        LayoutInflater footerInflater = LayoutInflater.from(getActivity());
+        listFooter = footerInflater.inflate(R.layout.list_footer, null, false);
+        listFooter.setVisibility(View.GONE);
+        listView = (ListView) view.findViewById(R.id.list);
+        parentFragment = (ProductServicesList) getParentFragment();
+        listView.addFooterView(listFooter);
+        db = new DatabaseHelper(context);
+
+        listView.setAdapter(adapter);
+
+        listFooter.setOnClickListener(null);
+
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                try {
+                    parentFragment.searchEt.setText("");
+
+                    if (parentFragment.isSearchEnable) {
+                        parentFragment.isSearchEnable = false;
+                        parentFragment.searchCancelImg.setVisibility(View.GONE);
+
+                    }
+
+
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put(Constant.KEY_METHOD, "listGblProduct");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    request = new WebRequest(context, obj,
+                            Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SERVICE_LIST, Constant.token, webApiResult, false);
+                    Home.progressBarHome.setVisibility(View.VISIBLE);
+                    request.execute();
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        swipeContainer.setColorSchemeResources(
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_green_light,
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_red_light);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                Bundle arguments = new Bundle();
+                if (isProductSelected) {
+                    arguments.putString(Constant.KEY_ID, productsList.get(position).getId());
+                    arguments.putString(Constant.KEY_TYPE, "Product");
+                } else {
+
+                    arguments.putString(Constant.KEY_ID, servicesList.get(position).getId());
+                    arguments.putString(Constant.KEY_TYPE, "Service");
+
+                }
+
+                fragmentChanger.onFragmentAddWithBackStack(new CreateEditProductServices(), Constant.CreateProductServicesFragmentTag, arguments);
+
+
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (!global.isNetworkAvailable()) {
+                    global.showAlert("No network connection", context);
+                    return true;
+                }
+
+   /*  if (isActionPopOpen)
+                    return true;*/
+
+                isActionPopOpen = true;
+                //selectClientId = clientModels.get(position).getClientId();
+                selectedPosition = position;
+                parentFragment.actionRelative.setVisibility(View.VISIBLE);
+                //clientId = clientModels.get(position).getClientId();
+                if (isProductSelected)
+                    parentFragment.NameTV.setText(productsList.get(position).getName());
+                else parentFragment.NameTV.setText(servicesList.get(position).getName());
+                ProductServicesAttribute attribute;
+                if (isProductSelected)
+                    attribute = productsList.get(position);
+                else attribute = servicesList.get(position);
+
+                if (attribute.getStatus().equalsIgnoreCase("Cancel") || attribute.getStatus().equalsIgnoreCase("Deleted")) {
+                    parentFragment.restoreLinear.setVisibility(View.VISIBLE);
+                    parentFragment.deleteLinear.setVisibility(View.GONE);
+                    parentFragment.archiveLinear.setVisibility(View.GONE);
+
+
+                } else if (attribute.getStatus().equalsIgnoreCase("Archived") || attribute.getStatus().equalsIgnoreCase("Archive")) {
+
+                    parentFragment.restoreLinear.setVisibility(View.VISIBLE);
+                    parentFragment.deleteLinear.setVisibility(View.VISIBLE);
+                    parentFragment.archiveLinear.setVisibility(View.GONE);
+
+                } else {
+
+                    parentFragment.restoreLinear.setVisibility(View.GONE);
+                    parentFragment.deleteLinear.setVisibility(View.VISIBLE);
+                    parentFragment.archiveLinear.setVisibility(View.VISIBLE);
+                }
+
+                animation(parentFragment.actionTable, R.anim.bottom_up, Constant.LIST_ACTION_ANIMATION_TYPE.OPEN);
+
+
+                return true;
+
+
+            }
+        });
+
+        parentFragment.closeActionPopUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                animation(parentFragment.actionTable, R.anim.bottom_down, Constant.LIST_ACTION_ANIMATION_TYPE.CLOSE);
+
+            }
+        });
+        parentFragment.actionRelative.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
+        return view;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+/*        if (parentFragment.isFilterEnable) {
+            parentFragment.isFilterEnable = false;
+            return;
+
+        }*/
+        if (isProductSelected) {
+            if (parentFragment.isProductFilterEnable) {
+                parentFragment.isProductFilterEnable = false;
+                return;
+
+            }
+        } else {
+
+            if (parentFragment.isServiceFilterEnable) {
+                parentFragment.isServiceFilterEnable = false;
+                return;
+            }
+        }
+
+
+        JSONObject obj = new JSONObject();
+        try
+
+        {
+            obj.put(Constant.KEY_METHOD, "listGblProduct");
+        } catch (
+                JSONException e
+                )
+
+        {
+            e.printStackTrace();
+        }
+
+
+        request = new
+
+                WebRequest(context, obj,
+                Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SERVICE_LIST, Constant.token, this, false);
+
+        Home.progressBarHome.setVisibility(View.VISIBLE);
+        request.execute();
+
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ProductAndServices;
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0)
+
+        {
+            productsList = new ArrayList<>();
+            servicesList = new
+                    ArrayList<>();
+
+            ProductServicesAttribute map;
+            for (int i = 0; i < cursor.getCount(); i++) {
+                try {
+                    setListData(new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        swipeContainer.setRefreshing(false);
+
+
+        if (result == null)
+            return;
+
+
+        isActionPopOpen = false;
+
+
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    global.showAlert(result.getString("message").toString(), context);
+                // Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        switch (type) {
+
+            case GET_SERVICE_LIST:
+
+                db.ClearTable(DatabaseHelper.Table_ProductAndServices);
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_ProductAndServices, values);
+
+
+                String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_ProductAndServices;
+
+                Cursor cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    productsList = new ArrayList<>();
+                    servicesList = new
+                            ArrayList<>();
+
+                    ProductServicesAttribute map;
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        try {
+                            setListData(new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA))));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+
+                break;
+
+            case GET_SEARCH_DATA:
+
+
+                setListData(result);
+
+                break;
+            case DELETE:
+            case ARCHIVE:
+            case ACTIVE:
+
+                JSONObject obj = new JSONObject();
+                try {
+                    obj.put(Constant.KEY_METHOD, "listGblProduct");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                request = new WebRequest(context, obj,
+                        Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SERVICE_LIST, Constant.token, this, true);
+                request.execute();
+
+
+                break;
+
+
+            case GET_FILTER_DATA:
+                setListData(result);
+
+                break;
+
+
+        }
+
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (request != null)
+            request.cancel(true);
+
+
+    }
+
+    public void setListData(JSONObject object) {
+        ProductServicesAttribute map;
+
+        try {
+            if (isProductSelected) {
+                productsList = new ArrayList<>();
+
+
+                //  Log.e("King ",type.toString());
+
+                if (object.has("products")) {
+
+                    for (int k = 0; k < object.getJSONObject("products").getJSONArray("product").length(); k++) {
+
+                        map = new ProductServicesAttribute();
+                        JSONObject chargeObj = object.getJSONObject("products").getJSONArray("product").getJSONObject(k);
+                        map.setId(chargeObj.getString("product_id"));
+                        map.setName(chargeObj.getString("product_name"));
+                        map.setUnitCost(chargeObj.getString("unit_cost"));
+                        map.setQuantity(chargeObj.getString("quantity"));
+                        map.setDescription(chargeObj.getString("description"));
+                        map.setDate(chargeObj.getString("date"));
+                        map.setStatus(chargeObj.getString("status"));
+                        map.setTax_one_value(chargeObj.getString("product_tax_value1"));
+                        map.setTax_two_value(chargeObj.getString("product_tax_value2"));
+
+                        //map.put(Constant.KEY_PRODUCT_TAX_VALUE2, chargeObj.getString("product_tax_value2"));
+                        map.setCurrency_id(chargeObj.getString("product_currency_id"));
+                        map.setCurrency_name(chargeObj.getString("product_currency_name"));
+                        map.setTax_one_name(chargeObj.getString("product_tax_one_name"));
+                        map.setTax_two_name(chargeObj.getString("product_tax_two_name"));
+                        map.setInventoryCurrentStock(chargeObj.getString("inventory_current_stock"));
+                        map.setTrackInventory(chargeObj.getString("track_inventory"));
+                        map.setTaxId1(chargeObj.getString("product_taxID1"));
+                        map.setTaxId2(chargeObj.getString("product_taxID2"));
+                        map.setCreateBy(chargeObj.getString("created_by"));
+                        map.setType("Product");
+
+                        productsList.add(map);
+                    }
+                }
+            } else {
+
+                if (object.has("services")) {
+                    servicesList = new ArrayList<>();
+
+                    for (int k = 0; k < object.getJSONObject("services").getJSONArray("service").length(); k++) {
+                        map = new ProductServicesAttribute();
+                        JSONObject chargeObj = object.getJSONObject("services").getJSONArray("service").getJSONObject(k);
+                        map.setId(chargeObj.getString("service_id"));
+                        map.setName(chargeObj.getString("service_name"));
+                        map.setUnitCost(chargeObj.getString("unit_cost"));
+                        map.setQuantity(chargeObj.getString("quantity"));
+                        map.setDescription(chargeObj.getString("description"));
+                        map.setDate(chargeObj.getString("date"));
+                        map.setStatus(chargeObj.getString("status"));
+
+
+                        map.setTax_one_value(chargeObj.getString("service_tax_value1"));
+                        map.setTax_two_value(chargeObj.getString("service_tax_value2"));
+                        map.setCurrency_id(chargeObj.getString("service_currency_id"));
+                        map.setCurrency_name(chargeObj.getString("service_currency_name"));
+                        map.setTax_one_name(chargeObj.getString("service_tax_one_name"));
+
+                        map.setTax_two_name(chargeObj.getString("service_tax_two_name"));
+                        map.setInventoryCurrentStock(chargeObj.getString("inventory_current_stock"));
+                        map.setTrackInventory(chargeObj.getString("track_inventory"));
+                        map.setTaxId1(chargeObj.getString("service_taxID1"));
+                        map.setTaxId2(chargeObj.getString("service_taxID2"));
+                        map.setCreateBy(chargeObj.getString("created_by"));
+                        map.setType("Service");
+
+
+                        servicesList.add(map);
+                    }
+
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        // }
+        //}
+        if (isProductSelected)
+            adapter = new ProductServicesListAdapter(context, productsList);
+        else adapter = new ProductServicesListAdapter(context, servicesList);
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+    }
+
+
+    public void animation(TableLayout layout, int animationId, final Constant.LIST_ACTION_ANIMATION_TYPE type) {
+
+        android.view.animation.Animation animationInfo;
+
+        animationInfo = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                animationId);
+
+        animationInfo.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+                switch (type) {
+
+                    case OPEN:
+
+
+                        break;
+                    case CLOSE:
+                        isActionPopOpen = false;
+
+                        parentFragment.actionRelative.setVisibility(View.GONE);
+
+
+                        break;
+
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        layout.startAnimation(animationInfo);
+
+
+    }
+
+
+}

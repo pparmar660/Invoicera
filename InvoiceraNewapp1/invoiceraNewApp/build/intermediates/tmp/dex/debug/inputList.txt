@@ -1,0 +1,11 @@
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/classes/debug
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/support-annotations-22.2.0-3ed33ae302139ee47b69527410ef7c6e4292c0dd.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-d8a6205938fb4dc1e380c1719618e3d5655e01c4.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-be3f0f0bfccd63c69d4cd1e98f244bab37e264f2.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-2a5776e63b7b1787be88fe42d2b3be1196d0fdbe.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/library-2.4.0-912ac7aca74457e2f996c41d3b42ac5222f19a4c.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/universal-image-loader-1.9.4-9f78b0e84d266522dbe15c71b48bbec1881830d4.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/internal_impl-22.2.0-f64aaa81064f63530dbc7e5097a356bf89462663.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-9b349b59a4fc6435cacb7bc2bf508b3e90e12e80.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-bf08a758083e5190bc3742f7fa3074514afa2fb3.jar
+/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/pre-dexed/debug/classes-39c8eb1d71b0b9c7dfee28da7e97cda9fa276ec2.jar

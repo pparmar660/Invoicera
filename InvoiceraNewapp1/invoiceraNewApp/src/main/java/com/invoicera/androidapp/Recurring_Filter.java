@@ -1,0 +1,477 @@
+package com.invoicera.androidapp;
+
+import android.app.DatePickerDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Created by Parvesh on 5/10/15.
+ */
+public class Recurring_Filter extends BaseActivity implements View.OnClickListener, WebApiResult {
+
+    TextView fromET, toEt;
+    boolean isFromDate = false;
+    String StatusArray[] = {"Active", "Archived", "Delete"};
+    String AutoBillArray[] = {"Yes", "No"};
+    String[] frequencyArray = {"Weekly", "2 Weeks", "3 Weeks", "4 Weeks", "Monthly", "Quarterly", "Half Yearly", "11 Month", "Yearly", "2 Years", "3 Years"};
+    ArrayAdapter<String> frequencyValueAdapter;
+
+
+    TextView ApplyTV;
+    ContentValues values;
+    Calendar myCalendar;
+    TextView recurringStTV, clientTV, dateTV, statusTV, autoBillTV;
+    DatabaseHelper db;
+    LinearLayout recurringStLiner, clientLiner, dateLiner, statusLiner, autoBillLinear;
+    TextView clearTv;
+    ImageView backImg;
+    RadioGroup clientRadioGroup, statusRadioGroup, BilledStatusRadioGroup;
+    ImageView clearDate;
+    int[] selectedImg = {R.drawable.recurring_selected, R.drawable.auto_billed_selected, R.drawable.client_selected, R.drawable.active_selected, R.drawable.calender_selected};
+    String recurring_status = "";
+    EditText et_occurrence, et_frequency;
+    boolean isClientListCalled = false;
+
+    int[] unSelectedImg = {R.drawable.recurring_img, R.drawable.auto_billed, R.drawable.client, R.drawable.active, R.drawable.calender};
+    DatePickerDialog.OnDateSetListener date;
+
+    ArrayList<FrameLayout> frames;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.recurring_filter);
+
+        Intent intent = getIntent();
+
+        if (intent != null)
+            if (intent.getStringExtra(Constant.KEY_RECURRING_STATUS) != null) {
+                recurring_status = intent.getStringExtra(Constant.KEY_RECURRING_STATUS);
+            }
+
+        clearTv = (TextView) findViewById(R.id.clear);
+        backImg = (ImageView) findViewById(R.id.back);
+        ApplyTV = (TextView) findViewById(R.id.apply);
+        recurringStTV = (TextView) findViewById(R.id.recurring_st);
+        clientTV = (TextView) findViewById(R.id.client);
+        statusTV = (TextView) findViewById(R.id.main_status);
+        dateTV = (TextView) findViewById(R.id.date);
+        clearDate = (ImageView) findViewById(R.id.clearDate);
+        recurringStLiner = (LinearLayout) findViewById(R.id.recurring_st_liner);
+        et_frequency = (EditText) findViewById(R.id.et_frequency);
+        et_occurrence = (EditText) findViewById(R.id.et_occurrence);
+
+        autoBillLinear = (LinearLayout) findViewById(R.id.autoBilled_list_liner);
+        autoBillTV = (TextView) findViewById(R.id.autoBilled_st);
+
+        frequencyValueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, frequencyArray);
+        et_frequency.setText(frequencyArray[0]);
+
+
+        clientRadioGroup = (RadioGroup) findViewById(R.id.clientRadioGroup);
+        BilledStatusRadioGroup = (RadioGroup) findViewById(R.id.autoBilled_st_group);
+        statusRadioGroup = (RadioGroup) findViewById(R.id.st_group);
+        fromET = (TextView) findViewById(R.id.from);
+        toEt = (TextView) findViewById(R.id.to);
+        clientLiner = (LinearLayout) findViewById(R.id.client_list_liner);
+        dateLiner = (LinearLayout) findViewById(R.id.date_liner);
+        statusLiner = (LinearLayout) findViewById(R.id.status_liner);
+        recurringStTV.setOnClickListener(this);
+        autoBillTV.setOnClickListener(this);
+        db = new DatabaseHelper(context);
+        clientTV.setOnClickListener(this);
+        clearDate.setOnClickListener(this);
+        statusTV.setOnClickListener(this);
+        dateTV.setOnClickListener(this);
+        ApplyTV.setOnClickListener(this);
+        et_frequency.setOnClickListener(this);
+
+        //
+        frames = new ArrayList<>();
+        frames.add((FrameLayout) findViewById(R.id.recurringFrame));
+        frames.add((FrameLayout) findViewById(R.id.AutoBilledFrame));
+        frames.add((FrameLayout) findViewById(R.id.clientframe));
+        frames.add((FrameLayout) findViewById(R.id.activeframe));
+        frames.add((FrameLayout) findViewById(R.id.dateframe));
+
+        myCalendar = Calendar.getInstance();
+        date = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel();
+            }
+
+        };
+
+        fromET.setOnClickListener(this);
+        toEt.setOnClickListener(this);
+        setSelectedPos(R.id.recurring_st);
+        backImg.setOnClickListener(this);
+        clearTv.setOnClickListener(this);
+
+        getClientList(false);
+
+    }
+
+    private void updateLabel() {
+
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        if (isFromDate)
+            fromET.setText(sdf.format(myCalendar.getTime()));
+        else
+            toEt.setText(sdf.format(myCalendar.getTime()));
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case R.id.recurring_st:
+                setSelectedPos(v.getId());
+                break;
+
+            case R.id.autoBilled_st:
+                setSelectedPos(v.getId());
+                break;
+
+            case R.id.client:
+                setSelectedPos(v.getId());
+                settClientList(true);
+                break;
+
+            case R.id.main_status:
+                setSelectedPos(v.getId());
+                break;
+
+            case R.id.date:
+                setSelectedPos(v.getId());
+                break;
+
+            case R.id.from:
+                isFromDate = true;
+                new DatePickerDialog(this, date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                break;
+
+            case R.id.to:
+                isFromDate = false;
+                new DatePickerDialog(this, date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                break;
+
+            case R.id.clear:
+                int selectedId = clientRadioGroup.getCheckedRadioButtonId();
+                if (selectedId > 0) {
+                    clientRadioGroup.clearCheck();
+                }
+
+                selectedId = BilledStatusRadioGroup.getCheckedRadioButtonId();
+                if (selectedId > 0)
+                    BilledStatusRadioGroup.clearCheck();
+
+
+                selectedId = statusRadioGroup.getCheckedRadioButtonId();
+                if (selectedId > 0) {
+                    statusRadioGroup.clearCheck();
+                }
+
+                fromET.setText("");
+                toEt.setText("");
+                et_frequency.setText("");
+                et_occurrence.setText("");
+                break;
+
+            case R.id.back:
+                finish();
+                break;
+
+            case R.id.et_frequency:
+                new AlertDialog.Builder(this).setTitle("Frequency")
+                        .setAdapter(frequencyValueAdapter, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                et_frequency.setText(frequencyArray[i]);
+                            }
+                        }).show();
+                break;
+
+            case R.id.apply:
+                int radioButtonID = statusRadioGroup.getCheckedRadioButtonId();
+                View radioButton = statusRadioGroup.findViewById(radioButtonID);
+                int idx = statusRadioGroup.indexOfChild(radioButton);
+
+                String status = "";
+                if (idx >= 0)
+                    status = StatusArray[idx];
+
+                radioButtonID = BilledStatusRadioGroup.getCheckedRadioButtonId();
+                radioButton = BilledStatusRadioGroup.findViewById(radioButtonID);
+                idx = BilledStatusRadioGroup.indexOfChild(radioButton);
+
+                if (idx >= 0) {
+
+                    switch (AutoBillArray[idx]) {
+                        case "Yes":
+                            recurring_status = "Y";
+                            break;
+                        case "No":
+                            recurring_status = "N";
+                            break;
+
+                    }
+                }
+                   /* recurring_s
+                            tatus = AutoBillArray[idx];*/
+
+                String clientId = clientRadioGroup.getCheckedRadioButtonId() + "";
+
+                if (clientId.equalsIgnoreCase("-1"))
+                    clientId = "";
+
+                String fromDate = fromET.getText().toString();
+                String todate = toEt.getText().toString();
+
+                String frequency = "";
+                if (et_frequency.getText().toString().equalsIgnoreCase("Weekly")) {
+                    frequency = "1 Week";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("2 Weeks")) {
+                    frequency = "2 Week";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("3 Weeks")) {
+                    frequency = "3 Week";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("4 Weeks")) {
+                    frequency = "4 Week";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("Monthly")) {
+                    frequency = "1 Month";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("Quarterly")) {
+                    frequency = "3 Month";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("Half Yearly")) {
+                    frequency = "6 Month";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("11 Months")) {
+                    frequency = "11 Month";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("Yearly")) {
+                    frequency = "1 Year";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("2 Years")) {
+                    frequency = "2 Year";
+                } else if (et_frequency.getText().toString().equalsIgnoreCase("3 Years")) {
+                    frequency = "3 Year";
+                } else {
+                    frequency = et_frequency.getText().toString();
+                }
+
+                String occurrence = et_occurrence.getText().toString().trim();
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(Constant.KEY_CLIENT_ID, clientId);
+                returnIntent.putExtra(Constant.KEY_STATUS, status);
+                returnIntent.putExtra(Constant.KEY_RECURRING_STATUS, recurring_status);
+                returnIntent.putExtra(Constant.KEY_DATE_FROM, fromDate);
+                returnIntent.putExtra(Constant.KEY_DATE_TO, todate);
+                returnIntent.putExtra(Constant.KEY_FREQUENCY, frequency);
+                returnIntent.putExtra(Constant.KEY_OCCURRENCE, occurrence);
+                setResult(Constant.requestCodeRecurringFilter, returnIntent);
+                finish();
+                break;
+
+            case R.id.clearDate:
+                fromET.setText("");
+                toEt.setText("");
+                break;
+        }
+    }
+
+
+    public void setSelectedPos(int id) {
+        List<TextView> textViews = new ArrayList<>();
+        textViews.add(recurringStTV);
+        textViews.add(autoBillTV);
+        textViews.add(clientTV);
+        textViews.add(statusTV);
+        textViews.add(dateTV);
+        List<LinearLayout> linearLayouts = new ArrayList<>();
+        linearLayouts.add(recurringStLiner);
+        linearLayouts.add(autoBillLinear);
+        linearLayouts.add(clientLiner);
+        linearLayouts.add(statusLiner);
+        linearLayouts.add(dateLiner);
+
+        for (int i = 0; i < textViews.size(); i++) {
+            Drawable drawable;
+            if (textViews.get(i).getId() == id) {
+                frames.get(i).setBackgroundColor(getResources().getColor(R.color.orange2));
+                linearLayouts.get(i).setVisibility(View.VISIBLE);
+                drawable = getResources().getDrawable(selectedImg[i]);
+                textViews.get(i).setTextColor(getResources().getColor(R.color.white));
+
+            } else {
+
+                frames.get(i).setBackground(getResources().getDrawable(R.drawable.un_selected_filter_background));
+                linearLayouts.get(i).setVisibility(View.GONE);
+                drawable = getResources().getDrawable(unSelectedImg[i]);
+
+                textViews.get(i).setTextColor(Color.parseColor("#999999"));
+            }
+            textViews.get(i).setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
+        }
+    }
+
+
+    private void getClientList(boolean showProgress) {
+        try {
+            JSONObject obj = new JSONObject();
+
+            obj.put(Constant.KEY_METHOD, "listClient");
+            WebRequest request = new WebRequest(context, obj,
+                    Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_LIST, Constant.token, this, showProgress);
+            request.execute();
+        } catch (JSONException e) {
+            Log.v("Json Exception", e.getMessage());
+        }
+    }
+
+    private void settClientList(boolean sendRequest) {
+        int selectedClientId = clientRadioGroup.getCheckedRadioButtonId();
+        clientRadioGroup.removeAllViews();
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.TAble_ClientList;
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+
+                    JSONObject object = new JSONObject(cursor.getString(cursor
+                            .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                    for (int j = 0; j < object.getJSONObject("clients").getJSONArray("client").length(); j++) {
+
+                        //  clientList.add(attribute);
+                        int padVal = (int) global.convertDpToPixel(10, context);
+                        RadioButton button = new RadioButton(context);
+                        button.setId(Integer.parseInt(object.getJSONObject("clients").getJSONArray("client").getJSONObject(j).getString("fkClientUserCompanyID")));
+                        button.setText(object.getJSONObject("clients").getJSONArray("client").getJSONObject(j).getString("organization"));
+
+                        button.setButtonDrawable(new StateListDrawable());
+                        // button.setButtonDrawable(R.drawable.custom_radiobuton);
+                        button.setPadding(padVal, padVal, padVal, padVal);
+
+                        Drawable drawable = getResources().getDrawable(R.drawable.custom_radiobuton);
+                        button.setCompoundDrawablePadding(padVal);
+
+                        button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+                        button.setTextColor(Color.parseColor("#3E3E3E"));
+                        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+
+
+                        button.setLayoutParams(new RadioGroup.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                        if (selectedClientId > 0) {
+
+
+                            if (selectedClientId == Integer.parseInt(object.getJSONObject("clients").getJSONArray("client").getJSONObject(j).getString("fkClientUserCompanyID")))
+                                button.setChecked(true);
+                        }
+                        clientRadioGroup.addView(button);
+                    }
+
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (selectedClientId > 0)
+                clientRadioGroup.findViewById(selectedClientId).setSelected(true);
+            if (sendRequest)
+                getClientList(false);
+        } else {
+            if (sendRequest)
+                getClientList(true);
+        }
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        if (result == null)
+            return;
+
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message"), Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        switch (type) {
+            case GET_LIST:
+
+                int selectedClientId = clientRadioGroup.getCheckedRadioButtonId();
+                db.ClearTable(DatabaseHelper.TAble_ClientList);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+                db.insert(DatabaseHelper.TAble_ClientList, values);
+
+                String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.TAble_ClientList;
+
+                Cursor cursor = db.getRecords(selectQuery);
+
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+                    settClientList(false);
+                }
+                if (selectedClientId > 0) {
+                }
+                isClientListCalled = true;
+                break;
+        }
+    }
+}

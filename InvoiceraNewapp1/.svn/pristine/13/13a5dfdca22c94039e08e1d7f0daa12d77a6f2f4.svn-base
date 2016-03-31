@@ -1,0 +1,90 @@
+package com.invoicera.androidapp;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
+import com.invoicera.ViewPagerAdpter.WalkthroufgPagerAdpter;
+import com.invoicera.ViewPagerFragment.WalkthroufgPagerFragment;
+import com.viewpagerindicator.CirclePageIndicator;
+
+public class WalkThrough extends FragmentActivity {
+
+	static String FRAGMENT_POS = "fragment_pos";
+
+	ViewPager pager;
+	WalkthroufgPagerAdpter adpter;
+	Context context;
+	Button nextBtn;
+	int current_possition = 1;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		// TODO Auto-generated method stub
+		super.onCreate(arg0);
+		setContentView(R.layout.walkthrough);
+		pager = (ViewPager) findViewById(R.id.pager);
+		adpter = new WalkthroufgPagerAdpter(getSupportFragmentManager());
+		pager.setAdapter(adpter);
+		adpter.notifyDataSetChanged();
+		context = this;
+		nextBtn = (Button) findViewById(R.id.next);
+
+		WalkthroufgPagerFragment testFragment;
+		Bundle arguments;
+		for (int i = 0; i < 4; i++) {
+			testFragment = new WalkthroufgPagerFragment();
+			arguments = new Bundle();
+			arguments.putInt(FRAGMENT_POS, i);
+			testFragment.setArguments(arguments);
+			adpter.add(testFragment);
+		}
+
+		CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.invoicedescription_indicator2);
+		// mIndicator = indicator;
+		indicator.setViewPager(pager);
+		indicator.setSnap(true);
+
+		pager.setOnPageChangeListener(new OnPageChangeListener() {
+
+			@Override
+			public void onPageSelected(int position) {
+				current_possition = position;
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+
+			}
+		});
+
+		nextBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (current_possition < 4) {
+					pager.setCurrentItem(4);
+					current_possition++;
+				}
+
+				/*
+				 * Intent intent = new Intent(context, Home.class);
+				 * startActivity(intent); finish();
+				 */
+			}
+		});
+
+	}
+
+}

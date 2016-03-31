@@ -1,0 +1,375 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.CustomView.CustomPopup;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.Fragment.BaseFragment;
+import com.invoicera.Fragment.SelectClient;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.ResultFromChildFragment;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.ListViewAdpter.ItemListAdpter;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.CreateInvoiceDetail;
+import com.invoicera.androidapp.CreateItem;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+import com.invoicera.model.AdditionalCharge;
+import com.invoicera.model.InvoiceItem;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class CreateInvoicePagerFragment extends BaseFragment implements
+        OnClickListener, WebApiResult {
+
+
+    RelativeLayout AddItemView, createInvoiceNumberVew;
+    public static ArrayList<AdditionalCharge> selectedadditionalChargesList;
+    public FragmentChanger fragmentChanger;
+    transient Context myContext;
+    ItemListAdpter itemListAdpter;
+    transient Bundle argument;
+    transient ResultFromChildFragment fromChildFragment;
+    ArrayList<InvoiceItem> itemList = new ArrayList<InvoiceItem>();
+    LinearLayout itemLiner;
+    public String invoice_no, invoice_date, invoice_title, schedual_on, late_feeId, due_date, invoice_note, term_condition, lateFeeName, clientName, clientId, clientAdd,clientCurrency;
+
+    TextView addCharges, invoiceNoTV;
+    CustomPopup mypopUp;
+    ContentValues values;
+    DatabaseHelper db;
+    ArrayList<HashMap<String, String>> AdditionalChargesList;
+    HashMap<String, String> map;
+    public TextView clientTV, selectItemTV;
+    boolean isDisocuntOnTottol, isTaxOnTotal, isAddCredit, isPartialPaiment, isTitleShow;
+    transient Intent i;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+
+        View view = inflater.inflate(R.layout.create_invoice, container, false);
+
+
+        selectItemTV = (TextView) view.findViewById(R.id.item_add);
+        AddItemView = (RelativeLayout) view.findViewById(R.id.addItemLinear);
+        AddItemView.setVisibility(View.GONE);
+        createInvoiceNumberVew = (RelativeLayout) view
+                .findViewById(R.id.creteNumber);
+        db = new DatabaseHelper(context);
+        selectedadditionalChargesList = new ArrayList<>();
+        itemListAdpter = new ItemListAdpter((Activity) context);
+
+        invoiceNoTV = (TextView) view.findViewById(R.id.invoice_no);
+        clientTV = (TextView) view.findViewById(R.id.selectClientView);
+
+
+        // ---
+        addCharges = (TextView) view.findViewById(R.id.addCharges);
+        clientTV.setOnClickListener(this);
+        selectItemTV.setOnClickListener(this);
+        AddItemView.setOnClickListener(this);
+        addCharges.setOnClickListener(this);
+        createInvoiceNumberVew.setOnClickListener(this);
+        itemLiner = (LinearLayout) view.findViewById(R.id.linear_item);
+        itemLiner.setVisibility(View.GONE);
+
+
+        // get data from web ---------------------------------------------------------
+
+        JSONObject obj = new JSONObject();
+
+        try {
+            obj.put(Constant.KEY_METHOD, "getInvoiceSetting");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        WebRequest request = new WebRequest(context, obj, Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_SETTING, this, true);
+        request.execute();
+
+        //-----------------------------------------------------------------------------------------
+
+        return view;
+
+    }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        // TODO Auto-generated method stub
+        super.onAttach(activity);
+
+        fragmentChanger = (FragmentChanger) getActivity();
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        // TODO Auto-generated method stub
+
+        switch (v.getId()) {
+            case R.id.selectClientView:
+
+                SelectClient myf = new SelectClient();
+
+                getChildFragmentManager().beginTransaction().replace(R.id.mainframe, myf).commit();
+                getView().findViewById(R.id.mainframe).setVisibility(View.VISIBLE);
+
+
+                break;
+
+            case R.id.item_add:
+
+            case R.id.addItemLinear:
+
+                myContext = getActivity().getApplicationContext();
+
+                i = new Intent(myContext, CreateItem.class);
+                if(clientCurrency!=null) {
+                    i.putExtra(Constant.KEY_CLIENT_CURRENCY, clientCurrency);
+                    getActivity().startActivityForResult(i,
+                            Constant.requestCodeCretateInvoiceItem);
+                }
+                else{
+                    Toast.makeText(context,"Client currency is not valid",Toast.LENGTH_SHORT).show();
+
+                }// Activity
+                // is
+                // started
+                // with
+                // requestCode
+                // 2
+                selectItemTV.setVisibility(View.GONE);
+
+                AddItemView.setVisibility(View.VISIBLE);
+                break;
+            case R.id.creteNumber:
+
+                Intent intent = new Intent(context, CreateInvoiceDetail.class);
+
+                intent.putExtra(Constant.KEY_NO, invoice_no);
+                intent.putExtra(Constant.KEY_DATE, invoice_date);
+                intent.putExtra(Constant.KEY_TITLE, invoice_title);
+                intent.putExtra(Constant.KEY_DUE_DATE, due_date);
+                intent.putExtra(Constant.KEY_SCHEDUAL_DATE, schedual_on);
+                intent.putExtra(Constant.KEY_NOTE, invoice_note);
+                intent.putExtra(Constant.KEY_TermsAndCondition, term_condition);
+                intent.putExtra(Constant.KEY_LATE_FEE_ID, late_feeId);
+                intent.putExtra(Constant.KEY_LATE_FEE_NAME, lateFeeName);
+                getActivity().startActivityForResult(intent, Constant.requestCodeCretateInvoiceDetail);
+                break;
+            case R.id.addCharges:
+
+                getwebData("listGblAdditionalCharges",
+                        Constant.SERVICE_TYPE.GET_ADDITIONAL_CHARGE, true);
+
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data == null)
+            return;
+        if (requestCode == Constant.requestCodeCretateInvoiceItem) {
+            itemLiner.setVisibility(View.VISIBLE);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View itemRow = inflater.inflate(R.layout.create_invoice_item_row, null);
+            itemLiner.addView(itemRow);
+        }
+        System.out.println("data get :" + data + "---" + requestCode);
+        if (requestCode == Constant.requestCodeCretateInvoiceDetail) {
+            invoice_no = data.getStringExtra(Constant.KEY_NO);
+            invoice_date = data.getStringExtra(Constant.KEY_DATE);
+            invoice_title = data.getStringExtra(Constant.KEY_TITLE);
+            invoice_note = data.getStringExtra(Constant.KEY_NOTE);
+            due_date = data.getStringExtra(Constant.KEY_DUE_DATE);
+            late_feeId = data.getStringExtra(Constant.KEY_LATE_FEE_ID);
+            term_condition = data.getStringExtra(Constant.KEY_TermsAndCondition);
+            schedual_on = data.getStringExtra(Constant.KEY_SCHEDUAL_DATE);
+            lateFeeName = data.getStringExtra(Constant.KEY_LATE_FEE_NAME);
+
+
+        }
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String selectQuery;
+        Cursor cursor;
+        JSONObject object;
+        switch (type) {
+
+            case GET_SETTING:
+                db.ClearTable(DatabaseHelper.Table_InvoiceCreateSettings);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_InvoiceCreateSettings, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_InvoiceCreateSettings;
+
+                cursor = db.getRecords(selectQuery);
+                object = null;
+                if (cursor.moveToFirst() && cursor.getCount() > 0)
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            object = new JSONObject(cursor.getString(cursor.getColumnIndex(DatabaseHelper.JSON_DATA)));
+                            invoice_no = object.getString("invoice_no");
+                            invoice_note = object.getString("Invoice_Notes");
+
+                            if (object.getString("discountOnTotal").equalsIgnoreCase("No"))
+                                isDisocuntOnTottol = false;
+                            else isDisocuntOnTottol = true;
+
+                            if (object.getString("taxOnTotal").equalsIgnoreCase("No"))
+                                isTaxOnTotal = false;
+                            else isTaxOnTotal = true;
+
+                            if (object.getString("isAddCredit").equalsIgnoreCase("No"))
+                                isAddCredit = false;
+                            else isAddCredit = true;
+
+
+                            if (object.getString("isPartialAmount").equalsIgnoreCase("No"))
+                                isPartialPaiment = false;
+                            else isPartialPaiment = true;
+
+
+                            if (object.getString("isTitleShowing").equalsIgnoreCase("No"))
+                                isTitleShow = false;
+                            else isTitleShow = true;
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+
+
+                break;
+
+            case GET_ADDITIONAL_CHARGE:
+                AdditionalChargesList = new ArrayList<>();
+                map = new HashMap<>();
+                db.ClearTable(DatabaseHelper.Table_AdditionalCharges);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_AdditionalCharges, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_AdditionalCharges;
+
+                cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0)
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            map = new HashMap<>();
+                            object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+                            for (int k = 0; k < object.getJSONObject("additional_charges").getJSONArray("charge").length(); k++) {
+
+                                JSONObject chargeObj = object.getJSONObject("additional_charges").getJSONArray("charge").getJSONObject(k);
+                                map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                AdditionalChargesList.add(map);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        // mypopUp = new CustomPopup((Activity) context, AdditionalChargesList, Constant.POP_UP.ADDITIONAL_CHARGES);
+                    }
+
+
+                Window window = mypopUp.getWindow();
+                window.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                mypopUp.show();
+                break;
+        }
+    }
+
+    public void getwebData(String method, Constant.SERVICE_TYPE type, boolean showProgess) {
+
+
+        JSONObject obj = new JSONObject();
+
+        try {
+            obj.put(Constant.KEY_METHOD, method);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        WebRequest request = new WebRequest(context, obj,
+                Constant.invoicelistURL, type, this, showProgess);
+        request.execute();
+
+
+    }
+
+    public void getChildFragment(Constant.FRAGMENT_RESULT type, HashMap<String, String> result) {
+
+        switch (type) {
+
+
+            case CLIENT:
+                getView().findViewById(R.id.mainframe).setVisibility(View.GONE);
+                clientAdd = result.get(Constant.KEY_ADDRESS);
+                clientName = result.get(Constant.KEY_CLIENT_NAME);
+                clientId = result.get(Constant.KEY_CLIENT_ID);
+                clientCurrency=result.get(Constant.KEY_CLIENT_CURRENCY);
+                clientTV.setText(clientName);
+
+                break;
+        }
+
+    }
+
+}
+

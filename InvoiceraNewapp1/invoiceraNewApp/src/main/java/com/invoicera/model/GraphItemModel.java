@@ -1,0 +1,94 @@
+package com.invoicera.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class GraphItemModel implements Parcelable {
+
+	int numberOfIem;
+	String colourCode;
+	String itemName;
+	String type;
+
+	public static final Creator<GraphItemModel> CREATOR = new Creator<GraphItemModel>() {
+		@Override
+		public GraphItemModel createFromParcel(Parcel in) {
+			return new GraphItemModel(in);
+		}
+
+		@Override
+		public GraphItemModel[] newArray(int size) {
+			return new GraphItemModel[size];
+		}
+	};
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public int getNumberOfIem() {
+		return numberOfIem;
+	}
+
+	public void setNumberOfIem(int numberOfIem) {
+		this.numberOfIem = numberOfIem;
+	}
+
+	public String getColourCode() {
+		return colourCode;
+	}
+
+	public void setColourCode(String colourCode) {
+		this.colourCode = colourCode;
+	}
+
+	public String getItemName() {
+		return itemName;
+	}
+
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		// TODO Auto-generated method stub
+		dest.writeInt(numberOfIem);
+		dest.writeString(colourCode);
+		dest.writeString(type);
+		dest.writeString(itemName);
+
+	}
+
+	public GraphItemModel(Parcel source) {
+		// TODO Auto-generated constructor stub
+		itemName = source.readString();
+		numberOfIem = source.readInt();
+		colourCode = source.readString();
+		type = source.readString();
+	}
+	
+	public class MyCreator implements Parcelable.Creator<GraphItemModel> {
+	    public GraphItemModel createFromParcel(Parcel source) {
+	          return new GraphItemModel(source);
+	    }
+	    public GraphItemModel[] newArray(int size) {
+	          return new GraphItemModel[size];
+	    }
+	}
+	
+	public GraphItemModel() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 默认时的图片 -->
+    <item android:drawable="@drawable/rfab__shape_corners_background_label_shadow_normal" android:state_pressed="false"/>
+    <!-- 选择时的图片 -->
+    <item android:drawable="@drawable/rfab__shape_corners_background_label_shadow_pressed" android:state_pressed="true"/>
+</selector><!-- From: file:/home/vinove/Desktop/Android/InvoiceraNewapp1/FloatingActionButton/src/main/res/drawable/rfab__shape_corners_background_label_shadow_selector.xml --><!-- From: file:/home/vinove/Desktop/Android/InvoiceraNewapp1/invoiceraNewApp/build/intermediates/exploded-aar/InvoiceraNewapp1/FloatingActionButton/unspecified/res/drawable/rfab__shape_corners_background_label_shadow_selector.xml -->

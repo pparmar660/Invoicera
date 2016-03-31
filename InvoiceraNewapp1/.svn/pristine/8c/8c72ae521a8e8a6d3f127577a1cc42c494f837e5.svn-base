@@ -1,0 +1,513 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/underline_background">
+
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:singleLine="true"
+            android:text="OfflinePayment"
+            android:textColor="@color/black"
+
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/orange2"
+            android:orientation="vertical"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp"
+            android:paddingTop="1dp">
+
+            <TextView
+                android:id="@+id/ph_invoicenum"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="Invoice No"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/ph_currency"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+
+                android:gravity="right"
+                android:padding="5dp"
+                android:text="Currency"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:id="@+id/rlayoutph_listview"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/phList"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dip"
+                    android:orientation="vertical"
+                    android:scrollbars="none" />
+            </RelativeLayout>
+
+            <TableLayout
+                android:id="@+id/tablelayoutph"
+                android:background="@color/orange2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+              >
+
+                <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1px"
+                    android:background="@drawable/underline_background"
+                    android:gravity="center"
+                    android:weightSum="7">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="4"
+                        android:background="@color/white"
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:text="Invoice Amount:"
+
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/off_incoive_amount"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_marginRight="1px"
+                        android:layout_weight="3"
+                        android:background="@color/white"
+                        android:gravity="center_vertical|right"
+                        android:padding="10dp"
+
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/underline_background"
+                    android:gravity="center_vertical"
+                    android:weightSum="7">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="4"
+                        android:background="@color/white"
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:text="Toal Paid:"
+
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/off_total_paid"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_marginRight="1px"
+                        android:layout_weight="3"
+                        android:background="@color/white"
+                        android:gravity="center_vertical|right"
+                        android:padding="10dp"
+
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1px"
+
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="4"
+
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:text="Net Balance:"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/off_net_balnce"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_marginRight="1px"
+                        android:layout_weight="3"
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+android:background="@color/white"
+                android:orientation="vertical">
+
+                <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+android:background="@color/orange2"
+                    android:weightSum="7">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="4"
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:text="Invoice Amount:"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/off_tv_invamount"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="3"
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/latefee_rel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/orange2"
+                    android:weightSum="7">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="4"
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:text="Late Fee Amount:"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/off_tv_latefeeamount"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="3"
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/orange2"
+                    android:weightSum="7">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="4"
+
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+                        android:text="Outstanding Amount:"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/off_tv_outamount"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical|right"
+                        android:padding="5dp"
+
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/box_background"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="145dp"
+                        android:layout_height="50dp"
+                        android:paddingLeft="10dp"
+                        android:text="Payment Method:"
+                        android:textColor="@android:color/black" />
+
+                    <EditText
+                        android:id="@+id/off_method_et"
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:background="@android:color/transparent"
+                        android:textCursorDrawable="@drawable/color_cursor"
+                        android:focusable="false"
+                        android:inputType="text"
+                        android:paddingLeft="10dp"
+                        android:textColor="@color/black"
+                        android:paddingRight="10dp"
+
+                        android:singleLine="true"
+                        android:textColorHint="#D3D3D6"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/box_background"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="115dp"
+                        android:layout_height="50dp"
+                        android:paddingLeft="10dp"
+                        android:text="Amount:"
+                        android:textColor="@android:color/black" />
+
+                    <EditText
+                        android:id="@+id/off_amount_et"
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:background="@android:color/transparent"
+                        android:textCursorDrawable="@drawable/color_cursor"
+                        android:inputType="numberDecimal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:singleLine="true"
+                        android:textColor="@color/black"
+                        android:textColorHint="#D3D3D6"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/box_background">
+
+                    <TextView
+                        android:id="@+id/dtlbl"
+                        android:layout_width="115dp"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="10dp"
+                        android:text="Date:"
+                        android:textColor="@android:color/black" />
+
+                    <EditText
+                        android:id="@+id/off_date_et"
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:layout_toRightOf="@id/dtlbl"
+                        android:background="@android:color/transparent"
+                        android:textCursorDrawable="@drawable/color_cursor"
+                        android:focusable="false"
+                        android:inputType="datetime"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:singleLine="true"
+                        android:textColor="@color/black"
+                        android:textColorHint="#D3D3D6"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_margin="10dp"
+                        android:src="@drawable/date_format" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+
+
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:text="Notes"
+                        android:textColor="@android:color/white" />
+
+                    <EditText
+                        android:id="@+id/off_notes_et"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/box_background"
+                        android:textCursorDrawable="@drawable/color_cursor"
+                        android:gravity="top|left"
+                        android:inputType="textMultiLine"
+                        android:lines="4"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:scrollbars="vertical"
+                        android:textColor="@color/black"
+                        android:textColorHint="#D3D3D6"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+
+                    android:padding="10dp"
+                    android:gravity="center_vertical"
+
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/off_chk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:button="@drawable/custom_radiobuton"
+                        android:checked="false"
+                        android:paddingLeft="10dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:textSize="14sp"
+
+                        android:layout_height="wrap_content"
+                        android:text="Send Invoice/Payment notification mail to client."
+                        android:textColor="@color/black" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/off_Payment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_weight="1"
+                        android:background="#8C8C8C"
+                        android:padding="7dp"
+                        android:text="Pay"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/off_Cancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:background="@color/orange2"
+                        android:padding="7dp"
+                        android:text="Cancel"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

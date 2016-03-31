@@ -1,0 +1,12 @@
+package com.invoicera.Webservices;
+
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+
+import org.json.JSONObject;
+
+
+
+public interface WebApiResult {
+
+	public void getWebResult(SERVICE_TYPE type, JSONObject result);
+}

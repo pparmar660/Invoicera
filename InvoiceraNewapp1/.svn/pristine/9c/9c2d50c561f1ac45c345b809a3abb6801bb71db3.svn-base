@@ -1,0 +1,160 @@
+package com.invoicera.ListViewAdpter;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.invoicera.Fragment.InvoicePreviewCreateFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.listener.FragmentChanger;
+
+public class HomeGrid extends BaseAdapter {
+
+    Context context;
+    FragmentChanger fragmentChanger;
+
+    public HomeGrid(Context context, FragmentChanger fragmentChanger) {
+        // TODO Auto-generated constructor stub
+
+        this.context = context;
+        this.fragmentChanger = fragmentChanger;
+
+    }
+
+    @Override
+    public int getCount() {
+        // TODO Auto-generated method stub
+        return 3;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        // TODO Auto-generated method stub
+
+        LayoutInflater inflater = (LayoutInflater) Home.context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewHolder holder = new ViewHolder();
+
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.home_grid, parent, false);
+
+            holder.tv1 = (TextView) convertView.findViewById(R.id.text1);
+            holder.tv2 = (TextView) convertView.findViewById(R.id.text2);
+            holder.linearLayout1 = (RelativeLayout) convertView.findViewById(R.id.liner1);
+            holder.linearLayout2 = (RelativeLayout) convertView.findViewById(R.id.liner2);
+
+
+            holder.imgView = (ImageView) convertView.findViewById(R.id.img);
+
+
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        switch (position) {
+            case 0:
+             /*   holder.imgView1.setImageResource(R.drawable.create_invoice_dash);
+                holder.imageView2
+                        .setImageResource(R.drawable.create_recurring_dash);*/
+                holder.tv1.setText("CREATE INVOICE");
+                holder.tv2.setText("CREATE RECURRING");
+                holder.imgView.setVisibility(View.VISIBLE);
+
+                holder.tv1.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.create_invoice_dash, 0, 0);
+                holder.tv2.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.create_recurring_dash, 0, 0);
+                break;
+
+            case 1:
+       /*         holder.imgView1.setImageResource(R.drawable.log_time_dash);
+                holder.imageView2.setImageResource(R.drawable.log_expense_dash);*/
+                holder.tv1.setText("LOG TIME");
+                holder.tv2.setText("LOG EXPENSE");
+                holder.tv1.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.log_time_dash, 0, 0);
+                holder.tv2.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.log_expense_dash, 0, 0);
+
+                break;
+
+            case 2:
+       /*         holder.imgView1.setImageResource(R.drawable.log_time_dash);
+                holder.imageView2.setImageResource(R.drawable.log_expense_dash);*/
+                holder.tv1.setText("CREATE CLIENT");
+                holder.tv2.setText("CREATE PRODUCT");
+                holder.tv1.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.create_client_new, 0, 0);
+                holder.tv2.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.log_expense_dash,  0, 0);
+
+                break;
+
+            default:
+                break;
+        }
+
+        holder.linearLayout1.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+
+                if (position == 0) {
+                    // Create Invoice
+                    fragmentChanger.onFragmentReplaceWithBackStack(
+                            new InvoicePreviewCreateFragment(),
+                            Constant.InovicePreviewCreateEditFragmentTag, new Bundle());
+
+                } else {
+                    // log time
+
+                }
+
+            }
+        });
+
+        holder.linearLayout2.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                if (position == 0) {
+
+                    // create reccurig
+                } else {
+                    // log expanse
+
+                }
+
+            }
+        });
+
+        return convertView;
+    }
+
+    class ViewHolder {
+
+        TextView tv1, tv2;
+        ImageView imgView;
+        RelativeLayout linearLayout1, linearLayout2;
+
+    }
+
+}

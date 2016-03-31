@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/liner1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/img_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/toolbar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="AutoBilling"
+            android:textColor="#000"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+
+            android:padding="5dp"
+            android:text="Clear"
+            android:textColor="@color/orange2" />
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/orange2"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+
+        <CheckBox
+            android:id="@+id/chk_Own"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:button="@drawable/custom_checkbox"
+            android:paddingLeft="7dp"
+            android:text="Let me fill client's Credit Card details"
+            android:checked="false" />
+
+
+        <CheckBox
+            android:id="@+id/chk_Client"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:button="@drawable/custom_checkbox"
+            android:checked="true"
+            android:paddingLeft="7dp"
+            android:text="Let client fill own Credit Card details" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/paymentGateway"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/box_background"
+                android:drawableRight="@drawable/ar"
+                android:gravity="center_vertical"
+                android:hint="Payment Gateway"
+                android:padding="10dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray"
+                android:textSize="18sp" />
+
+
+            <LinearLayout
+                android:id="@+id/ly_AutoBill"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/et_FirstName"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:hint="First Name"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_LastName"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:hint="Last Name"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_CardName"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="Name on Card"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_Address"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="Address"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <TextView
+                    android:id="@+id/et_Country"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:drawableRight="@drawable/ar"
+                    android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:hint="Country"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/et_City"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="City"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_State"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="State"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_Zip"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="Zip"
+                    android:imeOptions="actionNext"
+
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <TextView
+                    android:id="@+id/et_CardType"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:drawableRight="@drawable/ar"
+                    android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:hint="Card Type"
+                    android:imeOptions="actionNext"
+                    android:inputType="none"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/et_CardNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="Card No"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:maxLength="16"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_Cvv"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:hint="Verification Code (cvv#)"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+                <EditText
+                    android:id="@+id/et_Expiry"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/box_background"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:drawableRight="@drawable/calender"
+                    android:focusable="false"
+                    android:hint="Expiry"
+                    android:imeOptions="actionDone"
+                    android:inputType="none"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray" />
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <Button
+                    android:id="@+id/btn_Save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="20dp"
+                    android:background="#979797"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="Save"
+                    android:textColor="@color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout><!-- From: file:/home/vinove/Desktop/InvoiceraAppStudioVersion/InvoiceraNewapp1/invoiceraNewApp/src/main/res/layout/auto_billing.xml -->

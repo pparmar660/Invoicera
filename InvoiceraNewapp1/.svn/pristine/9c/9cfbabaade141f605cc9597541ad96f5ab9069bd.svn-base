@@ -1,0 +1,210 @@
+package com.invoicera.androidapp;
+
+import android.content.ContentValues;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by vinove on 12/6/15.
+ */
+public class ProductServiceFilter extends BaseActivity implements View.OnClickListener {
+
+
+    EditText fromET, toEt;
+    String StatusArray[] = {"Active", "Archived", "Deleted"};
+    TextView ApplyTV;
+    ContentValues values;
+
+    TextView statusTV, untiCostTv;
+
+    DatabaseHelper db;
+
+    LinearLayout unitCostLinear, statusLiner;
+    TextView clearTv;
+    ImageView backImg;
+    RadioGroup statusRadioGroup;
+    ImageView clearCost;
+    int[] selectedImg = {R.drawable.status_selected, R.drawable.active_selected};
+
+
+    int[] unSelectedImg = {R.drawable.status, R.drawable.active};
+
+
+    ArrayList<FrameLayout> frames;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.product_services_filter);
+
+        Intent intent = getIntent();
+
+
+        //  clientList = new ArrayList<>();
+        clearTv = (TextView) findViewById(R.id.clear);
+        backImg = (ImageView) findViewById(R.id.back);
+        ApplyTV = (TextView) findViewById(R.id.apply);
+        statusTV = (TextView) findViewById(R.id.main_status);
+        untiCostTv = (TextView) findViewById(R.id.unit_cost_range);
+        clearCost = (ImageView) findViewById(R.id.clearCost);
+        statusRadioGroup = (RadioGroup) findViewById(R.id.st_group);
+        fromET = (EditText) findViewById(R.id.from);
+        toEt = (EditText) findViewById(R.id.to);
+        statusLiner = (LinearLayout) findViewById(R.id.status_liner);
+        unitCostLinear = (LinearLayout) findViewById(R.id.cost_liner);
+        db = new DatabaseHelper(context);
+        clearCost.setOnClickListener(this);
+        statusTV.setOnClickListener(this);
+
+        ApplyTV.setOnClickListener(this);
+
+        //
+        frames = new ArrayList<>();
+        frames.add((FrameLayout) findViewById(R.id.unitCostFrame));
+        frames.add((FrameLayout) findViewById(R.id.activeframe));
+        fromET.setOnClickListener(this);
+        toEt.setOnClickListener(this);
+        setSelectedPos(R.id.unit_cost_range);
+        backImg.setOnClickListener(this);
+        clearTv.setOnClickListener(this);
+
+
+    }
+
+
+    @Override
+    public void onClick(View v) {
+
+
+        switch (v.getId()) {
+
+
+            case R.id.unit_cost_range:
+                setSelectedPos(v.getId());
+
+                break;
+
+
+            case R.id.main_status:
+                setSelectedPos(v.getId());
+
+                break;
+
+            case R.id.clear:
+
+
+                int selectedid = statusRadioGroup.getCheckedRadioButtonId();
+                if (selectedid > 0) {
+                    statusRadioGroup.clearCheck();
+                }
+
+                fromET.setText("");
+                toEt.setText("");
+
+
+                break;
+            case R.id.back:
+                finish();
+                break;
+
+            case R.id.apply:
+                System.out.println("Click");
+
+                int radioButtonID = statusRadioGroup.getCheckedRadioButtonId();
+                View radioButton = statusRadioGroup.findViewById(radioButtonID);
+                int idx = statusRadioGroup.indexOfChild(radioButton);
+
+                String status = "";
+                if (idx > 0)
+                    status = StatusArray[idx];
+
+
+                String fromCost = fromET.getText().toString();
+                String toCost = toEt.getText().toString();
+
+
+                //  System.out.println(estimateStatus + "," + status + "," + clientId + "," + fromDate + "," + todate);
+
+                Intent returnIntent = new Intent();
+
+                returnIntent.putExtra(Constant.KEY_STATUS, status);
+
+                returnIntent.putExtra(Constant.KEY_FROM, fromCost);
+                returnIntent.putExtra(Constant.KEY_TO, toCost);
+                setResult(Constant.requestCodeItemFilter, returnIntent);
+                finish();
+                break;
+
+            case R.id.clearCost:
+                fromET.setText("");
+                toEt.setText("");
+                break;
+
+
+        }
+
+
+    }
+
+
+    public void setSelectedPos(int id) {
+
+
+        List<TextView> textViews = new ArrayList<>();
+
+        textViews.add(statusTV);
+        textViews.add(untiCostTv);
+        List<LinearLayout> linearLayouts = new ArrayList<>();
+        linearLayouts.add(unitCostLinear);
+        linearLayouts.add(statusLiner);
+
+
+        for (int i = 0; i < textViews.size(); i++) {
+
+            Drawable drawable;
+            if (textViews.get(i).getId() == id) {
+
+                frames.get(i).setBackgroundColor(getResources().getColor(R.color.orange2));
+
+                linearLayouts.get(i).setVisibility(View.VISIBLE);
+
+
+                drawable = getResources().getDrawable(selectedImg[i]);
+                textViews.get(i).setTextColor(getResources().getColor(R.color.white));
+
+            } else {
+
+                frames.get(i).setBackground(getResources().getDrawable(R.drawable.un_selected_filter_background));
+                linearLayouts.get(i).setVisibility(View.GONE);
+                drawable = getResources().getDrawable(unSelectedImg[i]);
+
+                textViews.get(i).setTextColor(Color.parseColor("#999999"));
+
+
+            }
+
+
+            textViews.get(i).setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
+
+        }
+
+
+    }
+
+
+}

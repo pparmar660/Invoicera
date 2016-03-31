@@ -1,0 +1,159 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical"
+    tools:context="com.invoicera.androidapp.Home">
+
+    <RelativeLayout
+        android:id="@+id/liner1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottomline_background"
+        android:padding="10dp" >
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/toolbar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="Invoice"
+            android:textColor="#000"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/save" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/liner1" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/radiogtup"
+            android:layout_margin="10dp"
+            android:background="@drawable/box_background"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottomline_background"
+                android:hint="Invoice#"
+                android:padding="10dp"
+                android:textColor="#3F3F3F"
+                android:textColorHint="#3E3E3E" />
+            <EditText
+                android:id="@+id/invoiceTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottomline_background"
+                android:hint="invoice title"
+                android:padding="10dp"
+                android:textColor="#3F3F3F"
+                android:textColorHint="#3E3E3E" />
+
+
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottomline_background"
+                android:hint="Invoice Date"
+                android:padding="10dp"
+                android:textColor="#3F3F3F"
+                android:drawableRight="@drawable/date_format"
+                android:textColorHint="#3E3E3E" />
+
+
+
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/bottomline_background"
+                    android:hint="Due Date"
+                    android:padding="10dp"
+                    android:textColor="#3F3F3F"
+                    android:drawableRight="@drawable/date_format"
+                    android:textColorHint="#3E3E3E" />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottomline_background"
+                android:hint="Scheduled on:"
+                android:padding="10dp"
+                android:textColor="#3F3F3F"
+                android:drawableRight="@drawable/date_format"
+                android:textColorHint="#3E3E3E" />
+
+
+            <EditText
+                android:id="@+id/invoiceNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottomline_background"
+                android:hint="invoice note"
+                android:padding="10dp"
+                android:textColor="#3F3F3F"
+                android:textColorHint="#3E3E3E" />
+
+            <EditText
+                android:id="@+id/invoiceTermAndCondition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottomline_background"
+                android:hint="term and condition"
+                android:padding="10dp"
+                android:textColor="#3F3F3F"
+                android:textColorHint="#3E3E3E" />
+
+
+
+                <TextView
+               android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_width="match_parent"
+                    android:padding="10dp"
+                    android:layout_height="wrap_content"
+                    android:text="Late Fee :"
+                    android:textSize="15sp"
+                    android:paddingRight="20dp"
+                    android:drawableRight="@drawable/ar"
+                    android:textColor="#3F3F3F" />
+
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

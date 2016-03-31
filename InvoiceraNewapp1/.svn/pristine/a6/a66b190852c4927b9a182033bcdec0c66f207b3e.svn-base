@@ -1,0 +1,240 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical"
+    tools:context="com.invoicera.androidapp.Home">
+
+    <RelativeLayout
+        android:id="@+id/liner1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/toolbar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="Recurring"
+            android:textColor="#000"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/save" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/liner1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/radiogtup"
+            android:layout_margin="10dp"
+            android:background="@drawable/box_background"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottom_line_background"
+                android:hint="Recurring#"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <EditText
+                android:id="@+id/recurringTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottom_line_background"
+                android:hint="Recurring title"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <EditText
+                android:id="@+id/recurringNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottom_line_background"
+                android:hint="Recurring note"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <EditText
+                android:id="@+id/recurringTermAndCondition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottom_line_background"
+                android:hint="Terms and condition"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:paddingLeft="10dp"
+                android:paddingRight="20dp"
+
+                android:paddingTop="10dp"
+
+                android:text="Invoice Date :"
+                android:textColor="#000"
+
+                android:textSize="15sp" />
+
+            <TextView
+
+                android:id="@+id/invoice_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottom_line_background"
+                android:drawableRight="@drawable/date_format"
+                android:gravity="center_vertical"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+
+                android:paddingRight="10dp"
+                android:paddingTop="2dp"
+                android:text=""
+                android:textColor="#000" />
+
+            <!--  <TextView
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentLeft="true"
+                  android:layout_centerVertical="true"
+                  android:paddingLeft="10dp"
+
+                  android:paddingRight="20dp"
+                  android:paddingTop="10dp"
+                  android:text="Due Date :"
+                  android:textColor="#000"
+
+                  android:textSize="15sp" />
+
+              <TextView
+
+                  android:id="@+id/due_date"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="1dp"
+                  android:background="@drawable/bottom_line_background"
+                  android:drawableRight="@drawable/date_format"
+                  android:gravity="center_vertical"
+                  android:paddingBottom="10dp"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="10dp"
+                  android:paddingTop="2dp"
+                  android:text=""
+                  android:textColor="#000" />
+
+              <TextView
+                  android:layout_width="match_parent"
+
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentLeft="true"
+                  android:layout_centerVertical="true"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="20dp"
+                  android:paddingTop="10dp"
+                  android:text="Schedule on :"
+                  android:textColor="#000"
+                  android:textSize="15sp" />
+
+              <TextView
+                  android:id="@+id/scheduled_on"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="1dp"
+                  android:background="@drawable/bottom_line_background"
+                  android:drawableRight="@drawable/date_format"
+                  android:gravity="center_vertical"
+                  android:paddingBottom="10dp"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="10dp"
+                  android:paddingTop="2dp"
+                  android:text=""
+                  android:textColor="#000" />-->
+
+            <EditText
+                android:id="@+id/lateFee_dayAfter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@drawable/bottom_line_background"
+                android:hint="Late fee day after"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:inputType="number"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+
+            <TextView
+                android:id="@+id/latefeeSelect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:drawableRight="@drawable/ar"
+                android:padding="10dp"
+                android:paddingRight="20dp"
+                android:text="Late Fee :"
+                android:textColor="#000"
+                android:textSize="15sp" />
+
+
+            <TextView
+                android:id="@+id/late_fee_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:padding="10dp"
+                android:paddingRight="20dp"
+                android:text="Value"
+                android:textColor="#3F3F3F"
+                android:textSize="15sp" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

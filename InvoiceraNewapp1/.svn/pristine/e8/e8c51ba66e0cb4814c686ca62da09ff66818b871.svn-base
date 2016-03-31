@@ -1,0 +1,131 @@
+package com.invoicera.ListViewAdpter;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.androidapp.Global;
+import com.invoicera.androidapp.R;
+import com.invoicera.model.RecurringAttribute;
+
+import java.util.ArrayList;
+
+/**
+ * Created by vinove on 25/9/15.
+ */
+public class RecurringListPagerFragmentListAdapter extends BaseAdapter {
+
+    Context context;
+    public ArrayList<RecurringAttribute> RecurringList;
+    public Global global;
+
+    public RecurringListPagerFragmentListAdapter(Context context) {
+        // TODO Auto-generated constructor stub
+        this.RecurringList = new ArrayList<RecurringAttribute>();
+        this.context = context;
+        global = (Global) context.getApplicationContext();
+
+    }
+
+    public void add(RecurringAttribute attribute) {
+        RecurringList.add(attribute);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        // TODO Auto-generated method stub
+        return RecurringList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+        ViewHolder holder;
+
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.recurring_list_adapter, parent, false);
+
+            holder = new ViewHolder();
+
+            holder.orgnizationTv = (TextView) convertView.findViewById(R.id.organization); // NAME
+            holder.invNumberTv = (TextView) convertView.findViewById(R.id.number);  // ID
+            holder.dateTv = (TextView) convertView.findViewById(R.id.date); // DATE
+            holder.sentTv = (TextView) convertView.findViewById(R.id.sent); // SENT
+
+            holder.recurring_status = (TextView) convertView.findViewById(R.id.status); //STATUS
+            holder.frequency = (TextView) convertView.findViewById(R.id.frequency); //FREQUENCY
+            holder.occurrence = (TextView) convertView.findViewById(R.id.occurrence); //OCCURRENCE
+            holder.netBalanceTv = (TextView) convertView.findViewById(R.id.netBalance); //AMOUNT
+
+
+            convertView.setTag(holder);
+
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+
+        }
+
+        String organization = "";
+
+        if (RecurringList.get(position)
+                .getOrganization().length() > 10)
+            organization = RecurringList.get(position)
+                    .getOrganization().substring(0, 10) + "..";
+        else
+            organization = RecurringList.get(position)
+                    .getOrganization();
+
+        holder.orgnizationTv.setText(organization);
+        holder.invNumberTv.setText(RecurringList.get(position).getRecurring_id());
+        holder.dateTv.setText(RecurringList.get(position).getDate());
+        holder.sentTv.setText("Sent : " + RecurringList.get(position).getSent());
+
+
+        String statusString = RecurringList.get(position).getStatus();
+        holder.recurring_status.setText(statusString);
+
+//        holder.recurring_status.setText(RecurringList.get(position).getStatus());
+        holder.frequency.setText("Frequency : " + RecurringList.get(position).getFrequency());
+        holder.occurrence.setText("Occurrence : " + RecurringList.get(position).getOccurrence());
+        holder.netBalanceTv.setText(RecurringList.get(position).getCurrency()
+                + " " + global.setLength(RecurringList.get(position).getNet_balance(), Constant.defultLengthOfText));
+
+        if (statusString.equalsIgnoreCase("Active")) {
+
+            holder.recurring_status.setBackgroundColor(Color.parseColor("#4A8F01"));
+        } else if (statusString.equalsIgnoreCase("Archived") || statusString.equalsIgnoreCase("Archive")) {
+
+            holder.recurring_status.setBackgroundColor(Color.parseColor("#E8B900"));
+        } else if (statusString.equalsIgnoreCase("Deleted") || statusString.equalsIgnoreCase("Delete") || statusString.equalsIgnoreCase("Cancel")) {
+
+            holder.recurring_status.setBackgroundColor(Color.parseColor("#FF0000"));
+        }
+        holder.recurring_status.setTextColor(Color.parseColor("#ffffff"));
+        return convertView;
+    }
+
+    class ViewHolder {
+
+        TextView orgnizationTv, invNumberTv, netBalanceTv, dateTv, recurring_status, sentTv, frequency, occurrence;
+
+    }
+}

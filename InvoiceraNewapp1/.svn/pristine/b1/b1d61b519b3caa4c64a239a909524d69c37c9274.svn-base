@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="-1dp"
+    android:orientation="horizontal"
+    android:weightSum="100"
+    android:background="@drawable/table_row_border">>
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="54"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Computer"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:padding="5dp"
+            android:textColor="@color/black"
+            android:id="@+id/item_name" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Discription is there"
+            android:visibility="gone"
+            android:textSize="16sp"
+            android:singleLine="false"
+            android:padding="5dp"
+            android:textColor="@color/black"
+            android:id="@+id/item_description" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="QTY:1  UC:100"
+            android:singleLine="false"
+            android:textSize="16sp"
+            android:padding="5dp"
+            android:textColor="@color/black"
+            android:id="@+id/qty_uc" />
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:layout_height="match_parent"
+        android:background="#B5B5B5" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="20"
+        android:layout_height="match_parent"
+        android:text="99.0"
+        android:layout_marginLeft="-1dp"
+        android:textSize="16sp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="4dp"
+
+        android:textColor="@color/black"
+        android:id="@+id/discount" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:layout_height="match_parent"
+        android:background="#B5B5B5" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="25"
+        android:layout_height="match_parent"
+        android:text="993.0"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="4dp"
+        android:id="@+id/price" />
+
+
+</TableRow>

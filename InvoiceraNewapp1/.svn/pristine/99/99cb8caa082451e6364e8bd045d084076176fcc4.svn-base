@@ -1,0 +1,111 @@
+package com.invoicera.model;
+
+/**
+ * Created by Parvesh on 16/6/15.
+ */
+public class ClientAttribute {
+
+
+    String clientId;
+    String ClientName;
+    String organizationname;
+    String clientUserCompanyId;
+    String address;
+    String clientCurrency;
+    String emailID;
+    String outStanding;
+    String credit;
+    String status = "";
+
+    public String getCreditAmount() {
+        return creditAmount;
+    }
+
+    public void setCreditAmount(String creditAmount) {
+        this.creditAmount = creditAmount;
+    }
+
+    String creditAmount;
+
+    public String getClientName() {
+        return ClientName;
+    }
+
+    public String getEmailID() {
+        return emailID;
+    }
+
+    public void setEmailID(String emailID) {
+        this.emailID = emailID;
+    }
+
+    public String getOutStanding() {
+        return outStanding;
+    }
+
+    public void setOutStanding(String outStanding) {
+        this.outStanding = outStanding;
+    }
+
+    public String getCredit() {
+        return credit;
+    }
+
+    public void setCredit(String credit) {
+        this.credit = credit;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getClientCurrency() {
+        return clientCurrency;
+    }
+
+    public void setClientCurrency(String clientCurrency) {
+        this.clientCurrency = clientCurrency;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getClientUserCompanyId() {
+        return clientUserCompanyId;
+    }
+
+    public void setClientUserCompanyId(String clientUserCompanyId) {
+        this.clientUserCompanyId = clientUserCompanyId;
+    }
+
+    public String getOrganizationname() {
+        return organizationname;
+    }
+
+    public void setOrganizationname(String organizationname) {
+        this.organizationname = organizationname;
+    }
+
+    public void setClientName(String clientName) {
+
+        ClientName = clientName;
+    }
+
+    public String getClientId() {
+
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+}

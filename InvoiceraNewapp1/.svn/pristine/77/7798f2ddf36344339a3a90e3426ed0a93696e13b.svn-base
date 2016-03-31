@@ -1,0 +1,243 @@
+package com.invoicera.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+/**
+ * Created by Parvesh on 23/6/15.
+ */
+public class ItemModel implements Parcelable {
+
+    String tax1_name, tax1_percent,tax1Type,tax2Type, tax2_percent, discount_type, id,unit_cost, description, name, quantity, tax2_name, type, discountAmount,  totalValue, tax1Id, tax2Id;
+
+    String discountValue="";
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTax1Type() {
+        return tax1Type;
+    }
+
+    public void setTax1Type(String tax1Type) {
+        this.tax1Type = tax1Type;
+    }
+
+    public String getTax2Type() {
+        return tax2Type;
+    }
+
+    public void setTax2Type(String tax2Type) {
+        this.tax2Type = tax2Type;
+    }
+
+    public String getDiscountValue() {
+        return discountValue;
+    }
+
+    public void setDiscountValue(String discountValue) {
+        this.discountValue = discountValue;
+    }
+
+    public ItemModel() {
+    }
+
+    public String getTax1Id() {
+        return tax1Id;
+    }
+
+    public void setTax1Id(String tax1Id) {
+        this.tax1Id = tax1Id;
+    }
+
+    public String getTax2Id() {
+        return tax2Id;
+    }
+
+    public void setTax2Id(String tax2Id) {
+        this.tax2Id = tax2Id;
+    }
+
+
+    public String getTotalValue() {
+        return totalValue;
+    }
+
+    public void setTotalValue(String totalValue) {
+        this.totalValue = totalValue;
+    }
+
+    public String getTax1_name() {
+        return tax1_name;
+    }
+
+    public void setTax1_name(String tax1_name) {
+        this.tax1_name = tax1_name;
+    }
+
+
+    public String getTax1_percent() {
+        return tax1_percent;
+    }
+
+    public void setTax1_percent(String tax1_percent) {
+        this.tax1_percent = tax1_percent;
+    }
+
+    public String getTax2_percent() {
+        return tax2_percent;
+    }
+
+    public void setTax2_percent(String tax2_percent) {
+        this.tax2_percent = tax2_percent;
+    }
+
+    public String getDiscount_type() {
+        return discount_type;
+    }
+
+    public void setDiscount_type(String discount_type) {
+        this.discount_type = discount_type;
+    }
+
+    public String getUnit_cost() {
+        return unit_cost;
+    }
+
+    public void setUnit_cost(String unit_cost) {
+        this.unit_cost = unit_cost;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getTax2_name() {
+        return tax2_name;
+    }
+
+    public void setTax2_name(String tax2_name) {
+        this.tax2_name = tax2_name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(String discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+
+/*    public String getTotalTAx() {
+        return totalTAx;
+    }
+
+    public void setTotalTAx(String totalTAx) {
+        this.totalTAx = totalTAx;
+    }*/
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+
+        dest.writeString(tax1_name);
+        dest.writeString(tax1_percent);
+        dest.writeString(tax2_percent);
+        dest.writeString(discount_type);
+        dest.writeString(unit_cost);
+        dest.writeString(description);
+        dest.writeString(name);
+        dest.writeString(quantity);
+        dest.writeString(tax2_name);
+        dest.writeString(type);
+        dest.writeString(discountAmount);
+      //  dest.writeString(totalTAx);
+        dest.writeString(totalValue);
+        dest.writeString(tax1Id);
+        dest.writeString(tax2Id);
+        dest.writeString(discountValue);
+        dest.writeString(tax1Type);
+        dest.writeString(tax2Type);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        @Override
+        public ItemModel createFromParcel(Parcel in) {
+            return new ItemModel(in);
+        }
+
+        @Override
+        public ItemModel[] newArray(int size) {
+            return new ItemModel[size];
+        }
+    };
+
+    public ItemModel(Parcel in) {
+        readFromParcel(in);
+    }
+
+    private void readFromParcel(Parcel in) {
+
+
+        tax1_name = in.readString();
+        tax1_percent = in.readString();
+        tax2_percent = in.readString();
+        discount_type = in.readString();
+        unit_cost = in.readString();
+        description = in.readString();
+        name = in.readString();
+        quantity = in.readString();
+        tax2_name = in.readString();
+        type = in.readString();
+        discountAmount = in.readString();
+        //totalTAx = in.readString();
+        totalValue = in.readString();
+
+        tax1Id = in.readString();
+        tax2Id = in.readString();
+        discountValue=in.readString();
+        tax1Type=in.readString();
+        tax2Type=in.readString();
+
+    }
+}

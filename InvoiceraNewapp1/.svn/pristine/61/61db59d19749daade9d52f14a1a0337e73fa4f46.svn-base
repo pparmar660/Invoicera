@@ -1,0 +1,151 @@
+package com.invoicera.ListViewAdpter;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.invoicera.androidapp.R;
+import com.invoicera.model.InvoiceAtribute;
+
+import java.util.ArrayList;
+
+public class InvoiceListPagerFragmentListAdapter extends BaseAdapter {
+
+	Context context;
+	public ArrayList<InvoiceAtribute> InvoicesList;
+
+	public InvoiceListPagerFragmentListAdapter(Context context) {
+		// TODO Auto-generated constructor stub
+		this.InvoicesList = new ArrayList<InvoiceAtribute>();
+		this.context = context;
+
+	}
+	
+	public void add(InvoiceAtribute attribute) {
+		InvoicesList.add(attribute);
+		notifyDataSetChanged();
+	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return InvoicesList.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getItemId(int position) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+
+		ViewHolder holder;
+
+		if (convertView == null) {
+			LayoutInflater inflater = (LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			convertView = inflater.inflate(
+					R.layout.invoice_list_pager_list_adpter, parent, false);
+
+			holder = new ViewHolder();
+			holder.invNumberTv = (TextView) convertView
+
+					.findViewById(R.id.invoice_no);
+			holder.orgnizationTv = (TextView) convertView
+					.findViewById(R.id.organization);
+			holder.netBalanceTv = (TextView) convertView
+					.findViewById(R.id.netbalance);
+			holder.time = (TextView) convertView.findViewById(R.id.time);
+			holder.status=(TextView)convertView.findViewById(R.id.status);
+			convertView.setTag(holder);
+
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+
+		}
+
+        String organization="";
+
+        if(InvoicesList.get(position)
+                .getOrganization().length()>10)
+            organization=InvoicesList.get(position)
+                    .getOrganization().substring(0,10)+"..";
+        else
+            organization=InvoicesList.get(position)
+                    .getOrganization();
+
+		holder.orgnizationTv.setText(organization);
+
+		holder.invNumberTv.setText(InvoicesList.get(position).getInvoice_no());
+
+		holder.netBalanceTv.setText(InvoicesList.get(position).getCurrency()
+				+ " " + InvoicesList.get(position).getNet_balance());
+
+		holder.time.setText(InvoicesList.get(position).getDate());
+		String statusString=InvoicesList.get(position).getInvoice_status();
+		holder.status.setText(statusString);
+
+		if (statusString.equalsIgnoreCase("draft")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#7F7F7F"));
+		} else if (statusString.equalsIgnoreCase("sent")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#0447AC"));
+		} else if (statusString.equalsIgnoreCase("viewed")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#2CA6AF"));
+		} else if (statusString.equalsIgnoreCase("paid")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#4A8F01"));// #E8B900
+			// //4A8F01
+		} else if (statusString.equalsIgnoreCase("partial-paid")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#E8B900"));//
+		} else if (statusString.equalsIgnoreCase("outstanding")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#D05808"));
+		} else if (statusString.equalsIgnoreCase("auto-failed")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#FF0000"));
+		} else if (statusString.equalsIgnoreCase("auto-paid")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#B4D964"));
+		} else if (statusString.equalsIgnoreCase("disputed")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#5385B4"));
+		} else if (statusString.equalsIgnoreCase("resolved")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#1A5A9C"));
+		} else if (statusString.equalsIgnoreCase("rejected")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#ED4E00"));
+		} else if (statusString.equalsIgnoreCase("accepted")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#63A239"));
+		} else if (statusString.equalsIgnoreCase("expired")) {
+
+			holder.status.setBackgroundColor(Color.parseColor("#c0001b"));
+		}
+		holder.status.setTextColor(Color.parseColor("#ffffff"));
+		return convertView;
+	}
+
+	class ViewHolder {
+
+		TextView orgnizationTv, invNumberTv, netBalanceTv, time,status;
+
+	}
+
+}

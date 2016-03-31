@@ -1,0 +1,272 @@
+package com.invoicera.CustomView;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.util.AttributeSet;
+import android.view.View;
+
+import com.invoicera.Fragment.HomePageFragment;
+import com.invoicera.ViewPagerAdpter.GraphPagerAdapter;
+import com.invoicera.model.GraphItemModel;
+
+import java.util.ArrayList;
+
+public class CanvasView extends View {
+	Context context;
+
+	public int width;
+
+	public int height;
+
+	Paint paint;
+	Path path;
+	int numberOfItem;
+
+	float startAngle = 0;
+	ArrayList<GraphItemModel> model = new ArrayList<GraphItemModel>();
+
+	ArrayList<Float> AngleList = new ArrayList<Float>();
+	ArrayList<Paint> paintListOfInnerCircle = new ArrayList<Paint>();
+	ArrayList<Paint> paintListOfOuter = new ArrayList<Paint>();
+	ArrayList<Paint> paintListForCircleOnArc = new ArrayList<Paint>();
+	ArrayList<Paint> paintListForTextOnArc = new ArrayList<Paint>();
+	ArrayList<String> itemName = new ArrayList<String>();
+
+	int hintArrayPos[][];
+
+	/*
+	 * public int centerX = 100, centerY = 100, radiusOfOuter = 15,
+	 * radiusOfInner = 10, outerCircleStork = 10, innerCircleStork = 20,
+	 * innerCircleInterval = 3, innerCirclePhase = 2, radiusOfCircleOnArc = 10,
+	 * arcTextSize = 24;
+	 */
+
+	public CanvasView(Context context) {
+
+		super(context);
+		init();
+
+	}
+
+	public CanvasView(Context context, ArrayList<GraphItemModel> itemList) {
+		super(context);
+		this.context = context;
+		this.model = itemList;
+		this.numberOfItem = itemList.size();
+		numberOfItem = 0;
+
+		for (int i = 0; i < itemList.size(); i++)
+			numberOfItem += model.get(i).getNumberOfIem();
+
+        HomePageFragment.totalItem.add(numberOfItem);
+
+		hintArrayPos = new int[itemList.size()][2];
+		//
+
+		for (int i = 0; i < itemList.size(); i++) {
+			float angle = ((model.get(i).getNumberOfIem() * (360- (GraphPagerAdapter.gapAngle * itemList.size()))) / numberOfItem);
+					//- GraphPagerAdapter.gapAngle;
+			AngleList.add(angle);
+
+			Paint paintOfInner = new Paint();
+			paintOfInner.setColor(Color
+					.parseColor(model.get(i).getColourCode()));
+			paintOfInner.setStrokeWidth(GraphPagerAdapter.innerCircleStork);
+			paintOfInner.setStyle(Paint.Style.STROKE);
+
+			DashPathEffect dashPath = new DashPathEffect(new float[] {
+					GraphPagerAdapter.innerCirclePhase, GraphPagerAdapter.innerCircleInterval},
+					(float) 10.0);
+
+			paintOfInner.setPathEffect(dashPath);
+			paintListOfInnerCircle.add(paintOfInner);
+
+			Paint paintOfOuter = new Paint();
+
+			paintOfOuter.setColor(Color
+					.parseColor(model.get(i).getColourCode()));
+			paintOfOuter.setStrokeWidth(GraphPagerAdapter.outerCircleStork);
+			paintOfOuter.setStyle(Paint.Style.STROKE);
+
+			paintListOfOuter.add(paintOfOuter);
+
+			Paint paintOfArcCircle = new Paint();
+
+			paintOfArcCircle.setColor(Color.parseColor(model.get(i)
+					.getColourCode()));
+
+			paintOfArcCircle.setStyle(Paint.Style.FILL);
+
+			paintListForCircleOnArc.add(paintOfArcCircle);
+
+			Paint paintOfText = new Paint();
+			paintOfText.setColor(Color.WHITE);
+			paintOfText.setTextSize(GraphPagerAdapter.arcTextSize);
+			paintOfText.setTextAlign(Align.CENTER);
+			paintListForTextOnArc.add(paintOfText);
+
+			itemName.add(itemList.get(i).getItemName());
+
+		}
+
+		init();
+	}
+
+	public CanvasView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init();
+	}
+
+	public CanvasView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		init();
+	}
+
+	private void init() {
+		paint = new Paint();
+		paint.setColor(Color.BLUE);
+		paint.setStrokeWidth(2);
+		paint.setStyle(Paint.Style.STROKE);
+
+	}
+
+	@SuppressLint("DrawAllocation")
+	@Override
+	protected void onDraw(Canvas canvas) {
+		// TODO Auto-generated method stub
+		super.onDraw(canvas);
+
+	
+		Paint mPaint = new Paint();
+		mPaint.setColor(Color.parseColor("#EBEBEB"));
+		canvas.drawRect(0, 0, GraphPagerAdapter.centerX * 2, GraphPagerAdapter.centerY * 2, mPaint);
+
+		RectF rectForInner = new RectF(getCordinate(GraphPagerAdapter.centerX,
+				GraphPagerAdapter.centerY, GraphPagerAdapter.radiusOfInner, 0)[0], getCordinate(
+				GraphPagerAdapter.centerX, GraphPagerAdapter.centerY, GraphPagerAdapter.radiusOfInner, 0)[1],
+				getCordinate(GraphPagerAdapter.centerX, GraphPagerAdapter.centerY, GraphPagerAdapter.radiusOfInner,
+						1)[0], getCordinate(GraphPagerAdapter.centerX, GraphPagerAdapter.centerY,
+						GraphPagerAdapter.radiusOfInner, 1)[1]);
+		RectF rectForOuter = new RectF(getCordinate(GraphPagerAdapter.centerX,
+				GraphPagerAdapter.centerY, GraphPagerAdapter.radiusOfOuter, 0)[0], getCordinate(
+				GraphPagerAdapter.centerX, GraphPagerAdapter.centerY, GraphPagerAdapter.radiusOfOuter, 0)[1],
+				getCordinate(GraphPagerAdapter.centerX, GraphPagerAdapter.centerY, GraphPagerAdapter.radiusOfOuter,
+						1)[0], getCordinate(GraphPagerAdapter.centerX, GraphPagerAdapter.centerY,
+						GraphPagerAdapter.radiusOfOuter, 1)[1]);
+
+		Paint paintOfText = new Paint();
+		paintOfText.setColor(Color.parseColor("#3b3b3b"));
+		paintOfText.setTextSize(GraphPagerAdapter.centerTextSize);
+		paintOfText.setTextAlign(Align.CENTER);
+
+		canvas.drawText(numberOfItem + "", GraphPagerAdapter.centerX, GraphPagerAdapter.centerY,
+				paintOfText);
+
+		int y_ = GraphPagerAdapter.centerY
+				+ (int) (paintOfText.descent() - paintOfText.ascent());
+		if (model.size() > 0)
+			canvas.drawText(model.get(0).getType(), GraphPagerAdapter.centerX, y_,
+					paintOfText);
+
+		for (int i = 0; i < AngleList.size(); i++) {
+
+			System.out.println("Look :" + startAngle + ","
+					+ (startAngle + AngleList.get(i)));
+
+			canvas.drawArc(rectForInner, startAngle, (AngleList.get(i)), false,
+					paintListOfInnerCircle.get(i));
+			canvas.drawArc(rectForOuter, startAngle, (AngleList.get(i)), false,
+					paintListOfOuter.get(i));
+
+			startAngle += AngleList.get(i) + GraphPagerAdapter.gapAngle;
+
+			// draw total item on arc center
+			/*
+			 * double trad = ((startAngle)/2) * (Math.PI / 180d); // = 5.1051
+			 */
+
+			double trad = (startAngle - (AngleList.get(i) / 2) - GraphPagerAdapter.gapAngle)
+					* (Math.PI / 180d); // = 5.1051
+			int x = GraphPagerAdapter.centerX
+					+ (int) (GraphPagerAdapter.radiusOfOuter * Math.cos(trad));
+			int y = GraphPagerAdapter.centerY
+					+ (int) (GraphPagerAdapter.radiusOfOuter * Math.sin(trad));
+
+			canvas.drawCircle(x, y, GraphPagerAdapter.radiusOfCircleOnArc,
+					paintListForCircleOnArc.get(i));
+
+			canvas.drawText(model.get(i).getNumberOfIem() + "", x, y
+					+ GraphPagerAdapter.arcTextSize / 4, paintListForTextOnArc.get(i));
+		}
+
+		drawHint(canvas);
+
+	}
+
+	void drawHint(Canvas canvas) {
+
+		// set postion of hint
+		for (int i = 0; i < hintArrayPos.length; i++) {
+			hintArrayPos[i][0] = HomePageFragment.global.screenWidth * 80 / 100;
+
+			if (i == 0)
+				hintArrayPos[i][1] = HomePageFragment.global.screenWidth * 5 / 100;
+			else
+				hintArrayPos[i][1] = hintArrayPos[i - 1][1]
+						+ GraphPagerAdapter.gabBetweenHint + GraphPagerAdapter.hintCircleRadius * 2;
+
+		}
+
+		//System.out.println(hintArrayPos);
+
+		Paint paintOfText = new Paint();
+		paintOfText.setColor(Color.parseColor("#3b3b3b"));
+		paintOfText.setTextSize(GraphPagerAdapter.hintCircleTextSize);
+	//	paintOfText.setTextAlign(Align.CENTER);
+
+		for (int i = 0; i < hintArrayPos.length; i++) {
+			canvas.drawCircle(hintArrayPos[i][0], hintArrayPos[i][1],
+					GraphPagerAdapter.hintCircleRadius, paintListForCircleOnArc.get(i));
+
+			canvas.drawText(itemName.get(i) + "", hintArrayPos[i][0]
+					+ GraphPagerAdapter.hintCircleRadius + GraphPagerAdapter.gabBetweenHint,
+					 hintArrayPos[i][1]+ GraphPagerAdapter.hintCircleRadius, paintOfText);
+
+		}
+
+	}
+
+	public int[] getCordinate(int centerX, int centerY, int radious, int pos) {
+
+		int arr[] = new int[2];
+
+		switch (pos) {
+		case 0:
+			// fro let corner of react
+			arr[0] = centerX - radious;
+			arr[1] = centerY - radious;
+
+			break;
+
+		case 1:
+			// for right corner of react
+			arr[0] = centerX + radious;
+			arr[1] = centerY + radious;
+			break;
+
+		default:
+			break;
+		}
+
+		return arr;
+
+	}
+
+}

@@ -1,0 +1,481 @@
+package com.invoicera.ListViewAdpter;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.invoicera.CustomView.CustomPopup;
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.PopUpResult;
+import com.invoicera.InterFace.UpdateChargeAndTax;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * Created by vinove on 6/7/15.
+ */
+public class    ChargesAndTaxListAdapter extends BaseAdapter implements PopUpResult, WebApiResult {
+
+    Context mContext;
+    public
+    LayoutInflater infalter;
+    //ArrayList<AdditionalChargesAttribute> additionalChargesArrayList;
+    public ArrayList<HashMap<String, String>> selectedItemList;
+    int selectedPos = 0;
+    PopUpResult popUpResult;
+    WebApiResult webApiResult;
+    ArrayList<HashMap<String, String>> AllItemList;
+    String selectQuery;
+    Cursor cursor;
+    DatabaseHelper db;
+    CustomPopup myPopUp;
+    WebRequest request;
+    HashMap<String, String> map;
+    Constant.POP_UP popupType;
+    Constant.SERVICE_TYPE webRequestType;
+    UpdateChargeAndTax updateChargeAndTax;
+
+    public ChargesAndTaxListAdapter(Context mContext, Constant.POP_UP popupType, Constant.SERVICE_TYPE webRequestType, UpdateChargeAndTax updateChargeAndTax) {
+        this.mContext = mContext;
+        selectedItemList = new ArrayList<>();
+        infalter = LayoutInflater.from(mContext);
+        AllItemList = new ArrayList<>();
+        db = new DatabaseHelper(mContext);
+        popUpResult = this;
+        webApiResult = this;
+        this.popupType = popupType;
+        this.webRequestType = webRequestType;
+        this.updateChargeAndTax = updateChargeAndTax;
+
+    }
+
+    public void add(HashMap<String, String> item) {
+        selectedItemList.add(item);
+        notifyDataSetChanged();
+
+    }
+
+    @Override
+    public int getCount() {
+        return selectedItemList.size();
+
+
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return selectedItemList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            holder = new ViewHolder();
+            convertView = infalter.inflate(R.layout.additional_charges_block, parent, false);
+
+            holder.additionalChargeName = (TextView) convertView.findViewById(R.id.name);
+            holder.additionalChargeValue = (EditText) convertView.findViewById(R.id.valueEt);
+            holder.removeIcon = (ImageView) convertView.findViewById(R.id.minus);
+
+
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+
+        holder.additionalChargeName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                {
+                    boolean isShowProgressBar = false;
+                    switch (webRequestType) {
+
+                        case GET_ADDITIONAL_CHARGE:
+
+
+                            selectedPos = position;
+
+                            selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                                    + " From " + DatabaseHelper.Table_AdditionalCharges;
+
+                            cursor = db.getRecords(selectQuery);
+/*
+                    Log.e("cusor length ", cursor.getCount() + "");
+                    additionalChargeTV = (TextView) v;
+                    additionalChargeET = (EditText) additionChargesLinear.getChildAt((int) v.getTag()).findViewById(R.id.valueEt);*/
+
+                            if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                                AllItemList = new ArrayList<>();
+
+
+                                for (int i = 0; i < cursor.getCount(); i++) {
+
+                                    try {
+                                        HashMap<String, String> map;
+
+                                        JSONObject object = new JSONObject(cursor.getString(cursor
+                                                .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                                        for (int k = 0; k < object.getJSONObject("additional_charges").getJSONArray("charge").length(); k++) {
+                                            map = new HashMap<>();
+                                            JSONObject chargeObj = object.getJSONObject("additional_charges").getJSONArray("charge").getJSONObject(k);
+                                            map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                            map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                            map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                            map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+
+
+                                            AllItemList.add(map);
+                                        }
+
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if (myPopUp != null)
+                                        if (myPopUp.isShowing())
+                                            myPopUp.dismiss();
+
+
+                                    myPopUp = new CustomPopup((Activity) mContext, AllItemList, Constant.POP_UP.ADDITIONAL_CHARGES, true, popUpResult, "Select Additional Charges");
+
+                                    myPopUp.show();
+                                }
+                            } else isShowProgressBar = true;
+                            //-------------------call to server----------------------------------------------
+
+                            JSONObject obj = new JSONObject();
+                            try {
+                                obj.put(Constant.KEY_METHOD, "listGblAdditionalCharges");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            request = new WebRequest(mContext, obj,
+                                    Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_ADDITIONAL_CHARGE,Constant.token, webApiResult, isShowProgressBar);
+                            request.execute();
+                            break;
+                        case GET_TAX_LIST:
+                            selectedPos = position;
+
+                            selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                                    + " From " + DatabaseHelper.Table_TaxList;
+
+                            cursor = db.getRecords(selectQuery);
+
+                            Log.e("cusor length ", cursor.getCount() + "");
+
+                            if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                                AllItemList = new ArrayList<>();
+
+
+                                for (int i = 0; i < cursor.getCount(); i++) {
+
+                                    try {
+                                        HashMap<String, String> map;
+
+                                        JSONObject object = new JSONObject(cursor.getString(cursor
+                                                .getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                                        for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                            map = new HashMap<>();
+                                            JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+                                            map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                            map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                            map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                            map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                            AllItemList.add(map);
+                                        }
+
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if (myPopUp != null)
+                                        if (myPopUp.isShowing())
+                                            myPopUp.dismiss();
+                                    myPopUp = new CustomPopup((Activity) mContext, AllItemList, Constant.POP_UP.TAX, true, popUpResult, "Select Tax");
+                                    myPopUp.show();
+                                }
+                            } else isShowProgressBar = true;
+                            //-------------------call to server----------------------------------------------
+
+                            obj = new JSONObject();
+                            try {
+                                obj.put(Constant.KEY_METHOD, "listGblTax");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            request = new WebRequest(mContext, obj,
+                                    Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_TAX_LIST, Constant.token,webApiResult, isShowProgressBar);
+                            request.execute();
+                            break;
+
+                    }
+
+
+                }
+
+
+            }
+        });
+        holder.removeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectedItemList.remove(position);
+                notifyDataSetChanged();
+                updateChargeAndTax.UpdateChargeAndTaxValue();
+            }
+        });
+
+        holder.additionalChargeValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                if (!holder.additionalChargeName.getText().toString().isEmpty() && !holder.additionalChargeValue.getText().toString().isEmpty()) {
+
+                    // selectedItemList.get(position).put(Constant.KEY_VALUE, holder.additionalChargeValue.getText().toString());
+                    updateChargeAndTax.UpdateChargeAndTaxValue();
+
+                }
+            }
+        });
+        holder.additionalChargeName.setText("--Choose--");
+        holder.additionalChargeValue.setText("    ");
+
+        HashMap<String, String> detailMap = selectedItemList.get(position);
+
+        if (!detailMap.isEmpty())
+
+            if (detailMap.get(Constant.KEY_NAME) != null) {
+
+              //  Log.i("selected map ****" + position + "&&&&&& ", detailMap.toString());
+
+                holder.additionalChargeValue.setText(detailMap.get(Constant.KEY_VALUE));
+                String name = "";
+                String type = "";
+                if (detailMap.get(Constant.KEY_NAME).length() > 8)
+                    name = detailMap.get(Constant.KEY_NAME).substring(0, 8) + "..";
+                else
+                    name = detailMap.get(Constant.KEY_NAME);
+
+                if (detailMap.get(Constant.KEY_TYPE).equalsIgnoreCase("Percent"))
+                    type = "(%)";
+
+                holder.additionalChargeName.setText(name + type);
+
+
+            }
+
+        return convertView;
+    }
+
+
+
+    @Override
+    public void getPopUpResult(Constant.POP_UP type, int pos, boolean clear) {
+        switch (type)
+
+        {
+            case ADDITIONAL_CHARGES:
+                if (clear) {
+
+                } else {
+
+                 //   Log.i("selected map  ----------", AllItemList.get(pos).toString());
+                    selectedItemList.set(selectedPos, AllItemList.get(pos));
+                 //   Log.i("selected map  **********", selectedItemList.get(selectedPos).toString());
+                    notifyDataSetChanged();
+                    updateChargeAndTax.UpdateChargeAndTaxValue();
+                    request.cancel(true);
+
+
+                }
+
+                break;
+
+            case TAX:
+                if (clear) {
+
+                } else {
+
+
+                    selectedItemList.set(selectedPos, AllItemList.get(pos));
+                    notifyDataSetChanged();
+                    updateChargeAndTax.UpdateChargeAndTaxValue();
+                    request.cancel(true);
+
+
+                }
+
+                break;
+
+
+        }
+    }
+
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        boolean updatePopUp = false;
+        switch (type) {
+
+            case GET_ADDITIONAL_CHARGE:
+                AllItemList = new ArrayList<>();
+
+                map = new HashMap<>();
+                db.ClearTable(DatabaseHelper.Table_AdditionalCharges);
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_AdditionalCharges, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_AdditionalCharges;
+
+                cursor = db.getRecords(selectQuery);
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0)
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor
+                                    .getColumnIndex(DatabaseHelper.JSON_DATA)));
+                            for (int k = 0; k < object.getJSONObject("additional_charges").getJSONArray("charge").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("additional_charges").getJSONArray("charge").getJSONObject(k);
+                                map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                AllItemList.add(map);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                if (myPopUp != null)
+                    if (myPopUp.isShowing())
+                        updatePopUp = true;
+
+
+                if (updatePopUp)
+                    myPopUp.updateList(false, AllItemList);
+                else {
+
+                    myPopUp = new CustomPopup((Activity) mContext, AllItemList, Constant.POP_UP.ADDITIONAL_CHARGES, false, this, "Select Additional charges");
+                    myPopUp.show();
+
+
+                }
+                break;
+            case GET_TAX_LIST:
+                db.ClearTable(DatabaseHelper.Table_TaxList);
+
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString());
+                db.insert(DatabaseHelper.Table_TaxList, values);
+
+                selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_TaxList;
+
+                cursor = db.getRecords(selectQuery);
+
+                Log.e("cusor length ", cursor.getCount() + "");
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+                    AllItemList = new ArrayList<>();
+
+
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+                            HashMap<String, String> map;
+
+                            JSONObject object = new JSONObject(cursor.getString(cursor.getColumnIndex(DatabaseHelper.JSON_DATA)));
+
+                            for (int k = 0; k < object.getJSONObject("taxes").getJSONArray("tax").length(); k++) {
+                                map = new HashMap<>();
+                                JSONObject chargeObj = object.getJSONObject("taxes").getJSONArray("tax").getJSONObject(k);
+                                map.put(Constant.KEY_ID, chargeObj.getString("id"));
+                                map.put(Constant.KEY_NAME, chargeObj.getString("name"));
+                                map.put(Constant.KEY_TYPE, chargeObj.getString("type"));
+                                map.put(Constant.KEY_VALUE, chargeObj.getString("value"));
+                                AllItemList.add(map);
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (myPopUp != null)
+                            if (myPopUp.isShowing())
+                                updatePopUp = true;
+
+
+                        if (updatePopUp)
+                            myPopUp.updateList(false, AllItemList);
+                        else {
+
+                            myPopUp = new CustomPopup((Activity) mContext, AllItemList, Constant.POP_UP.TAX, false, this, "Select Tax");
+                            myPopUp.show();
+
+                        }
+                    }
+                }
+
+                break;
+
+
+        }
+
+    }
+
+    class ViewHolder {
+        TextView additionalChargeName;
+        EditText additionalChargeValue;
+        ImageView removeIcon;
+    }
+}

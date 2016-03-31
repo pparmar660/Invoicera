@@ -1,0 +1,252 @@
+package com.invoicera.androidapp;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * Created by vinove on 18/8/15.
+ */
+public class ClientPreview extends BaseActivity implements View.OnClickListener, WebApiResult {
+
+
+    PopupWindow popupWindow;
+
+    TextView chooseActionTV;
+    LinearLayout viewLinear;
+    ImageView backImage;
+    TextView clientNameTV, emailTV, phoneTV, clientAddressTV, outstandingTV, creditTV, createInvoiceTV, createEstimateTV;
+    String clientId;
+    DatabaseHelper db;
+    WebRequest request;
+
+    ProgressBar progressBar;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.client_preview);
+
+        if (getIntent().getStringExtra(Constant.KEY_CLIENT_ID) != null)
+            clientId = getIntent().getStringExtra(Constant.KEY_CLIENT_ID);
+        db = new DatabaseHelper(context);
+
+        chooseActionTV = (TextView) findViewById(R.id.choose_action);
+        chooseActionTV.setOnClickListener(this);
+        viewLinear = (LinearLayout) findViewById(R.id.clientPreviewMainLinear);
+        clientNameTV = (TextView) findViewById(R.id.clientName);
+        emailTV = (TextView) findViewById(R.id.email);
+        phoneTV = (TextView) findViewById(R.id.phoneNo);
+        clientAddressTV = (TextView) findViewById(R.id.address);
+        outstandingTV = (TextView) findViewById(R.id.outStanding);
+        creditTV = (TextView) findViewById(R.id.credit);
+        createInvoiceTV = (TextView) findViewById(R.id.addInvoice);
+        createEstimateTV = (TextView) findViewById(R.id.addEstimate);
+        progressBar = (ProgressBar) findViewById(R.id.progress_client_preview);
+        backImage = (ImageView) findViewById(R.id.back);
+
+        backImage.setOnClickListener(this);
+
+
+        boolean showProgress = true;
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ClientPreview + " WHERE " + DatabaseHelper.ID + " ='" + clientId + "'";
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+            setClient();
+            showProgress = false;
+
+
+        }
+
+
+        try {
+            JSONObject getClientObject = new JSONObject();
+            getClientObject.put("method", "getClient");
+            getClientObject.put("client_id", clientId);
+
+
+            request = new WebRequest(context, getClientObject, Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, Constant.token, this, showProgress);
+            progressBar.setVisibility(View.VISIBLE);
+            request.execute();
+
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
+
+    }
+
+
+    private void initiatePopupWindow() {
+        try {
+// We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) ClientPreview.this
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.client_action_popup,
+                    (ViewGroup) findViewById(R.id.popUpLiner));
+            //  popupWindow = new PopupWindow(layout, (int)(global.screenWidth*0.8), (int)(global.screenHeight*0.8), true);
+            popupWindow = new PopupWindow(layout, (int) (global.screenWidth * 0.8), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+            popupWindow.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            TextView btnClosePopup = (TextView) layout.findViewById(R.id.cancel_action);
+            btnClosePopup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewLinear.setAlpha(1f);
+                    popupWindow.dismiss();
+
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.choose_action:
+
+                initiatePopupWindow();
+                viewLinear.setAlpha(0.3f);
+                break;
+
+            case R.id.back:
+                finish();
+                break;
+
+        }
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+
+        progressBar.setVisibility(View.GONE);
+
+
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ;
+
+
+        switch (type) {
+            case GET_DATA:
+
+
+                db.ClearTable(DatabaseHelper.Table_ClientPreview);
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+                values.put(DatabaseHelper.ID, clientId);
+                db.insert(DatabaseHelper.Table_ClientPreview, values);
+                setClient();
+
+                break;
+
+
+        }
+
+
+    }
+
+    public void setClient() {
+
+
+        JSONObject object = null;
+
+        String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                + " From " + DatabaseHelper.Table_ClientPreview + " WHERE " + DatabaseHelper.ID + " ='" + clientId + "'";
+
+        Cursor cursor = db.getRecords(selectQuery);
+
+
+        if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+            //totalItem = new ArrayList<>();
+            for (int i = 0; i < cursor.getCount(); i++) {
+
+                try {
+
+                    object = (new JSONObject(cursor.getString(cursor.getColumnIndex(db.JSON_DATA))));
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+
+        }
+
+
+        if (object == null)
+            return;
+
+        JSONObject clientObject = null;
+
+        try {
+            clientObject = object.getJSONObject("client");
+
+            clientNameTV.setText(clientObject.getString("name"));
+            emailTV.setText(clientObject.getString("email"));
+            phoneTV.setText(clientObject.getString("work_phone"));
+            clientAddressTV.setText(clientObject.getString("billing_address"));
+            outstandingTV.setText(clientObject.getString("currency")+"" +clientObject.getString("outstanding"));
+            creditTV.setText(clientObject.getString("currency")+"" +clientObject.getString("credit"));
+
+
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+    }
+}

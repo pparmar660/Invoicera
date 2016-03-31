@@ -1,0 +1,120 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_walkthrough"
+    android:orientation="vertical"
+    android:weightSum="100">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:src="@drawable/back_white"
+        android:padding="10dp"
+        android:id="@+id/back"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="30"
+        android:orientation="vertical"
+        android:gravity="center">
+
+
+        <ImageView
+            android:id="@+id/iv_login_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:src="@drawable/login_logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/white"
+            android:text="FORGOT PASSWORD  "/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="60">
+
+        <LinearLayout
+            android:id="@+id/linear_in_Scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="#FFFFFF"
+                android:cursorVisible="true"
+                android:drawableLeft="@drawable/tx_3"
+                android:drawablePadding="5dp"
+
+                android:hint="Email Id"
+                android:inputType="textEmailAddress"
+                android:padding="11dp"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="@color/black"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#B8B8B8" />
+
+            <EditText
+                android:id="@+id/sub_domain"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"
+                android:cursorVisible="true"
+                android:drawableLeft="@drawable/tx_9"
+                android:drawablePadding="5dp"
+                android:hint="DNS"
+                android:inputType="text"
+                android:padding="11dp"
+                android:paddingLeft="13dp"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="@color/black"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+
+
+
+            <Button
+                android:id="@+id/submitButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="#fc632f"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:layout_marginTop="20dp"
+                android:text=" Submit"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+
+
+
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F6F8"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:id="@+id/liner1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_line_background"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/toolbar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="Add Expense"
+            android:textColor="#000"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="14dp"
+            android:src="@drawable/save" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/liner1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:enabled="false"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="Category"
+                android:textColor="@color/black"
+
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="Date"
+                android:textColor="@color/black"
+
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/amount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+
+                android:hint="Amount"
+
+                android:inputType="number"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <TextView
+                android:id="@+id/staff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="Staff"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <CheckBox
+                android:id="@+id/recurringChk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:button="@drawable/custom_checkbox"
+                android:checked="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Recurring"
+                android:textColor="@color/black"
+
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/recurringFrequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:enabled="false"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="Frequency : "
+                android:textColor="@color/black"
+
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/recurringUtility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:enabled="false"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="Utility : "
+                android:textColor="@color/black"
+
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/recurringEndDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:enabled="false"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="End Date : "
+                android:textColor="@color/black"
+
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/vendorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+
+                android:hint="Vendor"
+
+                android:inputType="text"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Assign to "
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <RadioGroup
+                android:id="@+id/assignGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/liner1"
+                android:layout_marginLeft="10dp"
+
+                android:layout_marginRight="10dp"
+                android:orientation="horizontal">
+
+
+                <RadioButton
+                    android:id="@+id/project"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/custom_radiobuton"
+                    android:checked="true"
+                    android:drawablePadding="5dp"
+                    android:padding="10dp"
+                    android:text=" Project  "
+                    android:textColor="#3E3E3E"
+                    android:textSize="10sp" />
+
+                <RadioButton
+
+                    android:id="@+id/client"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:button="@drawable/custom_radiobuton"
+                    android:checked="false"
+                    android:drawableLeft="@null"
+                    android:drawablePadding="10dp"
+                    android:padding="10dp"
+                    android:text=" Client"
+                    android:textColor="#3E3E3E"
+                    android:textSize="10sp" />
+
+            </RadioGroup>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/assignTo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawablePadding="10dp"
+                android:drawableRight="@drawable/up_down"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="Project"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tax1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawableRight="@drawable/up_down"
+                android:gravity="center_vertical"
+                android:inputType="numberDecimal"
+                android:padding="10dp"
+
+                android:text="Apply tax1"
+                android:textColor="#3F3F3F" />
+
+            <TextView
+                android:id="@+id/tax2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:drawableRight="@drawable/up_down"
+                android:gravity="center_vertical"
+                android:inputType="numberDecimal"
+                android:padding="10dp"
+                android:text="Apply tax2"
+                android:textColor="#3F3F3F" />
+
+            <EditText
+                android:id="@+id/expenseNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/box_background"
+                android:hint="Expense note"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:textColorHint="@color/lightgray02"
+                android:textCursorDrawable="@drawable/color_cursor" />
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

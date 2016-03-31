@@ -1,0 +1,473 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.invoicera.Database.DatabaseHelper;
+import com.invoicera.Fragment.InvoicePreviewCreateFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.InterFace.WebApiResult;
+import com.invoicera.Utility.MyDateFormat;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.androidapp.Home;
+import com.invoicera.androidapp.R;
+import com.invoicera.model.ItemTaxModel;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+
+public class PreviewInvoicePagerFragment extends InvoicePreviewCreateFragment implements WebApiResult {
+    DatabaseHelper db;
+    ContentValues values;
+    TextView senderNameTV, senderAddressTV, senderPhoneTV, invoiceNoTV, dateTV, totalAdditionalChargesTV, totalInvoiceTaxTV, totalItemTaxTV;
+    TextView clientNameTV, clientAddTV, clientPhoneTV, subTotalTV, InvoiceTotalTV, outstandingTV, amountPaidTV, netBalanceTV, discountTV, balanceAfterDiscountTV;
+    TableLayout itemTable;
+    ImageView logoImage;
+    LinearLayout taxLinear, invoiceTotalLinear, discountLinear, additionalChargeLinear, totalInvoiceTaxLiner, amountPaidLiner, outstandingLiner, netBalanceLiner, amountDetailLinear, clientDetailLinear;
+    ArrayList<ItemTaxModel> taxModelsList;
+    public String invoice_id = "";
+    boolean isShowProcessing = false;
+
+    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+    private DisplayImageOptions options;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+
+        View view = inflater.inflate(R.layout.invoice_preview, container, false);
+        Home.toolbarText.setText("Invoice");
+
+        Bundle argument = getArguments();
+
+        if (argument.getString(Constant.KEY_INVOICE_ID) != null) {
+            if (!argument.getString(Constant.KEY_INVOICE_ID).isEmpty())
+                invoice_id = argument.getString(Constant.KEY_INVOICE_ID);
+        }
+        db = new DatabaseHelper(context);
+
+
+        senderAddressTV = (TextView) view.findViewById(R.id.senderAddress);
+        senderNameTV = (TextView) view.findViewById(R.id.senderName);
+        senderPhoneTV = (TextView) view.findViewById(R.id.senderNumber);
+        invoiceNoTV = (TextView) view.findViewById(R.id.invoiceNumber);
+
+        outstandingTV = (TextView) view.findViewById(R.id.outstandingValue);
+        amountPaidTV = (TextView) view.findViewById(R.id.amoutpaid);
+        netBalanceTV = (TextView) view.findViewById(R.id.netbalance);
+        discountTV = (TextView) view.findViewById(R.id.discountvalue);
+        balanceAfterDiscountTV = (TextView) view.findViewById(R.id.valueAfterDiscount);
+
+
+        dateTV = (TextView) view.findViewById(R.id.date);
+        clientNameTV = (TextView) view.findViewById(R.id.clientName);
+        clientAddTV = (TextView) view.findViewById(R.id.clientAddress);
+        clientPhoneTV = (TextView) view.findViewById(R.id.ClientNumber);
+        itemTable = (TableLayout) view.findViewById(R.id.itemTable);
+        logoImage = (ImageView) view.findViewById(R.id.logo);
+        taxLinear = (LinearLayout) view.findViewById(R.id.itemTaxLinear);
+        subTotalTV = (TextView) view.findViewById(R.id.subtotleValue);
+        InvoiceTotalTV = (TextView) view.findViewById(R.id.invoicetotleValue);
+        invoiceTotalLinear = (LinearLayout) view.findViewById(R.id.invoicetotaleLinear);
+
+        discountLinear = (LinearLayout) view.findViewById(R.id.discountLinear);
+        additionalChargeLinear = (LinearLayout) view.findViewById(R.id.addtionalChargeLinear);
+        totalInvoiceTaxLiner = (LinearLayout) view.findViewById(R.id.invoiceTotalTaxLinear);
+        amountPaidLiner = (LinearLayout) view.findViewById(R.id.amountPaidLiner);
+        outstandingLiner = (LinearLayout) view.findViewById(R.id.outstandingLiner);
+        netBalanceLiner = (LinearLayout) view.findViewById(R.id.netBalanceLiner);
+        totalAdditionalChargesTV = (TextView) view.findViewById(R.id.totalAftreAdditionalCharges);
+        totalInvoiceTaxTV = (TextView) view.findViewById(R.id.totalInvoiceTax);
+        totalItemTaxTV = (TextView) view.findViewById(R.id.totalItemTax);
+        amountDetailLinear = (LinearLayout) view.findViewById(R.id.amountDetailLinear);
+        clientDetailLinear = (LinearLayout) view.findViewById(R.id.clientInfoLinear);
+
+        //--------------------------
+        CreateEditInvoicePagerFragment fragment = (CreateEditInvoicePagerFragment) pagerAdapter.getItem(0);
+        if (fragment != null) {
+
+            if (!fragment.isEditing) {
+                itemTable.setVisibility(View.GONE);
+                amountDetailLinear.setVisibility(View.GONE);
+                clientDetailLinear.setVisibility(View.GONE);
+            }
+
+        }
+
+        options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.invoice_preview_img)
+                .showImageForEmptyUri(R.drawable.invoice_preview_img)
+                .showImageOnFail(R.drawable.invoice_preview_img)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .displayer(new RoundedBitmapDisplayer(20)).build();
+
+        ImageLoader loder = ImageLoader.getInstance();
+
+        loder.init(ImageLoaderConfiguration.createDefault(context));
+
+        taxModelsList = new ArrayList<>();
+
+        if (!invoice_id.isEmpty()) {
+
+
+            //---------------Load data from local
+
+            String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                    + " From " + DatabaseHelper.Table_InvoicePreviewData + " WHERE " + DatabaseHelper.INVOICE_ID + " ='" + invoice_id + "'";
+            Cursor cursor = db.getRecords(selectQuery);
+
+
+            if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+
+                //totalItem = new ArrayList<>();
+                for (int i = 0; i < cursor.getCount(); i++) {
+
+                    try {
+
+                        JSONObject object = (new JSONObject
+                                (cursor.getString(cursor.getColumnIndex(db.JSON_DATA)))).getJSONObject("invoice");
+                        setData(object, "local");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+                isShowProcessing = false;
+
+
+            } else isShowProcessing = true;
+
+            JSONObject obj = null;
+            try {
+                obj = new JSONObject();
+
+                obj.put(Constant.KEY_METHOD, "getInvoice");
+                obj.put(Constant.KEY_INVOICE_ID, invoice_id);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            WebRequest request = new WebRequest(context, obj,
+                    Constant.invoicelistURL, Constant.SERVICE_TYPE.GET_DATA, Constant.token, this, isShowProcessing);
+            Home.progressBarHome.setVisibility(View.VISIBLE);
+            request.execute();
+        }
+
+
+        return view;
+
+    }
+
+    @Override
+    public void getWebResult(Constant.SERVICE_TYPE type, JSONObject result) {
+        Home.progressBarHome.setVisibility(View.GONE);
+        if (result == null)
+            return;
+        try {
+            if (!result.getString("code").equalsIgnoreCase("200")) {
+                if (result.has("message"))
+                    Toast.makeText(context, result.getString("message").toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        switch (type) {
+
+            case GET_DATA:
+                db.ClearTable(DatabaseHelper.Table_InvoicePreviewData);
+                values = new ContentValues();
+                values.put(DatabaseHelper.JSON_DATA, result.toString()); // Contact
+                values.put(DatabaseHelper.INVOICE_ID, invoice_id);
+                db.insert(DatabaseHelper.Table_InvoicePreviewData, values);
+
+
+                String selectQuery = "Select " + DatabaseHelper.JSON_DATA
+                        + " From " + DatabaseHelper.Table_InvoicePreviewData + " WHERE " + DatabaseHelper.INVOICE_ID + " ='" + invoice_id + "'";
+
+                Cursor cursor = db.getRecords(selectQuery);
+                taxModelsList = new ArrayList<>();
+
+                if (cursor.moveToFirst() && cursor.getCount() > 0) {
+
+
+                    //totalItem = new ArrayList<>();
+                    for (int i = 0; i < cursor.getCount(); i++) {
+
+                        try {
+
+                            JSONObject object = (new JSONObject
+                                    (cursor.getString(cursor.getColumnIndex(db.JSON_DATA)))).getJSONObject("invoice");
+                            setData(object, "get data from server");
+                            CreateEditInvoicePagerFragment fragment = (CreateEditInvoicePagerFragment) pagerAdapter.getItem(0);
+                            fragment.setDataForEditing(invoice_id);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+
+
+                }
+
+
+                break;
+
+
+        }
+
+    }
+
+    public void setData(JSONObject object, String from) {
+
+
+        {
+            if (clientNameTV == null)
+                return;
+
+            try {
+
+
+                // reset all
+
+                itemTable.setVisibility(View.VISIBLE);
+                amountDetailLinear.setVisibility(View.VISIBLE);
+                clientDetailLinear.setVisibility(View.VISIBLE);
+
+                taxModelsList = new ArrayList<>();
+
+                while (itemTable.getChildCount()>1){
+
+                    itemTable.removeViewAt(1);
+                }
+
+                //itemTable.removeAllViews();
+
+                clientNameTV.setText(object.getJSONObject("client").getString("client_name"));
+                clientAddTV.setText("Add :" + object.getJSONObject("client").getString("address"));
+                clientPhoneTV.setText("Ph :" + object.getJSONObject("client").getString("phone_number"));
+
+
+                senderNameTV.setText(object.getJSONObject("sender").getString("sender_name"));
+                senderAddressTV.setText(object.getJSONObject("sender").getString("address"));
+                senderPhoneTV.setText(object.getJSONObject("sender").getString("phone_number"));
+                dateTV.setText(MyDateFormat.GetDate(object.getString("date")));
+                invoiceNoTV.setText(object.getString("number"));
+
+
+                //      Log.e("Child count1 :",from+"--"+itemTable.getChildCount()+"");
+
+                for (int j = 0; j < object.getJSONObject("items").getJSONArray("item").length(); j++) {
+
+                    JSONObject itemObj = object.getJSONObject("items").getJSONArray("item").getJSONObject(j);
+
+                    Log.e("look list items#####", itemObj.toString());
+
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context
+                            .LAYOUT_INFLATER_SERVICE);
+                    View itemView = inflater.inflate(R.layout.item_table_row, null);
+
+
+                    TextView itemName = (TextView) itemView.findViewById(R.id.item_name);
+                    TextView itemDescription = (TextView) itemView.findViewById(R.id.item_description);
+                    TextView qtyAndUc = (TextView) itemView.findViewById(R.id.qty_uc);
+                    TextView descount = (TextView) itemView.findViewById(R.id.discount);
+                    TextView price = (TextView) itemView.findViewById(R.id.price);
+
+
+                    itemName.setText(itemObj.getString("name"));
+                    if (!itemObj.getString("total_discountValue").isEmpty())
+                        descount.setText(itemObj.getString("total_discountValue"));
+                    else
+                        descount.setText("0.0");
+
+                    price.setText(itemObj.getString("total_priceValue"));
+
+                    if (itemObj.getString("description").isEmpty())
+                        itemDescription.setVisibility(View.GONE);
+                    else
+                        itemDescription.setVisibility(View.VISIBLE);
+                    itemDescription.setText(itemObj.getString("description"));
+                    qtyAndUc.setText("QTY:" + itemObj.getString("quantity") + " UC:" + itemObj.getString("unit_cost"));
+
+                    itemTable.addView(itemView);
+
+
+                    if (!itemObj.getString("tax1_type").isEmpty()) {
+
+                        ItemTaxModel taxModel = new ItemTaxModel();
+                        taxModel.setName(itemObj.getString("tax1_name"));
+                        taxModel.setType(itemObj.getString("tax1_type"));
+                        taxModel.setValue(itemObj.getString("tax1_value"));
+                        taxModel.setPercentage(itemObj.getString("tax1_percent"));
+                        taxModelsList.add(taxModel);
+
+
+                    }
+
+
+                    if (!itemObj.getString("tax2_type").isEmpty()) {
+
+                        ItemTaxModel ItemTaxModel = new ItemTaxModel();
+                        ItemTaxModel.setName(itemObj.getString("tax2_name"));
+                        ItemTaxModel.setType(itemObj.getString("tax2_type"));
+                        ItemTaxModel.setValue(itemObj.getString("tax2_value"));
+                        ItemTaxModel.setPercentage(itemObj.getString("tax2_percent"));
+                        taxModelsList.add(ItemTaxModel);
+
+
+                    }
+
+
+                }
+
+                //    Log.e("Child count2 :",itemTable.getChildCount()+"");
+                subTotalTV.setText(object.getString("sub_total"));
+                taxLinear.setVisibility(View.GONE);
+/*
+                for (int k = 0; k < taxModelsList.size(); k++) {
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context
+                            .LAYOUT_INFLATER_SERVICE);
+                    View taxRow = inflater.inflate(R.layout.item_tax_row, null);
+                    TextView taxName = (TextView) taxRow.findViewById(R.id.taxName);
+
+                    TextView taxValue = (TextView) taxRow.findViewById(R.id.taxValue);
+
+
+                    taxName.setText(taxModelsList.get(k).getName());
+                    taxValue.setText(taxModelsList.get(k).getValue());
+                    taxLinear.addView(taxRow);
+
+
+                }*/
+
+                if (!object.getString("total_tax").isEmpty()) {
+                    taxLinear.setVisibility(View.VISIBLE);
+                    totalItemTaxTV.setText(object.getString("total_tax"));
+
+                }
+                invoiceTotalLinear.setVisibility(View.GONE);
+                if (!taxModelsList.isEmpty()) {
+
+
+                    invoiceTotalLinear.setVisibility(View.VISIBLE);
+                    InvoiceTotalTV.setText(object.getString("invoice_total"));
+
+                }
+
+                // set discount
+                discountLinear.setVisibility(View.GONE);
+                if (!object.getString("InvoiceWiseDiscountValue").isEmpty())
+                    if (Double.parseDouble(object.getString("InvoiceWiseDiscountValue").replaceAll(",", "")) > 0) {
+                        discountLinear.setVisibility(View.VISIBLE);
+
+                        discountTV.setText(object.getString("InvoiceWiseDiscountValue"));
+                        balanceAfterDiscountTV.setText(object.getString("after_discount_total"));
+
+                    }
+
+                additionalChargeLinear.setVisibility(View.GONE);
+                if (!object.getString("AdditionalChargeTotal").isEmpty()) {
+                    additionalChargeLinear.setVisibility(View.VISIBLE);
+                    totalAdditionalChargesTV.setText(object.getString("AdditionalChargeTotal"));
+
+          /*          for (int k = 0; k < object.getJSONObject("additional_charges").getJSONArray("charge").length(); k++)
+
+                    {
+
+                        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context
+                                .LAYOUT_INFLATER_SERVICE);
+                        View taxRow = inflater.inflate(R.layout.item_tax_row, null);
+                        TextView taxName = (TextView) taxRow.findViewById(R.id.taxName);
+
+                        TextView taxValue = (TextView) taxRow.findViewById(R.id.taxValue);
+
+
+                        taxName.setText(object.getJSONObject("additional_charges").getJSONArray("charge").getJSONObject(k).getString("name"));
+
+                        taxValue.setText(object.getJSONObject("additional_charges").getJSONArray("charge").getJSONObject(k).getString("amount"));
+                        taxLinear.addView(taxRow);
+
+                    }*/
+
+                }
+
+                totalInvoiceTaxLiner.setVisibility(View.GONE);
+                if (!object.getString("InvoiceTaxTotal").isEmpty()) {
+                    totalInvoiceTaxLiner.setVisibility(View.VISIBLE);
+                    totalInvoiceTaxTV.setText(object.getString("InvoiceTaxTotal"));
+                }
+
+
+                netBalanceTV.setText(object.getString("net_balance"));
+                outstandingTV.setText(object.getString("outstanding"));
+                amountPaidTV.setText(object.getString("total_paid"));
+
+
+                ImageLoader.getInstance().displayImage(Constant.ImageURL, logoImage, options, animateFirstListener);
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+
+    }
+
+    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+
+        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage != null) {
+                ImageView imageView = (ImageView) view;
+                boolean firstDisplay = !displayedImages.contains(imageUri);
+                if (firstDisplay) {
+                    FadeInBitmapDisplayer.animate(imageView, 500);
+                    displayedImages.add(imageUri);
+                }
+            }
+        }
+    }
+}

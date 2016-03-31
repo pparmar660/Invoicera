@@ -1,0 +1,144 @@
+package com.invoicera.androidapp;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+
+import com.viewpagerindicator.CirclePageIndicator;
+import com.viewpagerindicator.IconPagerAdapter;
+
+public class InvoiceraDescription extends FragmentActivity {
+
+	TestFragmentAdapter mAdapter;
+	ViewPager mPager;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		// TODO Auto-generated method stub
+		super.onCreate(arg0);
+
+		setContentView(R.layout.invoice_description);
+
+		mAdapter = new TestFragmentAdapter(getSupportFragmentManager());
+
+		mPager = (ViewPager) findViewById(R.id.invoicedescription_pager);
+		mPager.setAdapter(mAdapter);
+
+		CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.invoicedescription_indicator);
+		// mIndicator = indicator;
+		indicator.setViewPager(mPager);
+		indicator.setSnap(true);
+	}
+
+		static class TestFragmentAdapter extends FragmentPagerAdapter implements
+				IconPagerAdapter {
+			static String[] CONTENT = new String[] { "This", "Is", "A", "Test", };
+			int[] ICONS = new int[] { R.drawable.ic_launcher,
+					R.drawable.ic_launcher, R.drawable.ic_launcher,
+					R.drawable.ic_launcher };
+	
+			private int mCount = CONTENT.length;
+	
+			public TestFragmentAdapter(FragmentManager fm) {
+				super(fm);
+			}
+	
+			@Override
+			public Fragment getItem(int position) {
+				return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
+			}
+	
+			@Override
+			public int getCount() {
+				return mCount;
+			}
+	
+			@Override
+			public CharSequence getPageTitle(int position) {
+				return TestFragmentAdapter.CONTENT[position % CONTENT.length];
+			}
+	
+			@Override
+			public int getIconResId(int index) {
+				return ICONS[index % ICONS.length];
+			}
+	
+			public void setCount(int count) {
+				if (count > 0 && count <= 10) {
+					mCount = count;
+					notifyDataSetChanged();
+				}
+			}
+		}
+	
+		static class TestFragment extends Fragment {
+			String KEY_CONTENT = "TestFragment:Content";
+	
+			public static TestFragment newInstance(String content) {
+				TestFragment fragment = new TestFragment();
+	
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < 20; i++) {
+					builder.append(content).append(" ");
+				}
+				builder.deleteCharAt(builder.length() - 1);
+				fragment.mContent = builder.toString();
+	
+				return fragment;
+			}
+	
+			private String mContent = "???";
+	
+			@Override
+			public void onCreate(Bundle savedInstanceState) {
+				super.onCreate(savedInstanceState);
+	
+				if ((savedInstanceState != null)
+						&& savedInstanceState.containsKey(KEY_CONTENT)) {
+					mContent = savedInstanceState.getString(KEY_CONTENT);
+				}
+			}
+	
+			@Override
+			public View onCreateView(LayoutInflater inflater, ViewGroup container,
+					Bundle savedInstanceState) {
+				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+						LinearLayout.LayoutParams.MATCH_PARENT,
+						LinearLayout.LayoutParams.MATCH_PARENT);
+	
+				// margins and do lot of stuff here
+				ImageView imageView = new ImageView(getActivity()); // context is
+																	// the
+				// activity context
+				// say, this
+				imageView.setLayoutParams(lp);
+	
+				imageView.setBackgroundDrawable(getResources().getDrawable(
+						R.drawable.slide1));
+	
+				LinearLayout layout = new LinearLayout(getActivity());
+				layout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+						LayoutParams.FILL_PARENT));
+				layout.setGravity(Gravity.CENTER);
+				layout.addView(imageView);
+	
+				return layout;
+			}
+	
+			@Override
+			public void onSaveInstanceState(Bundle outState) {
+				super.onSaveInstanceState(outState);
+				outState.putString(KEY_CONTENT, mContent);
+			}
+		}
+}

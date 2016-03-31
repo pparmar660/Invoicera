@@ -1,0 +1,65 @@
+package com.invoicera.SpinnerAdpter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.invoicera.androidapp.R;
+
+import java.util.ArrayList;
+
+public class ProductServicesSpinerAdpter extends BaseAdapter {
+
+	ArrayList<String> list = new ArrayList<String>();
+	Context context;
+
+	public ProductServicesSpinerAdpter(Context context, ArrayList<String> list) {
+		this.context = context;
+		this.list = list;
+		
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return list.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getItemId(int position) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		// TODO Auto-generated method stub
+
+		if (convertView == null) {
+
+			LayoutInflater inflter = (LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			convertView = inflter.inflate(R.layout.spinner_row, parent, false);
+
+		}
+
+		TextView tv = (TextView) convertView.findViewById(R.id.spinnerText);
+		if (position == 0)
+			tv.setTextColor(context.getResources().getColor(R.color.lightgray02));
+		if(position<list.size())
+		tv.setText(list.get(position));
+
+		return convertView;
+	}
+
+}

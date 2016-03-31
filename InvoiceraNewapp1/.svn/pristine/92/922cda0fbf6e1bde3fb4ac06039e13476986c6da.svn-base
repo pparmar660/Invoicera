@@ -1,0 +1,312 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Manifest Merging:
+-----------------
+Your project uses libraries that provide manifests, and your Eclipse
+project did not explicitly turn on manifest merging. In Android Gradle
+projects, manifests are always merged (meaning that contents from your
+libraries' manifests will be merged into the app manifest. If you had
+manually copied contents from library manifests into your app manifest
+you may need to remove these for the app to build correctly.
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+From InvoiceraNewApp:
+* ic_launcher-web.png
+* proguard-project.txt
+From ParallaxScroll:
+* build.gradle
+* proguard-project.txt
+From library:
+* pom.xml
+From pulltorefresh-and-loadmore:
+* .gradle/
+* .gradle/2.3/
+* .gradle/2.3/taskArtifacts/
+* .gradle/2.3/taskArtifacts/cache.properties
+* .gradle/2.3/taskArtifacts/cache.properties.lock
+* .gradle/2.3/taskArtifacts/fileHashes.bin
+* .gradle/2.3/taskArtifacts/fileSnapshots.bin
+* .gradle/2.3/taskArtifacts/outputFileStates.bin
+* .gradle/2.3/taskArtifacts/taskArtifacts.bin
+* .idea/
+* .idea/.name
+* .idea/compiler.xml
+* .idea/copyright/
+* .idea/copyright/profiles_settings.xml
+* .idea/encodings.xml
+* .idea/gradle.xml
+* .idea/misc.xml
+* .idea/modules.xml
+* .idea/pulltorefresh-and-loadmore.iml
+* .idea/scopes/
+* .idea/scopes/scope_settings.xml
+* .idea/vcs.xml
+* .idea/workspace.xml
+* build.gradle
+* build/
+* build/generated/
+* build/generated/source/
+* build/generated/source/buildConfig/
+* build/generated/source/buildConfig/release/
+* build/generated/source/buildConfig/release/com/
+* build/generated/source/buildConfig/release/com/android/
+* build/generated/source/buildConfig/release/com/android/widget/
+* build/generated/source/buildConfig/release/com/android/widget/BuildConfig.java
+* build/generated/source/r/
+* build/generated/source/r/release/
+* build/generated/source/r/release/com/
+* build/generated/source/r/release/com/android/
+* build/generated/source/r/release/com/android/widget/
+* build/generated/source/r/release/com/android/widget/R.java
+* build/intermediates/
+* build/intermediates/bundles/
+* build/intermediates/bundles/release/
+* build/intermediates/bundles/release/.classpath
+* build/intermediates/bundles/release/.project
+* build/intermediates/bundles/release/.settings/
+* build/intermediates/bundles/release/.settings/org.eclipse.jdt.core.prefs
+* build/intermediates/bundles/release/AndroidManifest.xml
+* build/intermediates/bundles/release/R.txt
+* build/intermediates/bundles/release/aapt/
+* build/intermediates/bundles/release/aapt/.classpath
+* build/intermediates/bundles/release/aapt/.project
+* build/intermediates/bundles/release/aapt/.settings/
+* build/intermediates/bundles/release/aapt/.settings/org.eclipse.jdt.core.prefs
+* build/intermediates/bundles/release/aapt/AndroidManifest.xml
+* build/intermediates/bundles/release/aapt/bin/
+* build/intermediates/bundles/release/aapt/bin/AndroidManifest.xml
+* build/intermediates/bundles/release/aapt/bin/classes/
+* build/intermediates/bundles/release/aapt/bin/classes/com/
+* build/intermediates/bundles/release/aapt/bin/classes/com/android/
+* build/intermediates/bundles/release/aapt/bin/classes/com/android/widget/
+* build/intermediates/bundles/release/aapt/bin/classes/com/android/widget/BuildConfig.class
+* build/intermediates/bundles/release/aapt/bin/jarlist.cache
+* build/intermediates/bundles/release/aapt/gen/
+* build/intermediates/bundles/release/aapt/gen/com/
+* build/intermediates/bundles/release/aapt/gen/com/android/
+* build/intermediates/bundles/release/aapt/gen/com/android/widget/
+* build/intermediates/bundles/release/aapt/gen/com/android/widget/BuildConfig.java
+* build/intermediates/bundles/release/aapt/project.properties
+* build/intermediates/bundles/release/bin/
+* build/intermediates/bundles/release/bin/AndroidManifest.xml
+* build/intermediates/bundles/release/bin/classes/
+* build/intermediates/bundles/release/bin/classes/com/
+* build/intermediates/bundles/release/bin/classes/com/android/
+* build/intermediates/bundles/release/bin/classes/com/android/widget/
+* build/intermediates/bundles/release/bin/classes/com/android/widget/BuildConfig.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R$attr.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R$color.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R$drawable.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R$id.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R$layout.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R$string.class
+* build/intermediates/bundles/release/bin/classes/com/android/widget/R.class
+* build/intermediates/bundles/release/bin/jarlist.cache
+* build/intermediates/bundles/release/classes.jar
+* build/intermediates/bundles/release/gen/
+* build/intermediates/bundles/release/gen/com/
+* build/intermediates/bundles/release/gen/com/android/
+* build/intermediates/bundles/release/gen/com/android/widget/
+* build/intermediates/bundles/release/gen/com/android/widget/BuildConfig.java
+* build/intermediates/bundles/release/gen/com/android/widget/R.java
+* build/intermediates/bundles/release/project.properties
+* build/intermediates/bundles/release/res/
+* build/intermediates/bundles/release/res/drawable-hdpi-v4/
+* build/intermediates/bundles/release/res/drawable-hdpi-v4/ic_launcher.png
+* build/intermediates/bundles/release/res/drawable-hdpi-v4/ic_pulltorefresh_arrow.png
+* build/intermediates/bundles/release/res/drawable-ldpi-v4/
+* build/intermediates/bundles/release/res/drawable-ldpi-v4/ic_launcher.png
+* build/intermediates/bundles/release/res/drawable-ldpi-v4/ic_pulltorefresh_arrow.png
+* build/intermediates/bundles/release/res/drawable-mdpi-v4/
+* build/intermediates/bundles/release/res/drawable-mdpi-v4/ic_launcher.png
+* build/intermediates/bundles/release/res/drawable-mdpi-v4/ic_pulltorefresh_arrow.png
+* build/intermediates/bundles/release/res/drawable/
+* build/intermediates/bundles/release/res/drawable/costum_progress_bar.xml
+* build/intermediates/bundles/release/res/layout/
+* build/intermediates/bundles/release/res/layout/load_more_footer.xml
+* build/intermediates/bundles/release/res/layout/pull_to_refresh_header.xml
+* build/intermediates/bundles/release/res/values/
+* build/intermediates/bundles/release/res/values/values.xml
+* build/intermediates/classes/
+* build/intermediates/classes/release/
+* build/intermediates/classes/release/com/
+* build/intermediates/classes/release/com/android/
+* build/intermediates/classes/release/com/android/widget/
+* build/intermediates/classes/release/com/android/widget/BuildConfig.class
+* build/intermediates/classes/release/com/android/widget/R$attr.class
+* build/intermediates/classes/release/com/android/widget/R$color.class
+* build/intermediates/classes/release/com/android/widget/R$drawable.class
+* build/intermediates/classes/release/com/android/widget/R$id.class
+* build/intermediates/classes/release/com/android/widget/R$layout.class
+* build/intermediates/classes/release/com/android/widget/R$string.class
+* build/intermediates/classes/release/com/android/widget/R.class
+* build/intermediates/classes/release/com/costum/
+* build/intermediates/classes/release/com/costum/android/
+* build/intermediates/classes/release/com/costum/android/widget/
+* build/intermediates/classes/release/com/costum/android/widget/LoadMoreListView$OnLoadMoreListener.class
+* build/intermediates/classes/release/com/costum/android/widget/LoadMoreListView.class
+* build/intermediates/classes/release/com/costum/android/widget/PullAndLoadListView$OnLoadMoreListener.class
+* build/intermediates/classes/release/com/costum/android/widget/PullAndLoadListView.class
+* build/intermediates/classes/release/com/costum/android/widget/PullToRefreshListView$1.class
+* build/intermediates/classes/release/com/costum/android/widget/PullToRefreshListView$OnClickRefreshListener.class
+* build/intermediates/classes/release/com/costum/android/widget/PullToRefreshListView$OnRefreshListener.class
+* build/intermediates/classes/release/com/costum/android/widget/PullToRefreshListView.class
+* build/intermediates/incremental/
+* build/intermediates/incremental/aidl/
+* build/intermediates/incremental/aidl/release/
+* build/intermediates/incremental/aidl/release/dependency.store
+* build/intermediates/incremental/mergeAssets/
+* build/intermediates/incremental/mergeAssets/release/
+* build/intermediates/incremental/mergeAssets/release/merger.xml
+* build/intermediates/incremental/packageResources/
+* build/intermediates/incremental/packageResources/release/
+* build/intermediates/incremental/packageResources/release/merger.xml
+* build/ivy.xml
+* build/outputs/
+* build/outputs/aar/
+* build/outputs/aar/pulltorefresh-and-loadmore-release.aar
+* build/poms/
+* build/poms/pom-default.xml
+* build/publications/
+* build/publications/maven/
+* build/publications/maven/pom-default.xml
+* build/tmp/
+* build/tmp/packageReleaseJar/
+* build/tmp/packageReleaseJar/MANIFEST.MF
+* build/tmp/publishMavenPublicationToMavenRepository/
+* build/tmp/publishMavenPublicationToMavenRepository/com/
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/pullandloadmore-aar/
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/pullandloadmore-aar/1.0/
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.aar
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.pom
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/pullandloadmore-aar/maven-metadata-remote.xml
+* build/tmp/publishMavenPublicationToMavenRepository/com/costum/android/widget/pullandloadmore-aar/maven-metadata-remote.xml.sha1
+* gradle/
+* gradle/wrapper/
+* gradle/wrapper/gradle-wrapper.jar
+* gradle/wrapper/gradle-wrapper.properties
+* gradlew
+* gradlew.bat
+* maven-repo/
+* maven-repo/com/
+* maven-repo/com/costum/
+* maven-repo/com/costum/android/
+* maven-repo/com/costum/android/widget/
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.aar
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.aar.md5
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.aar.sha1
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.pom
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.pom.md5
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/1.0/pullandloadmore-aar-1.0.pom.sha1
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/maven-metadata.xml
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/maven-metadata.xml.md5
+* maven-repo/com/costum/android/widget/pullandloadmore-aar/maven-metadata.xml.sha1
+* proguard.cfg
+* repository/
+* repository/com/
+* repository/com/costum/
+* repository/com/costum/android/
+* repository/com/costum/android/widget/
+* repository/com/costum/android/widget/pullandloadmore/
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/pullandloadmore-1.0.0.aar
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/pullandloadmore-1.0.0.aar.md5
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/pullandloadmore-1.0.0.aar.sha1
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/pullandloadmore-1.0.0.pom
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/pullandloadmore-1.0.0.pom.md5
+* repository/com/costum/android/widget/pullandloadmore/1.0.0/pullandloadmore-1.0.0.pom.sha1
+* repository/com/costum/android/widget/pullandloadmore/maven-metadata.xml
+* repository/com/costum/android/widget/pullandloadmore/maven-metadata.xml.md5
+* repository/com/costum/android/widget/pullandloadmore/maven-metadata.xml.sha1
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/pulltorefresh-and-loadmore-release-1.0.0.aar
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/pulltorefresh-and-loadmore-release-1.0.0.aar.md5
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/pulltorefresh-and-loadmore-release-1.0.0.aar.sha1
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/pulltorefresh-and-loadmore-release-1.0.0.pom
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/pulltorefresh-and-loadmore-release-1.0.0.pom.md5
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/1.0.0/pulltorefresh-and-loadmore-release-1.0.0.pom.sha1
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/maven-metadata.xml
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/maven-metadata.xml.md5
+* repository/com/costum/android/widget/pulltorefresh-and-loadmore-release/maven-metadata.xml.sha1
+
+Replaced Jars with Dependencies:
+--------------------------------
+The importer recognized the following .jar files as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the .jar file in your project was of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the jar replacement in the import wizard and try again:
+
+android-support-v4.jar => com.android.support:support-v4:21.0.3
+android-support-v7-appcompat.jar => com.android.support:appcompat-v7:21.0.3
+
+Replaced Libraries with Dependencies:
+-------------------------------------
+The importer recognized the following library projects as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the source files in your project were of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the library replacement in the import wizard and try
+again:
+
+android-support-v7-appcompat => [com.android.support:appcompat-v7:21.0.3]
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+In ParallaxScroll:
+* AndroidManifest.xml => parallaxScroll/src/main/AndroidManifest.xml
+* assets/ => parallaxScroll/src/main/assets/
+* lint.xml => parallaxScroll/lint.xml
+* res/ => parallaxScroll/src/main/res/
+* src/ => parallaxScroll/src/main/java/
+In library:
+* AndroidManifest.xml => library/src/main/AndroidManifest.xml
+* assets/ => library/src/main/assets/
+* lint.xml => library/lint.xml
+* res/ => library/src/main/res/
+* src/ => library/src/main/java/
+In pulltorefresh-and-loadmore:
+* AndroidManifest.xml => pulltorefreshandloadmore/src/main/AndroidManifest.xml
+* assets/ => pulltorefreshandloadmore/src/main/assets/
+* res/ => pulltorefreshandloadmore/src/main/res/
+* src/ => pulltorefreshandloadmore/src/main/java/
+In InvoiceraNewApp:
+* AndroidManifest.xml => invoiceraNewApp/src/main/AndroidManifest.xml
+* assets/ => invoiceraNewApp/src/main/assets/
+* lint.xml => invoiceraNewApp/lint.xml
+* res/ => invoiceraNewApp/src/main/res/
+* src/ => invoiceraNewApp/src/main/java/
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

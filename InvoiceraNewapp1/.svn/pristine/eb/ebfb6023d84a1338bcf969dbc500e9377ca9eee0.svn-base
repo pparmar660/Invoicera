@@ -1,0 +1,80 @@
+package com.invoicera.ViewPagerAdpter;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+
+import java.util.ArrayList;
+
+public class GraphPagerAdpter extends FragmentStatePagerAdapter {
+
+	public ArrayList<Fragment> fragmentlist = new ArrayList<Fragment>();
+
+	String content[] = { "INVOICES", "ESTIMATES", "EXPENSES", "Recurring" };
+
+	public static int centerX = 100, centerY = 100, radiusOfOuter = 15,
+			radiusOfInner = 10, outerCircleStrok = 10, innertCricleStrork = 20,
+			innerCricleInterval = 10, inneCirclePhase = 2,
+			radiusOfCircleOnArc = 10, arcTextSize = 24, centerTextSize = 50,
+			hintCircleRadius = 8, hintCircleTextSize = 10, gabBetweenHint = 10;
+
+	public static float gapAngle = 10;
+
+	public GraphPagerAdpter(FragmentManager fragmentManager) {
+		super(fragmentManager);
+
+	}
+
+	public void add(Fragment fragment) {
+
+
+		fragmentlist.add(fragment);
+		notifyDataSetChanged();
+	}
+
+    public void clear(){
+        fragmentlist.clear();
+        notifyDataSetChanged();
+    }
+
+	// Returns total number of pages
+	@Override
+	public int getCount() {
+		return fragmentlist.size();
+
+	}
+
+	// Returns the fragment to display for that page
+	@Override
+	public Fragment getItem(int position) {
+		// switch (position) {
+
+		return fragmentlist.get(position);
+
+	}
+
+	// Returns the page title for the top indicator
+	@Override
+	public CharSequence getPageTitle(int position) {
+		return content[position];
+	}
+
+
+	@Override
+	public int getItemPosition(Object object) {
+
+		return POSITION_NONE;
+
+/*		Fragment fragment = (Fragment)object;
+
+		String title = fragment.get;
+		int position = titles.indexOf(title);
+
+		if (position >= 0) {
+			return position;
+		} else {
+			return POSITION_NONE;
+		}*/
+	}
+}

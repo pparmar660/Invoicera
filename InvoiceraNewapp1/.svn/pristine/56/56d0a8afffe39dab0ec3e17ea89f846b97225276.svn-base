@@ -1,0 +1,289 @@
+package com.invoicera.Database;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    public static final String TIME_KEY = "time_key";
+
+    private static final String DATABASE_NAME = "invoicera.db";
+    private static final int DATABASE_VERSION = 1;
+    public static String JSON_DATA = "json_data";
+    public static String TYPE = "type";
+    public static String INVOICE_ID = "invoice_id";
+    // list invoice table-------------------------------------------------------
+    public static String Table_InvoiceList = "listInvoice";
+    public static String Table_TaxList = "taxlist";
+    public static String Table_GraphData = "graphData";
+    public static String Table_InvoicePreviewData = "invoicePreviewData";
+
+    public static String Table_InvoiceCreateRequest = "invoiceCreateRequest";
+
+    public static String Table_InvoiceCreateSettings = "invoice_create_setting";
+
+    public static String Table_AdditionalCharges = "invoice_additional_charges";
+    public static String Table_LateFee = "invoice_late_fee";
+
+    public static String Table_ProductAndServices = "productAndServices";
+
+    public static String Table_PaymentGateways = "paymentGateways";
+
+
+    public static String PAGE_NO = "page_no";
+    public static String JSON_INVOICE_RECENT_LIST = "invoice_recent_list";
+    public static String JSON_INVOICE_DRAFT_LIST = "invoice_draft_list";
+    public static String JSON_INVOICE_SENT_LIST = "invoice_sent_list";
+    public static String JSON_INVOICE_PAID_LIST = "invoice_paid_list";
+    public static String JSON_INVOICE_OUTSTANDING_LIST = "invoice_outstanding_list";
+    public static String JSON_INVOICE_PARTIAL_PAID_LIST = "invoice_partial_paid_list";
+    public static String JSON_INVOICE_VIEWED_LIST = "invoice_viewed_list";
+
+    public static String TAble_ClientList = "client_list";
+
+
+    //------------------------Invoice List-------------------------------------------------------
+    private static final String CREATE_Table_invoiceList = "CREATE TABLE "
+            + Table_InvoiceList + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + JSON_INVOICE_RECENT_LIST + " TEXT," + JSON_INVOICE_DRAFT_LIST
+            + " TEXT," + JSON_INVOICE_SENT_LIST + " TEXT,"
+            + JSON_INVOICE_PAID_LIST + " TEXT," + JSON_INVOICE_OUTSTANDING_LIST
+            + " TEXT," + JSON_INVOICE_PARTIAL_PAID_LIST + " TEXT,"
+            + JSON_INVOICE_VIEWED_LIST + " TEXT," + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ---------------------------------------------------------------------
+
+    //______________Client List------------------------------------------------
+    private static final String CREATE_Table_ClientList = "CREATE TABLE "
+            + TAble_ClientList + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    //-------------------------------------------
+
+    // ----------------Invoice ,Expanse,Recurring and Estimate's  Graph Data-------------------------------------------
+    private static final String CREATE_Table_GraphData = "CREATE TABLE "
+            + Table_GraphData + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    //------------------------------------------------------------
+
+
+    // ----------------Invoice preview Data-------------------------------------------
+    private static final String CREATE_Table_InvoicePreview = "CREATE TABLE "
+            + Table_InvoicePreviewData + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT," + INVOICE_ID + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    //------------------------------------------------------------
+
+    //----------------------- Inovice creating setting-------------------------
+    private static final String CREATE_Table_InvoiceCreating = "CREATE TABLE "
+            + Table_InvoiceCreateSettings + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+
+    //----------------------- Additional charges  -------------------------
+    private static final String CREATE_Table_AdditionalCharges = "CREATE TABLE "
+            + Table_AdditionalCharges + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+    //----------------------- Late Fee  -------------------------
+    private static final String CREATE_Table_LateFee = "CREATE TABLE "
+            + Table_LateFee + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+
+    //----------------------- product and services Fee  -------------------------
+    private static final String CREATE_Table_productAndServices = "CREATE TABLE "
+            + Table_ProductAndServices + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+
+    //----------------------- tax list  -------------------------
+    private static final String CREATE_Table_taxlist = "CREATE TABLE "
+            + Table_TaxList + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+
+    //----------------------- paymentGateWay list  -------------------------
+    private static final String CREATE_Table_PaymentGateway = "CREATE TABLE "
+            + Table_PaymentGateways + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+
+    //----------------------- Invoice create request  -------------------------
+
+    private static final String CREATE_Table_InvoiceCreateRequest = "CREATE TABLE "
+            + Table_InvoiceCreateRequest + "(" + PAGE_NO
+            + " INTEGER PRIMARY KEY AUTOINCREMENT," + JSON_DATA + " TEXT,"
+            + TYPE + " TEXT,"
+            + TIME_KEY
+            + " TIMESTAMP DEFAULT (DATETIME('now','localtime')))";
+
+    // ------------------------------------------------------------------
+
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // System.out.println("Look :"+CREATE_Table_invoiceList);
+        db.execSQL(CREATE_Table_invoiceList);
+        db.execSQL(CREATE_Table_ClientList);
+        db.execSQL(CREATE_Table_GraphData);
+        db.execSQL(CREATE_Table_InvoicePreview);
+        db.execSQL(CREATE_Table_InvoiceCreating);
+        db.execSQL(CREATE_Table_AdditionalCharges);
+        db.execSQL(CREATE_Table_LateFee);
+        db.execSQL(CREATE_Table_productAndServices);
+        db.execSQL(CREATE_Table_taxlist);
+        db.execSQL(CREATE_Table_PaymentGateway);
+        db.execSQL(CREATE_Table_InvoiceCreateRequest);
+        // db.close();
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        Log.w(DatabaseHelper.class.getName(),
+                "Upgrading database from version " + oldVersion + " to "
+                        + newVersion + ", which will destroy all old data");
+
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_invoiceList);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_ClientList);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_GraphData);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_InvoicePreview);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_InvoiceCreating);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_AdditionalCharges);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_LateFee);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_productAndServices);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_taxlist);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_PaymentGateway);
+        db.execSQL("DROP TABLE IF EXISTS " + CREATE_Table_InvoiceCreateRequest);
+        onCreate(db);
+        // db.close();
+
+    }
+
+    public void insert(String tableName, ContentValues values) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            synchronized (db) {
+                db.insert(tableName, null, values);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+
+            if (db != null && db.isOpen()) {
+                db.close();
+                db = null;
+            }
+        }
+
+    }
+
+    public Cursor getRecords(String selectQuery) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        return cursor;
+
+    }
+
+    public void update(String tableName, ContentValues values, String key_name,
+                       String key_value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.update(tableName, values, key_name + " = ?",
+                new String[]{String.valueOf(key_value)});
+
+        db.close();
+    }
+
+    public void clearTableColumn(String tableName, ContentValues values) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.update(tableName, values, null, null);
+
+    }
+
+    public void ClearTable(String tableName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(tableName, null, null);
+        db.close();
+
+    }
+
+    public int countRow(String selectQuery) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        db.close();
+        return cnt;
+
+    }
+
+    public void removeAllTable() {
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(DatabaseHelper.Table_InvoiceList, null, null);
+        db.delete(DatabaseHelper.Table_TaxList, null, null);
+        db.delete(DatabaseHelper.Table_GraphData, null, null);
+        db.delete(DatabaseHelper.Table_InvoicePreviewData, null, null);
+        db.delete(DatabaseHelper.Table_InvoiceCreateRequest, null, null);
+        db.delete(DatabaseHelper.Table_InvoiceCreateSettings, null, null);
+
+        db.delete(DatabaseHelper.Table_AdditionalCharges, null, null);
+        db.delete(DatabaseHelper.Table_LateFee, null, null);
+        db.delete(DatabaseHelper.Table_ProductAndServices, null, null);
+        db.delete(DatabaseHelper.Table_PaymentGateways, null, null);
+
+        db.close();
+    }
+
+}

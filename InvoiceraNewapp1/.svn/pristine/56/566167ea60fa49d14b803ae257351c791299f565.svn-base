@@ -1,0 +1,287 @@
+package com.invoicera.ViewPagerFragment;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Spinner;
+
+import com.invoicera.Fragment.BaseFragment;
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+import com.invoicera.SpinnerAdpter.WalkThroughSpinerAdpter;
+import com.invoicera.Webservices.WebApiResult;
+import com.invoicera.Webservices.WebRequest;
+import com.invoicera.Webservices.WebRequest_;
+import com.invoicera.androidapp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class WalkthroufgPagerFragment extends BaseFragment implements
+		WebApiResult {
+	int pos;
+	ImageView image_frm_gallery;
+	String KEY_CONTENT = "TestFragment:Content";
+	static String FRAGMENT_POS = "fragment_pos";
+	SERVICE_TYPE type;
+	WebRequest_ request;
+	ArrayList<HashMap<String, String>> companyProfessionList;
+	ArrayList<HashMap<String, String>> countryList;
+	ArrayList<HashMap<String, String>> timeZoneList;
+	ArrayList<HashMap<String, String>> dateFormatList;
+	WalkThroughSpinerAdpter adpter;
+	Spinner compny_profession_Spiner;
+
+	void sendRequest() {
+		request = new WebRequest_(getActivity(), new JSONObject(), "ww.", type,
+				this);
+		request.execute();
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		try {
+			type = SERVICE_TYPE.GET_DATA;
+			getData();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	private void writeToFile(String data) {
+		try {
+			String path = getActivity().getExternalFilesDir(null)
+					.getAbsolutePath();
+			System.out.println(path);
+			File file = new File(path + "/my.txt");
+			FileOutputStream stream = new FileOutputStream(file);
+			try {
+				stream.write(data.getBytes());
+			} finally {
+				stream.close();
+			}
+		} catch (IOException e) {
+			Log.e("Exception", "File write failed: " + e.toString());
+		}
+	}
+
+	private void getData() throws JSONException {
+		// TODO Auto-generated method stub
+
+		JSONObject obj = new JSONObject();
+		obj.put(Constant.KEY_METHOD, Constant.WALKTHROUGH);
+
+		/*
+		 * WebRequest request = new WebRequest(context, obj,
+		 * Constant.forgotPasswordURL, type, this); request.execute();
+		 */
+		WebRequest request = new WebRequest(getActivity(), obj,
+				Constant.invoicelistURL, type, this, true);
+		request.execute();
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		pos = getArguments().getInt(FRAGMENT_POS);
+		System.out.println("Look :" + pos);
+		View view = null;
+		switch (pos) {
+		case 0:
+			view = inflater.inflate(R.layout.walkthrough_pager_1, container,
+					false);
+			image_frm_gallery = (ImageView) view.findViewById(R.id.upload);
+			image_frm_gallery.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					openGallery();
+				}
+			});
+			break;
+		case 1:
+			view = inflater.inflate(R.layout.walkthrough_pager_2, container,
+					false);
+
+			break;
+
+		case 2:
+			view = inflater.inflate(R.layout.walkthrough_pager_3, container,
+					false);
+			Spinner timeZoneSpiner = (Spinner) view
+					.findViewById(R.id.time_zone_customspinner);
+
+			compny_profession_Spiner = (Spinner) view
+					.findViewById(R.id.company_profession_customspinner);
+
+			// adpter = new WalkThroughSpinerAdpter(getActivity(),
+			// R.layout.spinner_row, companyProfessionList);
+			// compny_profession_Spiner.setAdapter(adpter);
+			/*
+			 * WalkThroughSpinerAdpter adapter = new WalkThroughSpinerAdpter(
+			 * getActivity(), R.layout.spinner_row, populateSpinnerModel());
+			 * timeZoneSpiner.setAdapter(adapter);
+			 * 
+			 * Spinner compny_profession_Spiner = (Spinner) view
+			 * .findViewById(R.id.company_profession_customspinner); adapter =
+			 * new WalkThroughSpinerAdpter(getActivity(), R.layout.spinner_row,
+			 * populateSpinnerModel());
+			 * compny_profession_Spiner.setAdapter(adapter);
+			 * 
+			 * Spinner DateFormat_Spiner = (Spinner) view
+			 * .findViewById(R.id.date_format_customspinner); adapter = new
+			 * WalkThroughSpinerAdpter(getActivity(), R.layout.spinner_row,
+			 * populateSpinnerModel()); DateFormat_Spiner.setAdapter(adapter);
+			 * 
+			 * Spinner FinacialYearAdpter = (Spinner) view
+			 * .findViewById(R.id.finacialyear_customspinner); adapter = new
+			 * WalkThroughSpinerAdpter(getActivity(), R.layout.spinner_row,
+			 * populateSpinnerModel()); FinacialYearAdpter.setAdapter(adapter);
+			 * 
+			 * Spinner FinacialYearAdpter2 = (Spinner) view
+			 * .findViewById(R.id.Currency_customspinner); adapter = new
+			 * WalkThroughSpinerAdpter(getActivity(), R.layout.spinner_row,
+			 * populateSpinnerModel()); FinacialYearAdpter2.setAdapter(adapter);
+			 */
+
+			/*
+			 * customSpinner .setOnItemSelectedListener(new
+			 * OnItemSelectedListener() {
+			 * 
+			 * @Override public void onItemSelected(AdapterView<?> parent, View
+			 * view, int position, long id) { // TODO Auto-generated method stub
+			 * 
+			 * // (TextView)parent.getChildAt(0)).setTextColor(Color.parseColor(
+			 * "#E3170D"));
+			 * 
+			 * ((TextView) parent.getChildAt(0))
+			 * .setTextColor(Color.parseColor("#E3170D"));
+			 * 
+			 * }
+			 * 
+			 * @Override public void onNothingSelected(AdapterView<?> parent) {
+			 * // TODO Auto-generated method stub
+			 * 
+			 * } });
+			 */
+
+			break;
+		case 3:
+			view = inflater.inflate(R.layout.walkthrough_pager_4, container,
+					false);
+			break;
+		default:
+			break;
+		}
+
+		return view;
+	}
+
+	// For Walkthrough 1
+	private void openGallery() {
+		if (Build.VERSION.SDK_INT < 19) {
+			Intent intent = new Intent();
+			intent.setType("image/*");
+			intent.setAction(Intent.ACTION_GET_CONTENT);
+			startActivityForResult(
+					Intent.createChooser(intent, "Select Picture"), 1);
+		} else {
+			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			intent.setType("image/*");
+			startActivityForResult(intent, 2);
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (data != null) {
+			switch (pos) {
+			case 0:
+				Uri selectedImageUri = data.getData();
+				image_frm_gallery.setImageURI(selectedImageUri);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void getWebResult(SERVICE_TYPE type, JSONObject result) {
+		// TODO Auto-generated method stub
+		switch (type) {
+		case GET_DATA:
+			try {
+				JSONObject walkthrough = result.getJSONObject("walkThrough");
+				companyProfessionList = new ArrayList<HashMap<String, String>>();
+				HashMap<String, String> map;
+
+				for (int i = 0; i < walkthrough.getJSONArray(
+						"CompanyProfession").length(); i++) {
+					map = new HashMap<String, String>();
+
+					map.put(Constant.KEY_NAME,
+							walkthrough.getJSONArray("CompanyProfession")
+									.getJSONObject(i)
+									.getString(Constant.KEY_COMPANY_TYPE));
+					companyProfessionList.add(map);
+				}
+				if (pos == 2) {
+					adpter = new WalkThroughSpinerAdpter(getActivity(),
+							R.layout.spinner_row, companyProfessionList);
+					compny_profession_Spiner.setAdapter(adpter);
+				}
+				// add at top
+				map = new HashMap<String, String>();
+				map.put(Constant.KEY_NAME, "Select company type");
+				companyProfessionList.add(0, map);
+
+				countryList = new ArrayList<HashMap<String, String>>();
+
+				for (int i = 0; i < walkthrough.getJSONArray("CountryList")
+						.length(); i++) {
+
+					map = new HashMap<String, String>();
+
+					map.put(Constant.KEY_ID,
+							walkthrough.getJSONArray("CountryList")
+									.getJSONObject(i)
+									.getString(Constant.KEY_COUNTRY_ID));
+					map.put(Constant.KEY_NAME,
+							walkthrough.getJSONArray("CountryList")
+									.getJSONObject(i)
+									.getString(Constant.KEY_COUNTRY_NAME));
+					countryList.add(map);
+
+				}
+
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
+
+		default:
+			break;
+		}
+
+	}
+}

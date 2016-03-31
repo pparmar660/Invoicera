@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/underline_background">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:src="@drawable/back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Filter By"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="10dp"
+                android:text="Clear"
+                android:textColor="#676767"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/apply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_gravity="center_vertical"
+                android:layout_margin="10dp"
+                android:background="@color/orange2"
+                android:paddingBottom="4dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="4dp"
+                android:text="Apply"
+                android:textColor="#fff"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#ECECEC"
+
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/amountFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/un_selected_filter_background">
+
+                <TextView
+                    android:id="@+id/amountStatus"
+                    android:layout_width="wrap_content"
+
+                    android:layout_height="wrap_content"
+
+                    android:layout_margin="10dp"
+                    android:drawablePadding="5dp"
+                    android:drawableTop="@drawable/status"
+                    android:text="Amount Status"
+
+                    android:textColor="#999999" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/amountRange"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/un_selected_filter_background">
+
+                <TextView
+                    android:id="@+id/amountRangeTv"
+                    android:layout_width="wrap_content"
+
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:drawablePadding="5dp"
+                    android:drawableTop="@drawable/status"
+                    android:text="Amount "
+
+                    android:textColor="#999999" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/clientframe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/un_selected_filter_background">
+
+                <TextView
+                    android:id="@+id/client"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:drawablePadding="5dp"
+                    android:drawableTop="@drawable/client"
+                    android:text="Client"
+
+                    android:textColor="#999999" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/activeframe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/un_selected_filter_background">
+
+                <TextView
+                    android:id="@+id/main_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:drawablePadding="5dp"
+                    android:drawableTop="@drawable/active"
+
+                    android:text="Active"
+
+                    android:textColor="#999999" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/dateframe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/un_selected_filter_background">
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:drawablePadding="5dp"
+                    android:drawableTop="@drawable/calender"
+                    android:text="Date"
+                    android:textColor="#999999" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/amount_st_liner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:padding="10dp"
+                    android:visibility="gone">
+
+
+                    <TextView
+                        android:id="@+id/amount_st_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Draft"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:visibility="gone" />
+
+                    <RadioGroup
+                        android:id="@+id/amount_st_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/amount_st_paid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:button="@null"
+                            android:checked="false"
+                            android:drawableLeft="@drawable/custom_radiobuton"
+                            android:drawablePadding="10dp"
+                            android:padding="10dp"
+                            android:text="Paid"
+                            android:textColor="#3E3E3E"
+                            android:textSize="15sp" />
+
+                        <RadioButton
+                            android:id="@+id/amount_st_invoiced"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:button="@null"
+                            android:checked="false"
+                            android:drawableLeft="@drawable/custom_radiobuton"
+                            android:drawablePadding="10dp"
+                            android:padding="10dp"
+                            android:text="Invoiced"
+                            android:textColor="#3E3E3E"
+                            android:textSize="15sp" />
+
+                        <RadioButton
+                            android:id="@+id/amount_st_unbilled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:button="@null"
+                            android:checked="false"
+                            android:drawableLeft="@drawable/custom_radiobuton"
+                            android:drawablePadding="10dp"
+                            android:padding="10dp"
+                            android:text="Unbilled"
+                            android:textColor="#3E3E3E"
+                            android:textSize="15sp" />
+
+
+                    </RadioGroup>
+
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <LinearLayout
+                android:id="@+id/client_list_liner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:padding="10dp">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RadioGroup
+                        android:id="@+id/clientRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="vertical">
+
+
+                    </RadioGroup>
+                </ScrollView>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/status_liner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:padding="10dp"
+                android:visibility="gone">
+
+
+                <RadioGroup
+                    android:id="@+id/st_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/active"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:checked="false"
+                        android:drawableLeft="@drawable/custom_radiobuton"
+                        android:drawablePadding="10dp"
+                        android:padding="10dp"
+                        android:text="Active"
+                        android:textColor="#3E3E3E"
+                        android:textSize="15sp" />
+
+                    <RadioButton
+                        android:id="@+id/archived"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:checked="false"
+                        android:drawableLeft="@drawable/custom_radiobuton"
+                        android:drawablePadding="10dp"
+                        android:padding="10dp"
+                        android:text="Archived"
+                        android:textColor="#3E3E3E"
+                        android:textSize="15sp" />
+
+                    <RadioButton
+                        android:id="@+id/deleted"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:checked="false"
+                        android:drawableLeft="@drawable/custom_radiobuton"
+                        android:drawablePadding="10dp"
+                        android:padding="10dp"
+                        android:text="Deleted"
+                        android:textColor="#3E3E3E"
+                        android:textSize="15sp" />
+                </RadioGroup>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/amount_liner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:visibility="gone">
+
+
+                <EditText
+                    android:id="@+id/amountFrom"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/box_background"
+                    android:drawablePadding="10dp"
+                    android:hint="Amount from "
+                    android:inputType="number"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="#999999"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+
+                <EditText
+                    android:id="@+id/amountTo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/box_background"
+                    android:drawablePadding="10dp"
+                    android:hint="Amount to "
+                    android:inputType="number"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="#999999"
+                    android:textCursorDrawable="@drawable/color_cursor" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/date_liner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:visibility="visible">
+
+
+                <TextView
+                    android:id="@+id/from"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/box_background"
+                    android:drawablePadding="10dp"
+                    android:drawableRight="@drawable/date_format"
+                    android:gravity="center"
+                    android:hint="Date"
+
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="#999999" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>
+
+
+

@@ -1,0 +1,131 @@
+package com.invoicera.Webservices;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+
+import com.invoicera.GlobalData.Constant;
+import com.invoicera.GlobalData.Constant.SERVICE_TYPE;
+import com.invoicera.androidapp.Global;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
+
+public class WebRequest_ extends AsyncTask<String, String, JSONObject> {
+
+	JSONObject data;
+	Global global;
+	String url;
+	Context context;
+	ProgressDialog prog;
+	JSONObject jObject = null;
+	WebApiResult webResultInterface;
+	SERVICE_TYPE type;
+
+	public WebRequest_(Context context, JSONObject data, String url, SERVICE_TYPE type, WebApiResult webResultInterface) {
+		// TODO Auto-generated constructor stub
+		this.context = context;
+		this.data = data;
+		this.url = url;
+		global = (Global) context.getApplicationContext();
+		this.type = type;
+		this.webResultInterface = webResultInterface;
+
+	}
+
+	@Override
+	protected void onPreExecute() {
+		super.onPreExecute();
+
+		prog = new ProgressDialog(context);
+		prog.setMessage("Loading..." + "\nPlease wait");
+		prog.setIndeterminate(false);
+		prog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		prog.setCancelable(false);
+		prog.show();
+	}
+
+	@Override
+	protected JSONObject doInBackground(String... params) {
+		
+		
+		/*JSONObject Jsondata=new JSONObject();
+		
+		try {
+			Jsondata.put("json_data", data);
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		*/
+		
+
+		String jsonString = data.toString();
+//		jsonString="[json_data] = "+jsonString;
+
+		HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams,Constant.TIMEOUT_MILLISEC);
+		HttpConnectionParams.setSoTimeout(httpParams, Constant.TIMEOUT_MILLISEC);
+		HttpClient client = new DefaultHttpClient(httpParams);
+
+		HttpPost request = new HttpPost(url);
+		
+		System.out.println("Data Sending :"+jsonString);
+		System.out.println("Url :"+url);
+
+		try {
+
+			StringEntity stringEntity = new StringEntity("json_data="+jsonString);
+			stringEntity.setContentEncoding("UTF-8");
+			//stringEntity.setContentType("application/json");
+
+			request.setEntity(stringEntity);
+			HttpResponse response = client.execute(request);
+			HttpEntity entity = response.getEntity();
+			String Serverresponse = EntityUtils.toString(entity);
+
+			jObject = new JSONObject(Serverresponse);
+			
+			
+			System.out.println("Request Get :"+ jObject);
+			return jObject;
+			// }
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			
+			System.out.println("Error: Request Get  :"+ jObject);
+
+			return jObject;
+
+		}
+
+	}
+
+	@Override
+	protected void onPostExecute(JSONObject result) {
+		// TODO Auto-generated method stub
+		super.onPostExecute(result);
+		try {
+			if (prog.isShowing()) {
+				prog.dismiss();
+				prog = null;
+			}
+			webResultInterface.getWebResult(type, result);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
+
+}
